@@ -4,23 +4,21 @@
 
 //#define SELECTEDCHANGED
 
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.Windows.Forms.ButtonInternal;
+using System.Windows.Forms.Layout;
+using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Design;
-    using System.Drawing.Imaging;
-    using System.Globalization;
-    using System.Windows.Forms.ButtonInternal;
-    using System.Windows.Forms.Layout;
-    using Collections.Generic;
-    using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
-
     /// <devdoc/>
     [System.ComponentModel.DesignTimeVisible(false)]
     [Designer("System.Windows.Forms.Design.ToolStripItemDesigner, " + AssemblyRef.SystemDesign)]
@@ -127,13 +125,11 @@ namespace System.Windows.Forms
         private static readonly int PropAccessibility = PropertyStore.CreateKey();
         private static readonly int PropAccessibleName = PropertyStore.CreateKey();
         private static readonly int PropAccessibleRole = PropertyStore.CreateKey();
-        private static readonly int PropAccessibleHelpProvider = PropertyStore.CreateKey();
 
         private static readonly int PropAccessibleDefaultActionDescription = PropertyStore.CreateKey();
         private static readonly int PropAccessibleDescription = PropertyStore.CreateKey();
         private static readonly int PropTextDirection = PropertyStore.CreateKey();
         private static readonly int PropMirroredImage = PropertyStore.CreateKey();
-
 
         private static readonly int PropBackgroundImage = PropertyStore.CreateKey();
         private static readonly int PropBackgroundImageLayout = PropertyStore.CreateKey();
@@ -4149,7 +4145,7 @@ namespace System.Windows.Forms
                     }
 
                     KeyboardToolTipStateMachine.Instance.NotifyAboutLostFocus(this);
-#if SELECTEDCHANGED                
+#if SELECTEDCHANGED
                     OnSelectedChanged(EventArgs.Empty);
 #endif
                 }
@@ -4830,23 +4826,18 @@ namespace System.Windows.Forms
     /// </summary>
     internal class ToolStripItemInternalLayout
     {
-
         private ToolStripItemLayoutOptions currentLayoutOptions;
         private readonly ToolStripItem ownerItem;
         private ButtonBaseAdapter.LayoutData layoutData;
         private const int BORDER_WIDTH = 2;
-        private const int BORDER_HEIGHT = 3;
         private readonly static Size INVALID_SIZE = new Size(int.MinValue, int.MinValue);
-
         private Size lastPreferredSize = INVALID_SIZE;
         private ToolStripLayoutData parentLayoutData = null;
-
 
         public ToolStripItemInternalLayout(ToolStripItem ownerItem)
         {
             this.ownerItem = ownerItem ?? throw new ArgumentNullException(nameof(ownerItem));
         }
-
 
         // the thing that we fetch properties off of -- this can be different than ownerItem - e.g. case of split button.
         protected virtual ToolStripItem Owner

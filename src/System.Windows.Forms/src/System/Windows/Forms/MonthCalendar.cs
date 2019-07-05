@@ -2,27 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Internal;
+using System.Windows.Forms.Layout;
+using Microsoft.Win32;
+using ArrayList = System.Collections.ArrayList;
 
 namespace System.Windows.Forms
 {
-    using System.Runtime.Serialization.Formatters;
-    using System.Runtime.InteropServices;
-
-    using System.Diagnostics;
-
-    using System;
-    using System.Globalization;
-
-    using System.Windows.Forms.Internal;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using ArrayList = System.Collections.ArrayList;
-
-    using System.Drawing;
-    using Microsoft.Win32;
-    using System.Windows.Forms.Layout;
-
     /// <summary>
     ///     This control is an encapsulateion of the Windows month calendar control.
     ///     A month calendar control implements a calendar-like user interface, that
@@ -72,8 +63,6 @@ namespace System.Windows.Forms
     ]
     public class MonthCalendar : Control
     {
-        const long DAYS_TO_1601 = 548229;
-        const long DAYS_TO_10000 = 3615900;
         static readonly Color DEFAULT_TITLE_BACK_COLOR = SystemColors.ActiveCaption;
         static readonly Color DEFAULT_TITLE_FORE_COLOR = SystemColors.ActiveCaptionText;
         static readonly Color DEFAULT_TRAILING_FORE_COLOR = SystemColors.GrayText;
@@ -92,9 +81,6 @@ namespace System.Windows.Forms
         private const Day DEFAULT_FIRST_DAY_OF_WEEK = Day.Default;
         private const int DEFAULT_MAX_SELECTION_COUNT = 7;
         private const int DEFAULT_SCROLL_CHANGE = 0;
-        private const int UNIQUE_DATE = 0;
-        private const int ANNUAL_DATE = 1;
-        private const int MONTHLY_DATE = 2;
 
         private static readonly Size DefaultSingleMonthSize = new Size(176, 153);
 
@@ -215,10 +201,6 @@ namespace System.Windows.Forms
             }
             set
             {
-                // 
-
-
-
                 annualArrayOfDates.Clear();
                 for (int i = 0; i < MONTHS_IN_YEAR; ++i)
                 {
@@ -326,10 +308,6 @@ namespace System.Windows.Forms
             }
             set
             {
-                // 
-
-
-
                 arrayOfDates.Clear();
                 if (value != null && value.Length > 0)
                 {

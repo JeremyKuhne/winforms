@@ -2,15 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
+using System.Drawing;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Windows.Forms.Internal;
-    using System.Drawing.Imaging;
-    using System.Windows.Forms.VisualStyles;
-
     /// <summary>
     ///    <para></para>
     /// </summary>
@@ -19,7 +15,6 @@ namespace System.Windows.Forms
         private const byte DATAGRIDVIEWROWHEADERCELL_iconMarginWidth = 3;      // 3 pixels of margin on the left and right of icons
         private const byte DATAGRIDVIEWROWHEADERCELL_iconMarginHeight = 2;     // 2 pixels of margin on the top and bottom of icons
         private const byte DATAGRIDVIEWROWHEADERCELL_contentMarginWidth = 3;   // 3 pixels of margin on the left and right of content
-        private const byte DATAGRIDVIEWROWHEADERCELL_contentMarginHeight = 3;  // 3 pixels of margin on the top and bottom of content
         private const byte DATAGRIDVIEWROWHEADERCELL_iconsWidth = 12;          // all icons are 12 pixels wide - make sure that is stays that way
         private const byte DATAGRIDVIEWROWHEADERCELL_iconsHeight = 11;         // all icons are 11 pixels tall - make sure that is stays that way
 
@@ -158,7 +153,6 @@ namespace System.Windows.Forms
             }
             return tff;
         }
-
 
         internal static Size GetPreferredRowHeaderSize(Graphics graphics,
                                                        string val,

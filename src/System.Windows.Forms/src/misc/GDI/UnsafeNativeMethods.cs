@@ -6,20 +6,9 @@ using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    static partial class IntUnsafeNativeMethods
+    internal static partial class IntUnsafeNativeMethods
     {
         [DllImport(ExternDll.User32, SetLastError = true, ExactSpelling = true, EntryPoint = "GetDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern IntPtr IntGetDC(HandleRef hWnd);
@@ -64,26 +53,6 @@ namespace System.Experimental.Gdi
             return IntReleaseDC(hWnd, hDC);
         }
 
-        [DllImport(ExternDll.Gdi32, SetLastError = true, EntryPoint = "CreateDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern IntPtr IntCreateDC(string lpszDriverName, string lpszDeviceName, string lpszOutput, HandleRef /*DEVMODE*/ lpInitData);
-
-        public static IntPtr CreateDC(string lpszDriverName, string lpszDeviceName, string lpszOutput, HandleRef /*DEVMODE*/ lpInitData)
-        {
-            IntPtr hdc = Interop.HandleCollector.Add(IntCreateDC(lpszDriverName, lpszDeviceName, lpszOutput, lpInitData), Interop.CommonHandles.HDC);
-            DbgUtil.AssertWin32(hdc != IntPtr.Zero, "CreateDC([driverName={0}], [deviceName={1}], [fileName={2}], [devMode={3}]) failed.", lpszDriverName, lpszDeviceName, lpszOutput, lpInitData.Handle);
-            return hdc;
-        }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, EntryPoint = "CreateIC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern IntPtr IntCreateIC(string lpszDriverName, string lpszDeviceName, string lpszOutput, HandleRef /*DEVMODE*/ lpInitData);
-
-        public static IntPtr CreateIC(string lpszDriverName, string lpszDeviceName, string lpszOutput, HandleRef /*DEVMODE*/ lpInitData)
-        {
-            IntPtr hdc = Interop.HandleCollector.Add(IntCreateIC(lpszDriverName, lpszDeviceName, lpszOutput, lpInitData), Interop.CommonHandles.HDC);
-            DbgUtil.AssertWin32(hdc != IntPtr.Zero, "CreateIC([driverName={0}], [deviceName={1}], [fileName={2}], [devMode={3}]) failed.", lpszDriverName, lpszDeviceName, lpszOutput, lpInitData.Handle);
-            return hdc;
-        }
-
         /// <summary>
         ///     CreateCompatibleDC requires to add a GDI handle instead of an HDC handle to avoid perf penalty in HandleCollector.
         ///     The hdc obtained from this method needs to be deleted with DeleteDC instead of DeleteHDC.
@@ -97,7 +66,6 @@ namespace System.Experimental.Gdi
             DbgUtil.AssertWin32(compatibleDc != IntPtr.Zero, "CreateCompatibleDC([hdc=0x{0:X8}]) failed", hDC.Handle);
             return compatibleDc;
         }
-
 
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "SaveDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern int IntSaveDC(HandleRef hDC);
@@ -133,19 +101,6 @@ namespace System.Experimental.Gdi
             DbgUtil.AssertWin32(retVal, "OffsetViewportOrgEx([hdc=0x{0:X8}], dx=[{1}], dy=[{2}], [out pPoint]) failed.", hDC.Handle, nXOffset, nYOffset);
             return retVal;
         }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "SetGraphicsMode", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int IntSetGraphicsMode(HandleRef hDC, int iMode);
-
-        public static int SetGraphicsMode(HandleRef hDC, int iMode)
-        {
-            iMode = IntSetGraphicsMode(hDC, iMode);
-            DbgUtil.AssertWin32(iMode != 0, "SetGraphicsMode([hdc=0x{0:X8}], [GM_ADVANCED]) failed.", hDC.Handle);
-            return iMode;
-        }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int GetGraphicsMode(HandleRef hDC);
 
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true)]
         public static extern int GetROP2(HandleRef hdc);
@@ -498,35 +453,6 @@ namespace System.Experimental.Gdi
         {
             bool retVal = IntAngleArc(hDC, x, y, radius, startAngle, endAngle);
             DbgUtil.AssertWin32(retVal, "AngleArc(hdc=[0x{0:X8}], ...) failed.", hDC.Handle);
-            return retVal;
-        }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "Arc", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern bool IntArc(
-            HandleRef hDC,
-            int nLeftRect,   // x-coord of rectangle's upper-left corner
-            int nTopRect,    // y-coord of rectangle's upper-left corner
-            int nRightRect,  // x-coord of rectangle's lower-right corner
-            int nBottomRect, // y-coord of rectangle's lower-right corner
-            int nXStartArc,  // x-coord of first radial ending point
-            int nYStartArc,  // y-coord of first radial ending point
-            int nXEndArc,    // x-coord of second radial ending point
-            int nYEndArc     // y-coord of second radial ending point
-            );
-        public static bool Arc(
-            HandleRef hDC,
-            int nLeftRect,   // x-coord of rectangle's upper-left corner
-            int nTopRect,    // y-coord of rectangle's upper-left corner
-            int nRightRect,  // x-coord of rectangle's lower-right corner
-            int nBottomRect, // y-coord of rectangle's lower-right corner
-            int nXStartArc,  // x-coord of first radial ending point
-            int nYStartArc,  // y-coord of first radial ending point
-            int nXEndArc,    // x-coord of second radial ending point
-            int nYEndArc     // y-coord of second radial ending point
-            )
-        {
-            bool retVal = IntArc(hDC, nLeftRect, nTopRect, nRightRect, nBottomRect, nXStartArc, nYStartArc, nXEndArc, nYEndArc);
-            DbgUtil.AssertWin32(retVal, "Arc(hdc=[0x{0:X8}], ...) failed.", hDC.Handle);
             return retVal;
         }
 

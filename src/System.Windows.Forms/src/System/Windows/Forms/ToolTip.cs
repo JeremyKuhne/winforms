@@ -2,26 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using Hashtable = System.Collections.Hashtable;
 
 namespace System.Windows.Forms
 {
-    using System.Runtime.Serialization.Formatters;
-    using System.Threading;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.Diagnostics;
-    using System;
-    using System.Windows.Forms;
-    using System.Windows.Forms.Design;
-    using Hashtable = System.Collections.Hashtable;
-    using System.Drawing;
-    using Microsoft.Win32;
-    using System.Text;
-    using System.Drawing.Design;
-    using System.Globalization;
-    using Collections.Generic;
-
     /// <summary>
     ///    <para>
     ///       Provides a small pop-up window containing a line of text
@@ -38,13 +28,11 @@ namespace System.Windows.Forms
     ]
     public class ToolTip : Component, IExtenderProvider
     {
-
         const int DEFAULT_DELAY = 500;
         const int RESHOW_RATIO = 5;
         const int AUTOPOP_RATIO = 10;
 
         const int XBALLOONOFFSET = 10;
-        const int YBALLOONOFFSET = 8;
 
         private const int TOP_LOCATION_INDEX = 0;
         private const int RIGHT_LOCATION_INDEX = 1;

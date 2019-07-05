@@ -2,20 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-
+using System.Collections;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Microsoft.Win32;
 
 namespace System.Windows.Forms
 {
-    using System.Threading;
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
-    using System.Collections;
-    using Microsoft.Win32;
-    using Internal;
-
     /// <summary>
     ///    <para>
     ///       Represents a display device or
@@ -24,24 +18,23 @@ namespace System.Windows.Forms
     /// </summary>
     public class Screen
     {
-
         readonly IntPtr hmonitor;
-        /// <summary>         
-        ///     Bounds of the screen         
-        /// </summary>         
+        /// <summary>
+        ///     Bounds of the screen
+        /// </summary>
         readonly Rectangle bounds;
-        /// <summary>         
-        ///     Available working area on the screen. This excludes taskbars and other         
-        ///     docked windows.         
-        /// </summary>         
+        /// <summary>
+        ///     Available working area on the screen. This excludes taskbars and other
+        ///     docked windows.
+        /// </summary>
         private Rectangle workingArea = Rectangle.Empty;
-        /// <summary>         
-        ///     Set to true if this screen is the primary monitor         
-        /// </summary>         
+        /// <summary>
+        ///     Set to true if this screen is the primary monitor
+        /// </summary>
         readonly bool primary;
-        /// <summary>         
-        ///     Device name associated with this monitor         
-        /// </summary>         
+        /// <summary>
+        ///     Device name associated with this monitor
+        /// </summary>
         readonly string deviceName;
 
         readonly int bitDepth;
@@ -58,8 +51,6 @@ namespace System.Windows.Forms
         //
         private const int PRIMARY_MONITOR = unchecked((int)0xBAADF00D);
 
-        private const int MONITOR_DEFAULTTONULL = 0x00000000;
-        private const int MONITOR_DEFAULTTOPRIMARY = 0x00000001;
         private const int MONITOR_DEFAULTTONEAREST = 0x00000002;
         private const int MONITORINFOF_PRIMARY = 0x00000001;
 

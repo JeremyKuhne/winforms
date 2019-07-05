@@ -2,34 +2,31 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.ComponentModel.Com2Interop;
+using System.Windows.Forms.Design;
+using System.Windows.Forms.PropertyGridInternal;
+using Microsoft.Win32;
+
 namespace System.Windows.Forms
 {
-
-    using System;
-    using System.Collections;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Design;
-    using System.Drawing.Imaging;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms.ComponentModel.Com2Interop;
-    using System.Windows.Forms.Design;
-    using System.Windows.Forms.PropertyGridInternal;
-    using Microsoft.Win32;
-
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDispatch)]
     [Designer("System.Windows.Forms.Design.PropertyGridDesigner, " + AssemblyRef.SystemDesign)]
     [SRDescription(nameof(SR.DescriptionPropertyGrid))]
     public class PropertyGrid : ContainerControl, IComPropertyBrowser, UnsafeNativeMethods.IPropertyNotifySink
     {
-
         private readonly DocComment doccomment;
         private int dcSizeRatio = -1;
         private int hcSizeRatio = -1;
@@ -71,7 +68,6 @@ namespace System.Windows.Forms
         // our main baby
         private readonly PropertyGridView gridView;
 
-
         private IDesignerHost designerHost;
         private IDesignerEventService designerEventService;
 
@@ -100,8 +96,6 @@ namespace System.Windows.Forms
         private int dividerMoveY = -1;
         private const int CYDIVIDER = 3;
         private static int cyDivider = CYDIVIDER;
-        private const int CXINDENT = 0;
-        private const int CYINDENT = 2;
         private const int MIN_GRID_HEIGHT = 20;
 
         private const int PROPERTIES = 0;

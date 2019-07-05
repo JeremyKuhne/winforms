@@ -2419,26 +2419,6 @@ namespace System.Windows.Forms.Design
         }
 
         /// <summary>
-        /// Returns true if the visible property should be persisted in code gen.
-        /// </summary>
-        private bool ShouldSerializeDoubleClickEnabled() => (bool)ShadowProperties["DoubleClickEnabled"];
-
-        /// <summary>
-        /// Returns true if the CheckOnClick property should be persisted in code gen.
-        /// </summary>
-        private bool ShouldSerializeCheckOnClick() => (bool)ShadowProperties["CheckOnClick"];
-
-        /// <summary>
-        /// Returns true if the CheckOnClick property should be persisted in code gen.
-        /// </summary>
-        private bool ShouldSerializeDropDown() => (customDropDown != null);
-
-        /// <summary>
-        /// Returns true if the visible property should be persisted in code gen.
-        /// </summary>
-        private bool ShouldSerializeVisible() => !Visible;
-
-        /// <summary>
         /// This Function is called thru the ToolStripEditorManager which is listening for the  F2 command.
         /// </summary>
         internal override void ShowEditNode(bool clicked)

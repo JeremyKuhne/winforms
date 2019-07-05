@@ -2,27 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-
-
-
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Collections;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.Configuration.Assemblies;
-    using Microsoft.Win32;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Design;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization.Formatters;
-    using System.Windows.Forms.Layout;
-    using System.Globalization;
-
     /// <summary>
     ///     The TabControl.  This control has a lot of the functionality of a TabStrip
     ///     but manages a list of TabPages which are the 'pages' that appear on each tab.
@@ -53,7 +44,6 @@ namespace System.Windows.Forms
         private Rectangle cachedDisplayRect = Rectangle.Empty;
         private bool currentlyScaling = false;
         private int selectedIndex = -1;
-        private Size cachedSize = Size.Empty;
         private string controlTipText = string.Empty;
         private bool handleInTable;
 
@@ -77,12 +67,10 @@ namespace System.Windows.Forms
         private const int TABCONTROLSTATE_UISelection = 0x00000020;
         private const int TABCONTROLSTATE_selectFirstControl = 0x00000040;
         private const int TABCONTROLSTATE_insertingItem = 0x00000080;
-        private const int TABCONTROLSTATE_autoSize = 0x00000100;
 
 
         // PERF: take all the bools and put them into a state variable
         private System.Collections.Specialized.BitVector32 tabControlState; // see TABCONTROLSTATE_ consts above
-
 
 
         /// <summary>

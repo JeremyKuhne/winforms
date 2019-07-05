@@ -830,11 +830,6 @@ namespace System.Windows.Forms
             countItemFormat = SR.BindingNavigatorCountItemFormat;
         }
 
-        private bool ShouldSerializeCountItemFormat()
-        {
-            return countItemFormat != SR.BindingNavigatorCountItemFormat;
-        }
-
         private void OnAddNewItemEnabledChanged(object sender, EventArgs e)
         {
             if (AddNewItem != null)

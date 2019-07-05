@@ -4,20 +4,16 @@
 
 #define GRAYSCALE_DISABLED
 
-
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Internal;
 
 namespace System.Windows.Forms
 {
-    using System.ComponentModel;
-
-    using System.Diagnostics;
-    using System;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-    using System.Drawing.Drawing2D;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms.Internal;
-
     /// <summary>
     ///      The ControlPaint class provides a series of methods that can be used to
     ///      paint common Windows UI pieces. Many windows forms controls use this class to paint
@@ -2763,63 +2759,6 @@ namespace System.Windows.Forms
             }
         }
 
-        /* Unused
-        // Takes a black and white image, and replaces those colors with the colors of your choice.
-        // The Alpha channel of the source bitmap will be ignored, meaning pixels with Color.Transparent
-        // (really transparent black) will be mapped to the replaceBlack color.
-        private static ColorMatrix RemapBlackAndWhiteAndTransparentMatrix(Color replaceBlack, Color replaceWhite) {
-            // Normalize the colors to 1.0.
-
-            float normBlackRed   = ((float)replaceBlack.R)/(float)255.0;
-            float normBlackGreen = ((float)replaceBlack.G)/(float)255.0;
-            float normBlackBlue  = ((float)replaceBlack.B)/(float)255.0;
-            float normBlackAlpha = ((float)replaceBlack.A)/(float)255.0;
-
-            float normWhiteRed   = ((float)replaceWhite.R)/(float)255.0;
-            float normWhiteGreen = ((float)replaceWhite.G)/(float)255.0;
-            float normWhiteBlue  = ((float)replaceWhite.B)/(float)255.0;
-            float normWhiteAlpha = ((float)replaceWhite.A)/(float)255.0;
-
-            // Set up a matrix that will map white to replaceWhite and 
-            // black and transparent black to replaceBlack.
-            //
-            //                | -B  -B  -B  -B   0 |
-            //                |   r   g   b   a    |
-            //                |                    |
-            //                |  W   W   W   W   0 |
-            //                |   r   g   b   a    |
-            //                |                    |
-            //  [ R G B A ] * |  0   0   0   0   0 | = [ R' G' B' A' ]
-            //                |                    |
-            //                |                    |
-            //                |  0   0   0   0   0 |
-            //                |                    |
-            //                |                    |
-            //                |  B   B   B   B   1 |
-            //                |   r   g   b   a    |
-
-            ColorMatrix matrix = new ColorMatrix();
-
-            matrix.Matrix00 = -normBlackRed;
-            matrix.Matrix01 = -normBlackGreen;
-            matrix.Matrix02 = -normBlackBlue;
-            matrix.Matrix03 = -normBlackAlpha;
-
-            matrix.Matrix10 =  normWhiteRed;
-            matrix.Matrix11 =  normWhiteGreen;
-            matrix.Matrix12 =  normWhiteBlue;
-            matrix.Matrix13 =  normWhiteAlpha;
-
-            matrix.Matrix40 =  normBlackRed;
-            matrix.Matrix41 =  normBlackGreen;
-            matrix.Matrix42 =  normBlackBlue;
-            matrix.Matrix43 =  normBlackAlpha;
-            matrix.Matrix44 =  1.0f;
-
-            return matrix;
-        }
-        */
-
         // Takes a black and white image, and replaces those colors with the colors of your choice.
         // The replaceBlack and replaceWhite colors must have alpha = 255, because the alpha value
         // of the bitmap is preserved.
@@ -2878,26 +2817,6 @@ namespace System.Windows.Forms
 
             return matrix;
         }
-
-        /* Unused
-        internal static StringAlignment TranslateAlignment(HorizontalAlignment align) {
-            StringAlignment result;
-            switch (align) {
-                case HorizontalAlignment.Right:
-                    result = StringAlignment.Far;
-                    break;
-                case HorizontalAlignment.Center:
-                    result = StringAlignment.Center;
-                    break;
-                case HorizontalAlignment.Left:
-                default:
-                    result = StringAlignment.Near;
-                    break;
-            }
-
-            return result;
-        }
-        */
 
         internal static TextFormatFlags TextFormatFlagsForAlignmentGDI(ContentAlignment align)
         {
@@ -2992,14 +2911,6 @@ namespace System.Windows.Forms
             return output;
         }
 
-        /* Unused
-        internal static StringFormat StringFormatForAlignment(HorizontalAlignment align) {
-            StringFormat output = new StringFormat();
-            output.Alignment = TranslateAlignment(align);
-            return output;
-        }
-        */
-
         /// <summary>
         ///     Get StringFormat object for rendering text using GDI+ (Graphics).
         /// </summary>
@@ -3090,7 +3001,6 @@ namespace System.Windows.Forms
         {
             private const int ShadowAdj = -333;
             private const int HilightAdj = 500;
-            private const int WatermarkAdj = -50;
 
             private const int Range = 240;
             private const int HLSMax = Range;

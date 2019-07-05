@@ -8,28 +8,15 @@ using System.Drawing.Text;
 using System.Runtime.InteropServices;
 using System.Globalization;
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
     /// <summary>
     ///     <para>
     ///         Encapsulates a GDI Font object.
     ///     </para>
     /// </summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class WindowsFont : MarshalByRefObject, ICloneable, IDisposable
+    internal sealed partial class WindowsFont : MarshalByRefObject, ICloneable, IDisposable
     {
-        const int LogFontNameOffset = 28;
-
         // Handle to the native Windows font object.
         // 
         private IntPtr hFont;
@@ -45,8 +32,6 @@ namespace System.Experimental.Gdi
         // Note: These defaults are according to the ones in GDI+ but those are not necessarily the same as the system
         // default font.  The GetSystemDefaultHFont() method should be used if needed.
         private const string defaultFaceName = "Microsoft Sans Serif";
-        private const float defaultFontSize = 8.25f;
-        private const int defaultFontHeight = 13;
 
 #if GDI_FINALIZATION_WATCH
        private string AllocationSite = DbgUtil.StackTrace;
@@ -55,8 +40,6 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     Creates the font handle.
         /// </summary>
-
-
         private void CreateFont()
         {
             Debug.Assert(hFont == IntPtr.Zero, "hFont is not null, this will generate a handle leak.");
@@ -91,42 +74,9 @@ namespace System.Experimental.Gdi
         /// Constructors.
 
         /// <summary>
-        ///     Contructor to construct font from a face name.
-        /// </summary>>
-
-
-        public WindowsFont(string faceName) :
-            this(faceName, defaultFontSize, FontStyle.Regular, IntNativeMethods.DEFAULT_CHARSET, WindowsFontQuality.Default)
-        {
-            // Default size in WinForms is 8.25f.  
-        }
-
-        /// <summary>
-        ///     Contructor to construct font from a face name, a desired size and with the specified style.
-        /// </summary>>
-
-
-        public WindowsFont(string faceName, float size) :
-            this(faceName, size, FontStyle.Regular, IntNativeMethods.DEFAULT_CHARSET, WindowsFontQuality.Default)
-        {
-        }
-
-        /// <summary>
-        ///     Contructor to construct font from a face name, a desired size and with the specified style.
-        /// </summary>>
-
-
-        public WindowsFont(string faceName, float size, FontStyle style) :
-            this(faceName, size, style, IntNativeMethods.DEFAULT_CHARSET, WindowsFontQuality.Default)
-        {
-        }
-
-        /// <summary>
         ///     Contructor to construct font from a face name, a desired size in points and with the specified style
         ///     and character set. The screen dc is used for calculating the font em height.
         /// </summary>>
-
-
         public WindowsFont(string faceName, float size, FontStyle style, byte charSet, WindowsFontQuality fontQuality)
         {
             Debug.Assert(size > 0.0f, "size has a negative value.");
@@ -168,8 +118,6 @@ namespace System.Experimental.Gdi
         ///     Pass false in the createHandle param to create a 'compatible' font (handle-less, to be used for measuring/comparing) or
         ///     when the handle has already been created.
         /// </summary>
-
-
         private WindowsFont(IntNativeMethods.LOGFONT lf, bool createHandle)
         {
             Debug.Assert(lf != null, "lf is null");
@@ -209,13 +157,10 @@ namespace System.Experimental.Gdi
         ///     Contructs a WindowsFont object from an existing System.Drawing.Font object (GDI+), based on the screen dc MapMode
         ///     and resolution (normally: MM_TEXT and 96 dpi).
         /// </summary>
-
-
         public static WindowsFont FromFont(Font font)
         {
             return FromFont(font, WindowsFontQuality.Default);
         }
-
 
         public static WindowsFont FromFont(Font font, WindowsFontQuality fontQuality)
         {
@@ -240,8 +185,6 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     Creates a WindowsFont from the font selected in the supplied dc.
         /// </summary>
-
-
         public static WindowsFont FromHdc(IntPtr hdc)
         {
             IntPtr hFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(null, hdc), IntNativeMethods.OBJ_FONT);
@@ -255,8 +198,6 @@ namespace System.Experimental.Gdi
         ///     Creates a WindowsFont from the handle to a native GDI font.  It does not take ownership of the 
         ///     passed-in handle, the caller needs to delete the hFont when done with the WindowsFont.
         /// </summary>
-
-
         public static WindowsFont FromHfont(IntPtr hFont)
         {
             return FromHfont(hFont, false);
@@ -266,8 +207,6 @@ namespace System.Experimental.Gdi
         ///     Creates a WindowsFont from the handle to a native GDI font and optionally takes ownership of managing
         ///     the lifetime of the handle. 
         /// </summary>
-
-
         public static WindowsFont FromHfont(IntPtr hFont, bool takeOwnership)
         {
             IntNativeMethods.LOGFONT lf = new IntNativeMethods.LOGFONT();
@@ -367,8 +306,6 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     Clones this object.
         /// </summary>
-
-
         public object Clone()
         {
             return new WindowsFont(logFont, true);
@@ -393,17 +330,6 @@ namespace System.Experimental.Gdi
                 //Assert removed. We need to be able to check for Hfont == IntPtr.Zero to determine if the object was disposed.
                 //Debug.Assert(this.hFont != IntPtr.Zero, "hFont is null, are you using a disposed object?");
                 return hFont;
-            }
-        }
-
-        /// <summary>
-        ///     Determines whether the font has the italic style or not.
-        /// </summary>
-        public bool Italic
-        {
-            get
-            {
-                return logFont.lfItalic == 1;
             }
         }
 
@@ -476,7 +402,7 @@ namespace System.Experimental.Gdi
         }
 
         /// <summary>
-        ///     Gets the font character set.  
+        ///     Gets the font character set.
         ///     This is used by the system font mapper when searching for the physical font that best matches the logical font.
         /// </summary>
         public byte CharSet

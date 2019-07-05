@@ -23,7 +23,6 @@ namespace System.Windows.Forms
         private HorizontalAlignment _alignment = HorizontalAlignment.Left;
         private PropertyDescriptor _propertyDescriptor = null;
         private DataGridTableStyle _dataGridTableStyle = null;
-        private readonly Font _font = null;
         private string _mappingName = string.Empty;
         private string _headerName = string.Empty;
         private bool _invalid = false;
@@ -239,11 +238,6 @@ namespace System.Windows.Forms
             get => DataGridTableStyle?.DataGrid?.FontHeight ?? DataGridTableStyle.defaultFontHeight;
         }
 
-        /// <summary>
-        /// Indicates whether the Font property should be persisted.
-        /// </summary>
-        private bool ShouldSerializeFont() => _font != null;
-
         public event EventHandler FontChanged
         {
             add { }
@@ -320,15 +314,6 @@ namespace System.Windows.Forms
         {
             add => Events.AddHandler(s_mappingNameEvent, value);
             remove => Events.RemoveHandler(s_mappingNameEvent, value);
-        }
-
-        /// <summary>
-        /// Indicates whether the System.Windows.Forms.DataGridColumnStyle.HeaderText property
-        /// should be persisted.
-        /// </summary>
-        private bool ShouldSerializeHeaderText()
-        {
-            return (_headerName.Length != 0);
         }
 
         /// <summary>
@@ -441,10 +426,6 @@ namespace System.Windows.Forms
         }
 
         internal virtual string GetDisplayText(object value) => value.ToString();
-
-        private void ResetNullText() => NullText = SR.DataGridNullText;
-
-        private bool ShouldSerializeNullText() => !SR.DataGridNullText.Equals(_nullText);
 
         /// <summary>
         /// When overridden in a derived class, gets the optimum width and height of the

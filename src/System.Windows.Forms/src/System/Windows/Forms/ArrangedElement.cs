@@ -2,25 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Windows.Forms.Layout;
+
 namespace System.Windows.Forms
 {
-
-
-
-    using System.Drawing;
-    using System.Windows.Forms.Layout;
-    using System.Collections.Specialized;
-    using System.Collections;
-    using System.ComponentModel;
-    using System.Diagnostics;
-
-
     internal abstract class ArrangedElement : Component, IArrangedElement
     {
-
-        /// <summary>
-        /// </summary>
-
         private Rectangle bounds = Rectangle.Empty;
         private IArrangedElement parent = null;
         private BitVector32 state = new BitVector32();
@@ -28,12 +19,6 @@ namespace System.Windows.Forms
         private readonly int suspendCount = 0;
 
         private static readonly int stateVisible = BitVector32.CreateMask();
-        private static readonly int stateDisposing = BitVector32.CreateMask(stateVisible);
-        private static readonly int stateLocked = BitVector32.CreateMask(stateDisposing);
-
-
-        private static readonly int PropControlsCollection = PropertyStore.CreateKey();
-        private readonly Control spacer = new Control();
 
         internal ArrangedElement()
         {
@@ -213,9 +198,7 @@ namespace System.Windows.Forms
                 OnBoundsChanged(oldBounds, bounds);
             }
         }
-
     }
-
 }
 
 

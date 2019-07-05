@@ -2,23 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
-    using System;
-
     [Flags]
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    enum WindowsPenStyle
+    internal enum WindowsPenStyle
     {
         Solid = 0,
         Dash = 1,       /* -------  */
@@ -74,5 +61,4 @@ namespace System.Experimental.Gdi
         //#define PS_GEOMETRIC        0x00010000
         //#define PS_TYPE_MASK        0x000F0000
     }
-
 }

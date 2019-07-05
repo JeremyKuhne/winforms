@@ -7,33 +7,18 @@
 #define GDI_FONT_CACHE_TRACK
 #endif
 
-#if DRAWING_DESIGN_NAMESPACE
-namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Threading;
-    using Microsoft.Win32;
-    using System.Runtime.Versioning;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 
+namespace System.Windows.Forms.Internal
+{
     /// <summary>
     ///     Keeps a cache of some graphics primitives.
     ///     Created to improve performance of TextRenderer.MeasureText methods that don't receive a WindowsGraphics.
     ///     This class mantains a cache of MRU WindowsFont objects in the process.
     /// </summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    class WindowsGraphicsCacheManager
+    internal class WindowsGraphicsCacheManager
     {
         // From MSDN: Do not specify initial values for fields marked with ThreadStaticAttribute, because such initialization occurs only once, 
         // when the class constructor executes, and therefore affects only one thread. 
@@ -48,13 +33,6 @@ namespace System.Experimental.Gdi
         private static int currentIndex;
         [ThreadStatic]
         private static List<KeyValuePair<Font, WindowsFont>> windowsFontCache;
-
-        /// <summary>
-        ///     Static constructor since this is a utility class.
-        /// </summary>
-        static WindowsGraphicsCacheManager()
-        {
-        }
 
         /// <summary>
         ///     Class is never instantiated, private constructor prevents the compiler from generating a default constructor.
@@ -88,8 +66,6 @@ namespace System.Experimental.Gdi
         /// </summary>
         public static WindowsGraphics MeasurementGraphics
         {
-
-
             get
             {
                 if (measurementGraphics == null || measurementGraphics.DeviceContext == null /*object disposed*/)
@@ -105,6 +81,7 @@ namespace System.Experimental.Gdi
                 return measurementGraphics;
             }
         }
+
 #if OPTIMIZED_MEASUREMENTDC
         // in some cases, we dont want to demand create MeasurementGraphics, as creating it has
         // re-entrant side effects.
@@ -114,20 +91,14 @@ namespace System.Experimental.Gdi
         }
 #endif
 
-
         /// <summary>
         ///     Get the cached WindowsFont associated with the specified font if one exists, otherwise create one and
         ///     add it to the cache.
         /// </summary>
-
-
         public static WindowsFont GetWindowsFont(Font font)
         {
             return GetWindowsFont(font, WindowsFontQuality.Default);
         }
-
-
-
 
         public static WindowsFont GetWindowsFont(Font font, WindowsFontQuality fontQuality)
         {
@@ -257,57 +228,5 @@ namespace System.Experimental.Gdi
             }
             return winFont;
         }
-
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-        /// The following methods are not needed in production code since the cached objects are meant to be reused and should not be explicitly disposed, 
-        /// left here for testing purposes.
-
-        /// <summary>
-        /// </summary>
-        public static void Reset()
-        {
-            ResetFontCache();
-            ResetMeasurementGraphics();
-        }
-
-        /// <summary>
-        ///     Dispose of all cached WindowsFont objects and reset the collection.
-        /// </summary>
-        public static void ResetFontCache()
-        {
-            if( WindowsFontCache.Count > 0 )
-            {
-                for(int index = 0; index < WindowsFontCache.Count; index++ )
-                {
-                    WindowsFontCache[index].Value.Dispose();
-                }
-
-                WindowsFontCache.Clear();
-                currentIndex = -1;
-
-#if GDI_FONT_CACHE_TRACK
-                Debug.WriteLine( "Font cache reset.  Count: " + WindowsFontCache.Count );
-#endif
-            }
-        }
-
-        /// <summary>
-        ///     Dispose of cached memory dc.
-        /// </summary>
-        public static void ResetMeasurementGraphics()
-        {
-            if( measurementGraphics != null )
-            {
-#if TRACK_HDC
-                //Debug.WriteLine( DbgUtil.StackTraceToStr(string.Format("Disposing measurement DC and WG for thread: [0x{0:x8}]", Thread.CurrentThread.ManagedThreadId)));
-                Debug.WriteLine( DbgUtil.StackTraceToStr("Disposing measurement DC and WG"));
-#endif
-                measurementGraphics.Dispose();
-                measurementGraphics = null;
-            }
-        }
-#endif
     }
-
 }

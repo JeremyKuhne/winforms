@@ -2,26 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Text;
 
 namespace System.Windows.Forms
 {
-    using System.Threading;
-    using System.Configuration.Assemblies;
-    using System.Runtime.InteropServices;
-    using System.Runtime.ConstrainedExecution;
-    using System.Runtime.CompilerServices;
-    using System.Reflection;
-    using System.Diagnostics;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Windows.Forms;
-    using System.ComponentModel;
-    using Microsoft.Win32;
-    using System.Text;
-    using System.Globalization;
-    using System.Runtime.Versioning;
+
 
     /// <summary>
     ///    <para>
@@ -51,10 +43,7 @@ namespace System.Windows.Forms
         };
 
         const int InitializedFlags = 0x01;
-        const int DebuggerPresent = 0x02;
         const int UseDebuggableWndProc = 0x04;
-        const int LoadConfigSettings = 0x08;
-        const int AssemblyIsDebuggable = 0x10;
 
         // do we have any active HWNDs? 
         //       

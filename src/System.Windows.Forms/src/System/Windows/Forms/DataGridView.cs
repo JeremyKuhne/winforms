@@ -2,26 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Layout;
+
 namespace System.Windows.Forms
 {
-    using System.Text;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Collections;
-    using System.Windows.Forms;
-    using System.Windows.Forms.Design;
-    using System.ComponentModel.Design;
-    using System.Drawing;
-    using System.Windows.Forms.ComponentModel;
-    using System.Windows.Forms.Layout;
-    using System.Globalization;
-    using System.Diagnostics;
-    using System.Windows.Forms.VisualStyles;
-    using Microsoft.Win32;
-    using System.Collections.Specialized;
-
     [
         ComVisible(true),
         ClassInterface(ClassInterfaceType.AutoDispatch),
@@ -396,8 +386,6 @@ namespace System.Windows.Forms
         private readonly DataGridViewToolTip toolTipControl;
         // the tool tip string we get from cells
         private string toolTipCaption = string.Empty;
-
-        private const int maxTTDISPINFOBufferLength = 80;
 
         // Last Mouse Click Info
         private MouseClickInfo lastMouseClickInfo;

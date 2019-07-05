@@ -2,30 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Reflection;
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms
-#elif DRAWING_NAMESPACE
-    namespace System.Drawing
-#elif WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    namespace System.Internal
-#elif SYSTEM_NAMESPACE
-    namespace System
-#else
-namespace System.Windows.Forms
-#endif
 {
-    using System;
-    using System.Collections;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Globalization;
-    using System.Reflection;
-
     // Miscellaneous utilities
     static internal class ClientUtils
     {
-
         private const int SurrogateRangeStart = 0xD800;
         private const int SurrogateRangeEnd = 0xDFFF;
 
@@ -64,9 +52,8 @@ namespace System.Windows.Forms
             return count;
         }
 
-
         // Sequential version
-        // assumes sequential enum members 0,1,2,3,4 -etc.            
+        // assumes sequential enum members 0,1,2,3,4 -etc.
         // 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public static bool IsEnumValid(Enum enumValue, int value, int minValue, int maxValue)
@@ -88,7 +75,7 @@ namespace System.Windows.Forms
         [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
         public static bool IsEnumValid(Enum enumValue, int value, int minValue, int maxValue, int maxNumberOfBitsOn)
         {
-            System.Diagnostics.Debug.Assert(maxNumberOfBitsOn >= 0 && maxNumberOfBitsOn < 32, "expect this to be greater than zero and less than 32");
+            Debug.Assert(maxNumberOfBitsOn >= 0 && maxNumberOfBitsOn < 32, "expect this to be greater than zero and less than 32");
 
             bool valid = (value >= minValue) && (value <= maxValue);
             //Note: if it's 0, it'll have no bits on.  If it's a power of 2, it'll have 1.
@@ -118,10 +105,6 @@ namespace System.Windows.Forms
             return valid;
         }
 
-
-
-
-
         // Useful for cases where you have discontiguous members of the enum.
         // Valid example: AutoComplete source.
         // if (!ClientUtils.IsEnumValid(value, AutoCompleteSource.None, 
@@ -135,10 +118,10 @@ namespace System.Windows.Forms
         //                                            AutoCompleteSource.RecentlyUsedList))
         //
         // PERF tip: put the default value in the enum towards the front of the argument list.
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public static bool IsEnumValid_NotSequential(System.Enum enumValue, int value, params int[] enumValues)
         {
-            System.Diagnostics.Debug.Assert(Enum.GetValues(enumValue.GetType()).Length == enumValues.Length, "Not all the enum members were passed in.");
+            Debug.Assert(Enum.GetValues(enumValue.GetType()).Length == enumValues.Length, "Not all the enum members were passed in.");
             for (int i = 0; i < enumValues.Length; i++)
             {
                 if (enumValues[i] == value)
@@ -223,7 +206,7 @@ namespace System.Windows.Forms
         [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         [SuppressMessage("Microsoft.Performance", "CA1808:AvoidCallsThatBoxValueTypes")]
-        private static void Debug_SequentialEnumIsDefinedCheck(System.Enum value, int minVal, int maxVal)
+        private static void Debug_SequentialEnumIsDefinedCheck(Enum value, int minVal, int maxVal)
         {
             Type t = value.GetType();
 
@@ -261,9 +244,7 @@ namespace System.Windows.Forms
                 // put string allocation in the IF block so the common case doesnt build up the string.
                 Debug.Fail("Maximum passed in is not the actual maximum for the enum.  Consider changing the parameters or using a different function.");
             }
-
         }
-
 
 
         [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
@@ -297,20 +278,20 @@ namespace System.Windows.Forms
                        foundValue = true;
                    }
                }
-               if (minVal != actualMinimum) {                
+               if (minVal != actualMinimum) {
                     // put string allocation in the IF block so the common case doesnt build up the string.
-                   System.Diagnostics.Debug.Fail( "Minimum passed in is not the actual minimum for the enum.  Consider changing the parameters or using a different function.");
+                   Debug.Fail( "Minimum passed in is not the actual minimum for the enum.  Consider changing the parameters or using a different function.");
                }
-               if (maxVal != actualMaximum) {                
+               if (maxVal != actualMaximum) {
                     // put string allocation in the IF block so the common case doesnt build up the string.
-                   System.Diagnostics.Debug.Fail("Maximum passed in is not the actual maximum for the enum.  Consider changing the parameters or using a different function.");
+                   Debug.Fail("Maximum passed in is not the actual maximum for the enum.  Consider changing the parameters or using a different function.");
                }
 
                if (maxBitsFound != maxBitsOn) {
-                   System.Diagnostics.Debug.Fail("Incorrect usage of IsEnumValid function. The bits set to 1 in this enum was found to be: " + maxBitsFound.ToString(CultureInfo.InvariantCulture) + "this does not match what's passed in: " + maxBitsOn.ToString(CultureInfo.InvariantCulture));
+                   Debug.Fail("Incorrect usage of IsEnumValid function. The bits set to 1 in this enum was found to be: " + maxBitsFound.ToString(CultureInfo.InvariantCulture) + "this does not match what's passed in: " + maxBitsOn.ToString(CultureInfo.InvariantCulture));
                }
                if (foundValue != isValid) {
-                    System.Diagnostics.Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Returning {0} but we actually {1} found the value in the enum! Consider using a different overload to IsValidEnum.", isValid, ((foundValue) ? "have" : "have not")));            
+                    Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Returning {0} but we actually {1} found the value in the enum! Consider using a different overload to IsValidEnum.", isValid, ((foundValue) ? "have" : "have not")));            
                }
 
            }
@@ -331,8 +312,8 @@ namespace System.Windows.Forms
         ///   to make sure dead refs are removed.
         ///   -----------------------------------------------------------------
         ///
-        /// </summary>        
-#if DRAWING_DESIGN_NAMESPACE || WINFORMS_PUBLIC_GRAPHICS_LIBRARY || DRAWING_NAMESPACE
+        /// </summary>
+#if DRAWING_DESIGN_NAMESPACE || DRAWING_NAMESPACE
         internal class WeakRefCollection : IList
         {
             private int refCheckThreshold = int.MaxValue; // this means this is disabled by default.

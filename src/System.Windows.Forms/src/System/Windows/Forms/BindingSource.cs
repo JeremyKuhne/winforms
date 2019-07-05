@@ -1264,9 +1264,6 @@ namespace System.Windows.Forms
             return list;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal virtual bool ShouldSerializeAllowNew() => _allowNewIsSet;
-
         /// <summary>
         /// Hooks property changed events for the NEW current item, if nececssary
         private void HookItemChangedEventsForNewCurrent()

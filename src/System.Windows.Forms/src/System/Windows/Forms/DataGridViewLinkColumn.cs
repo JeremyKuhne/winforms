@@ -2,15 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Drawing;
+using System.Globalization;
+using System.Text;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Text;
-    using System.Drawing;
-    using System.ComponentModel;
-    using System.Windows.Forms;
-    using System.Globalization;
-
     [ToolboxBitmapAttribute(typeof(DataGridViewLinkColumn), "DataGridViewLinkColumn")]
     public class DataGridViewLinkColumn : DataGridViewColumn
     {
@@ -57,16 +55,6 @@ namespace System.Windows.Forms
                     }
                 }
             }
-        }
-
-        private bool ShouldSerializeActiveLinkColor()
-        {
-            if (SystemInformation.HighContrast)
-            {
-                return !ActiveLinkColor.Equals(SystemColors.HotTrack);
-            }
-
-            return !ActiveLinkColor.Equals(LinkUtilities.IEActiveLinkColor);
         }
 
         [
@@ -162,16 +150,6 @@ namespace System.Windows.Forms
                     }
                 }
             }
-        }
-
-        private bool ShouldSerializeLinkColor()
-        {
-            if (SystemInformation.HighContrast)
-            {
-                return !LinkColor.Equals(SystemColors.HotTrack);
-            }
-
-            return !LinkColor.Equals(LinkUtilities.IELinkColor);
         }
 
         [
@@ -327,16 +305,6 @@ namespace System.Windows.Forms
                     }
                 }
             }
-        }
-
-        private bool ShouldSerializeVisitedLinkColor()
-        {
-            if (SystemInformation.HighContrast)
-            {
-                return !VisitedLinkColor.Equals(SystemColors.HotTrack);
-            }
-
-            return !VisitedLinkColor.Equals(LinkUtilities.IEVisitedLinkColor);
         }
 
         public override object Clone()

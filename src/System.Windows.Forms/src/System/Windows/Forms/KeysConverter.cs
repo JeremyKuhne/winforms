@@ -2,21 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Text;
 
 namespace System.Windows.Forms
 {
-    using System.Text;
-    using Microsoft.Win32;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Reflection;
-    using System.Diagnostics.CodeAnalysis;
-
     /// <summary>
     /// <para>Provides a type converter to convert <see cref='System.Windows.Forms.Keys'/> objects to and from various 
     ///    other representations.</para>
@@ -26,13 +21,6 @@ namespace System.Windows.Forms
         private IDictionary keyNames;
         private List<string> displayOrder;
         private StandardValuesCollection values;
-
-        private const Keys FirstDigit = System.Windows.Forms.Keys.D0;
-        private const Keys LastDigit = System.Windows.Forms.Keys.D9;
-        private const Keys FirstAscii = System.Windows.Forms.Keys.A;
-        private const Keys LastAscii = System.Windows.Forms.Keys.Z;
-        private const Keys FirstNumpadDigit = System.Windows.Forms.Keys.NumPad0;
-        private const Keys LastNumpadDigit = System.Windows.Forms.Keys.NumPad9;
 
         private void AddKey(string key, Keys value)
         {

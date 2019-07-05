@@ -2,41 +2,25 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms.Layout;
+using Microsoft.Win32;
+
 namespace System.Windows.Forms
 {
-    using Microsoft.Win32;
-    using System;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Design;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization.Formatters;
-    using System.Text;
-    using System.Windows.Forms.ComponentModel;
-    using System.Windows.Forms.Design;
-    using System.Windows.Forms.Layout;
-    using System.Runtime.Versioning;
-
     using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
     using Util = NativeMethods.Util;
-
-    //     
-
-
-
-
-
 
     /// <summary>
     ///     Rich Text control. The RichTextBox is a control that contains formatted text.
     ///     It supports font selection, boldface, and other type attributes.
     /// </summary>
-
     [ClassInterface(ClassInterfaceType.AutoDispatch),
      ComVisible(true),
      Docking(DockingBehavior.Ask),
@@ -61,12 +45,6 @@ namespace System.Windows.Forms
         /// <summary>
         ///     Paste special flags.
         /// </summary>
-        private const int DV_E_DVASPECT = unchecked((int)0x8004006B);
-        private const int DVASPECT_CONTENT = 1;
-        private const int DVASPECT_THUMBNAIL = 2;
-        private const int DVASPECT_ICON = 4;
-        private const int DVASPECT_DOCPRINT = 8;
-
         internal const int INPUT = 0x0001;
         internal const int OUTPUT = 0x0002;
         internal const int DIRECTIONMASK = INPUT | OUTPUT;

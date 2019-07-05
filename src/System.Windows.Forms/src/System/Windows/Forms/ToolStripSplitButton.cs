@@ -2,20 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Windows.Forms.Design;
+using System.Windows.Forms.Layout;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
-    using System.Drawing.Imaging;
-    using System.ComponentModel;
-    using System.Windows.Forms.Design;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Globalization;
-    using System.Diagnostics;
-    using System.Windows.Forms.Layout;
-    using System.Runtime.Versioning;
-
     /// <devdoc/>
     [
     ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.ToolStrip | ToolStripItemDesignerAvailability.StatusStrip),
@@ -23,7 +18,6 @@ namespace System.Windows.Forms
     ]
     public class ToolStripSplitButton : ToolStripDropDownItem
     {
-
         private ToolStripItem defaultItem = null;
         private ToolStripSplitButtonButton splitButtonButton = null;
         private Rectangle dropDownButtonBounds = Rectangle.Empty;
@@ -39,8 +33,6 @@ namespace System.Windows.Forms
         private static readonly object EventDefaultItemChanged = new object();
         private static readonly object EventButtonClick = new object();
         private static readonly object EventButtonDoubleClick = new object();
-        private static readonly object EventDropDownOpened = new object();
-        private static readonly object EventDropDownClosed = new object();
 
         private static bool isScalingInitialized = false;
         private static int scaledDropDownButtonWidth = DEFAULT_DROPDOWN_WIDTH;
@@ -52,18 +44,22 @@ namespace System.Windows.Forms
         {
             Initialize(); // all additional work should be done in Initialize
         }
+
         public ToolStripSplitButton(string text) : base(text, null, (EventHandler)null)
         {
             Initialize();
         }
+
         public ToolStripSplitButton(Image image) : base(null, image, (EventHandler)null)
         {
             Initialize();
         }
+
         public ToolStripSplitButton(string text, Image image) : base(text, image, (EventHandler)null)
         {
             Initialize();
         }
+
         public ToolStripSplitButton(string text, Image image, EventHandler onClick) : base(text, image, onClick)
         {
             Initialize();

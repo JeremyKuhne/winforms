@@ -1280,11 +1280,6 @@ namespace System.Windows.Forms
             }
         }
 
-        private bool ShouldSerializeImage()
-        {
-            return image != null;
-        }
-
         private void UpdateOwnerDraw()
         {
             if (OwnerDraw != GetStyle(ControlStyles.UserPaint))
@@ -1343,7 +1338,6 @@ namespace System.Windows.Forms
                 {
                     return false;
                 }
-
             }
             set
             {
@@ -1359,13 +1353,6 @@ namespace System.Windows.Forms
             enableVisualStyleBackground = true;
             Invalidate();
         }
-
-        private bool ShouldSerializeUseVisualStyleBackColor()
-        {
-            return isEnableVisualStyleBackgroundSet;
-        }
-
-
 
         protected override void WndProc(ref Message m)
         {

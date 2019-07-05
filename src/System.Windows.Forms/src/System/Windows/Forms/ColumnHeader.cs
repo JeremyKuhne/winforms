@@ -2,21 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Design;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
-
-    using Microsoft.Win32;
-    using System;
-    using System.ComponentModel;
-    using System.Drawing.Design;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.IO;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
-    using System.Globalization;
-
     /// <summary>
     ///    <para>
     ///       Displays a single column header in a <see cref='System.Windows.Forms.ListView'/>
@@ -32,7 +24,6 @@ namespace System.Windows.Forms
     ]
     public class ColumnHeader : Component, ICloneable
     {
-
         // disable csharp compiler warning #0414: field assigned unused value
 #pragma warning disable 0414
         internal int index = -1;
@@ -535,21 +526,6 @@ namespace System.Windows.Forms
             {
                 UnsafeNativeMethods.SendMessage(new HandleRef(listview, listview.Handle), NativeMethods.LVM_SETCOLUMNORDERARRAY, cols.Length, cols);
             }
-        }
-
-        private bool ShouldSerializeName()
-        {
-            return !string.IsNullOrEmpty(name);
-        }
-
-        private bool ShouldSerializeDisplayIndex()
-        {
-            return DisplayIndex != Index;
-        }
-
-        internal bool ShouldSerializeText()
-        {
-            return (text != null);
         }
 
         /// <summary>

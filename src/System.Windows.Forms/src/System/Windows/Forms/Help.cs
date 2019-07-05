@@ -2,20 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+
 namespace System.Windows.Forms
 {
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System;
-    using System.Net;
-    using System.Drawing;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Text;
-    using Microsoft.Win32;
-    using System.Globalization;
-
     /// <summary>
     ///    <para>
     ///       Represents the HTML 1.0 Help engine.
@@ -23,40 +19,20 @@ namespace System.Windows.Forms
     /// </summary>
     public class Help
     {
-#if DEBUG        
+#if DEBUG
         internal static readonly TraceSwitch WindowsFormsHelpTrace = new TraceSwitch("WindowsFormsHelpTrace", "Debug help system");
 #else
         internal static readonly TraceSwitch WindowsFormsHelpTrace;
 #endif
 
         private const int HH_DISPLAY_TOPIC = 0x0000;
-        private const int HH_HELP_FINDER = 0x0000;  // WinHelp equivalent
         private const int HH_DISPLAY_TOC = 0x0001;  // not currently implemented
         private const int HH_DISPLAY_INDEX = 0x0002;  // not currently implemented
         private const int HH_DISPLAY_SEARCH = 0x0003;  // not currently implemented
-        private const int HH_SET_WIN_TYPE = 0x0004;
-        private const int HH_GET_WIN_TYPE = 0x0005;
-        private const int HH_GET_WIN_HANDLE = 0x0006;
-        private const int HH_ENUM_INFO_TYPE = 0x0007;  // Get Info type name, call repeatedly to enumerate, -1 at end
-        private const int HH_SET_INFO_TYPE = 0x0008;  // Add Info type to filter.
-        private const int HH_SYNC = 0x0009;
-        private const int HH_ADD_NAV_UI = 0x000A;  // not currently implemented
-        private const int HH_ADD_BUTTON = 0x000B;  // not currently implemented
-        private const int HH_GETBROWSER_APP = 0x000C;  // not currently implemented
         private const int HH_KEYWORD_LOOKUP = 0x000D;
         private const int HH_DISPLAY_TEXT_POPUP = 0x000E;  // display string resource id or text in a popup window
         private const int HH_HELP_CONTEXT = 0x000F;  // display mapped numeric value in dwData
-        private const int HH_TP_HELP_CONTEXTMENU = 0x0010;  // text popup help, same as WinHelp HELP_CONTEXTMENU
-        private const int HH_TP_HELP_WM_HELP = 0x0011;  // text popup help, same as WinHelp HELP_WM_HELP
-        private const int HH_CLOSE_ALL = 0x0012;  // close all windows opened directly or indirectly by the caller
         private const int HH_ALINK_LOOKUP = 0x0013;  // ALink version of HH_KEYWORD_LOOKUP
-        private const int HH_GET_LAST_ERROR = 0x0014;  // not currently implemented // See HHERROR.h
-        private const int HH_ENUM_CATEGORY = 0x0015;   // Get category name, call repeatedly to enumerate, -1 at end
-        private const int HH_ENUM_CATEGORY_IT = 0x0016;  // Get category info type members, call repeatedly to enumerate, -1 at end
-        private const int HH_RESET_IT_FILTER = 0x0017;  // Clear the info type filter of all info types.
-        private const int HH_SET_INCLUSIVE_FILTER = 0x0018;  // set inclusive filtering method for untyped topics to be included in display
-        private const int HH_SET_EXCLUSIVE_FILTER = 0x0019;  // set exclusive filtering method for untyped topics to be excluded from display
-        private const int HH_SET_GUID = 0x001A;  // For Microsoft Installer -- dwData is a pointer to the GUID string
 
         private const int HTML10HELP = 2;
         private const int HTMLFILE = 3;

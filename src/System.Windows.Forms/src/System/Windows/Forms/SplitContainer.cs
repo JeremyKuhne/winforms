@@ -2,22 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
-
-    using Microsoft.Win32;
-    using System;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
-    using System.Collections;
-    using System.Drawing.Drawing2D;
-    using System.Globalization;
-
     /// <summary>
     ///    A SplitContainer is a ContainerControl with 2 panels separated with a splitter
     ///    in the middle. This is a composite control. The user can drag and drop this control from Toolbox.
@@ -36,18 +29,13 @@ namespace System.Windows.Forms
     ]
     public class SplitContainer : ContainerControl, ISupportInitialize
     {
-
         //
         // CONTANTS USED DURING DRAWING SPLITTER MOOVEMENTS
         //
         private const int DRAW_START = 1;
         private const int DRAW_MOVE = 2;
         private const int DRAW_END = 3;
-        private const int rightBorder = 5;
-        private const int leftBorder = 2;
-
         private int BORDERSIZE = 0;
-
 
         //
         // SplitContainer private Cached copies of public properties...

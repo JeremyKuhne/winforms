@@ -2,30 +2,21 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Layout;
+using System.Windows.Forms.VisualStyles;
+
 namespace System.Windows.Forms
 {
-    using Microsoft.Win32;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.ComponentModel.Design.Serialization;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Windows.Forms.Internal;
-    using System.Globalization;
-    using System.Net;
-    using System.Reflection;
-    using System.Runtime.Serialization.Formatters;
-    using System.Runtime.InteropServices;
-    using System.Threading;
-    using System.Windows.Forms.Design;
-    using System.Windows.Forms.Layout;
-    using System.Windows.Forms.VisualStyles;
-
     /// <summary>
     ///    <para>Represents a window or dialog box that makes up an application's user interface.</para>
     /// </summary>
@@ -42,9 +33,6 @@ namespace System.Windows.Forms
     ]
     public class Form : ContainerControl
     {
-#if DEBUG
-        static readonly BooleanSwitch AlwaysRestrictWindows = new BooleanSwitch("AlwaysRestrictWindows", "Always make Form classes behave as though they are restricted");
-#endif
         private static readonly object EVENT_ACTIVATED = new object();
         private static readonly object EVENT_CLOSING = new object();
         private static readonly object EVENT_CLOSED = new object();

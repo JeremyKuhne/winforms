@@ -5,31 +5,16 @@
 // THIS PARTIAL CLASS CONTAINS THE BASE METHODS FOR DRAWING WITH A WINDOWSGRAPHICS.
 // (Compiled in System.Windows.Forms but not in System.Drawing).
 
-#if DRAWING_DESIGN_NAMESPACE
-namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
-{
-    using System;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Drawing.Drawing2D;
-    using System.Windows.Forms;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
+namespace System.Windows.Forms.Internal
+{
     /// <summary>
     ///     See notes on WindowsGraphics.cs file.
     ///</summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class WindowsGraphics : MarshalByRefObject, IDisposable, IDeviceContext
+    internal sealed partial class WindowsGraphics : MarshalByRefObject, IDisposable, IDeviceContext
     {
         // Flag used by TextRenderer to clear the TextRenderer specific flags.
         public const int GdiUnsupportedFlagMask = (unchecked((int)0xFF000000));
@@ -67,34 +52,6 @@ namespace System.Experimental.Gdi
 
         /// Drawing methods.
 
-        /// <summary>
-        /// </summary>
-        public void DrawPie(WindowsPen pen, Rectangle bounds, float startAngle, float sweepAngle)
-        {
-            HandleRef hdc = new HandleRef(dc, dc.Hdc);
-
-            if (pen != null)
-            {
-                // 1. Select the pen in the DC
-                IntUnsafeNativeMethods.SelectObject(hdc, new HandleRef(pen, pen.HPen));
-            }
-
-            // 2. call the functions
-            // we first draw a path that goes : 
-            // from center of pie, draw arc (this draw the line to the beginning of the arc
-            // then, draw the closing line.
-            // paint the path with the pen
-            int sideLength = Math.Min(bounds.Width, bounds.Height);
-            Point p = new Point(bounds.X + sideLength / 2, bounds.Y + sideLength / 2);
-            int radius = sideLength / 2;
-            IntUnsafeNativeMethods.BeginPath(hdc);
-            IntUnsafeNativeMethods.MoveToEx(hdc, p.X, p.Y, null);
-            IntUnsafeNativeMethods.AngleArc(hdc, p.X, p.Y, radius, startAngle, sweepAngle);
-            IntUnsafeNativeMethods.LineTo(hdc, p.X, p.Y);
-            IntUnsafeNativeMethods.EndPath(hdc);
-            IntUnsafeNativeMethods.StrokePath(hdc);
-        }
-
         private void DrawEllipse(WindowsPen pen, WindowsBrush brush,
             int nLeftRect,  // x-coord of upper-left corner of rectangle
             int nTopRect,   // y-coord of upper-left corner of rectangle
@@ -122,7 +79,6 @@ namespace System.Experimental.Gdi
         {
             DrawEllipse(pen, brush, bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
         }
-
 
         /// Text rendering methods
         /// 
@@ -432,13 +388,9 @@ namespace System.Experimental.Gdi
         ///     - This function assumes that the text is horizontal, that is, that the escapement is always 0. This is true for both 
         ///       the horizontal and vertical measurements of the text.  The application must convert it explicitly.
         /// </summary>
-
-
         public Size MeasureText(string text, WindowsFont font, Size proposedSize, IntTextFormatFlags flags)
         {
             Debug.Assert(((uint)flags & GdiUnsupportedFlagMask) == 0, "Some custom flags were left over and are not GDI compliant!");
-
-
 
             if (string.IsNullOrEmpty(text))
             {
@@ -452,7 +404,7 @@ namespace System.Experimental.Gdi
             //
             IntNativeMethods.DRAWTEXTPARAMS dtparams = null;
 
-#if OPTIMIZED_MEASUREMENTDC       
+#if OPTIMIZED_MEASUREMENTDC
             // use the cache if we've got it
             if (MeasurementDCInfo.IsMeasurementDC(DeviceContext))
             {
@@ -621,17 +573,8 @@ namespace System.Experimental.Gdi
             IntPtr hBrush = brush.HBrush;  // We don't delete this handle since we didn't create it.   
             IntNativeMethods.RECT rect = new IntNativeMethods.RECT(x, y, x + width, y + height);
 
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            if (brush is WindowsHatchBrush)
-            { 
-                int clr = ColorTranslator.ToWin32(((WindowsHatchBrush)brush).BackGroundColor);
-                IntUnsafeNativeMethods.SetBkColor(hdc, clr );
-                IntUnsafeNativeMethods.SetBkMode(hdc, (int)DeviceContextBackgroundMode.Transparent);
-            }
-#endif
             IntUnsafeNativeMethods.FillRect(hdc, ref rect, new HandleRef(brush, hBrush));
         }
-
 
         // DrawLine overloads
 

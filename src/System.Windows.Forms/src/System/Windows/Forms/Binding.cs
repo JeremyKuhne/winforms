@@ -1002,15 +1002,6 @@ namespace System.Windows.Forms
             }
         }
 
-        private bool ShouldSerializeFormatString() => !string.IsNullOrEmpty(_formatString);
-
-        private bool ShouldSerializeNullValue() => _nullValue != null;
-
-        private bool ShouldSerializeDataSourceNullValue()
-        {
-            return _dsNullValueSet && _dsNullValue != Formatter.GetDefaultDataSourceNullValue(null);
-        }
-
         private void Target_PropertyChanged(object sender, EventArgs e)
         {
             if (_inSetPropValue)

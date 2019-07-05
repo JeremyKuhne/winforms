@@ -8,20 +8,9 @@
 #define GDI_FONT_CACHE_TRACK
 #endif
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
 {
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal {
-#else
-namespace System.Experimental.Gdi {
-#endif
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    static class MeasurementDCInfo
+    internal static class MeasurementDCInfo
     {
 
         /// MeasurementDCInfo
@@ -103,6 +92,7 @@ namespace System.Experimental.Gdi {
                 }
             }
         }
+
         /// Reset
         ///  clear the current cached information about the measurement dc.
         internal static void Reset()
@@ -113,6 +103,7 @@ namespace System.Experimental.Gdi {
                 currentCachedInfo.UpdateFont(null);
             }
         }
+
         /// CachedInfo
         ///  store all the thread statics together so we dont have to fetch individual fields out of TLS
         private sealed class CachedInfo

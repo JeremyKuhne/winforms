@@ -7,22 +7,13 @@
 // THIS PARTIAL CLASS CONTAINS THE BASE METHODS FOR CREATING AND DISPOSING A WINDOWSGRAPHICS AS WELL
 // GETTING, DISPOSING AND WORKING WITH A DC.
 
-#if DRAWING_DESIGN_NAMESPACE
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
-    using System;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Drawing2D;
-    using System.Runtime.Versioning;
 
     /// <summary>
     ///     WindowsGraphics is a library for rendering text and drawing using GDI; it was
@@ -36,12 +27,7 @@ namespace System.Experimental.Gdi
     ///     be modified by WindowsGraphics.  So we don't need to restore previous objects into 
     ///     the dc in method calls.
     ///</summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class WindowsGraphics : MarshalByRefObject, IDisposable, IDeviceContext
+    internal sealed partial class WindowsGraphics : MarshalByRefObject, IDisposable, IDeviceContext
     {
         // Wrapper around the window dc this object refers to.
         // Note: this dc is only disposed when owned (created) by the WindowsGraphics.
@@ -68,29 +54,9 @@ namespace System.Experimental.Gdi
         ///     This object is suitable for performing text measuring but not for drawing into it because it does 
         ///     not have a backup bitmap.
         /// </summary>
-
-
         public static WindowsGraphics CreateMeasurementWindowsGraphics()
         {
             DeviceContext dc = DeviceContext.FromCompatibleDC(IntPtr.Zero);
-            WindowsGraphics wg = new WindowsGraphics(dc)
-            {
-                disposeDc = true // we create it, we dispose it.
-            };
-
-            return wg;
-        }
-
-        /// <summary>
-        ///     Creates a WindowsGraphics from a memory DeviceContext object compatible with the a screen device.
-        ///     This object is suitable for performing text measuring but not for drawing into it because it does 
-        ///     not have a backup bitmap.
-        /// </summary>
-
-
-        public static WindowsGraphics CreateMeasurementWindowsGraphics(IntPtr screenDC)
-        {
-            DeviceContext dc = DeviceContext.FromCompatibleDC(screenDC);
             WindowsGraphics wg = new WindowsGraphics(dc)
             {
                 disposeDc = true // we create it, we dispose it.
@@ -109,8 +75,6 @@ namespace System.Experimental.Gdi
 
             return wg;
         }
-
-
 
         public static WindowsGraphics FromHdc(IntPtr hDc)
         {
@@ -148,15 +112,11 @@ namespace System.Experimental.Gdi
         ///     Please note that this only applies the HDC created graphics, for Bitmap derived graphics, GetHdc creates a new DIBSection and 
         ///     things get a lot more complicated.
         /// </summary>
-
-
         public static WindowsGraphics FromGraphics(Graphics g)
         {
             ApplyGraphicsProperties properties = ApplyGraphicsProperties.All;
             return WindowsGraphics.FromGraphics(g, properties);
         }
-
-
 
         public static WindowsGraphics FromGraphics(Graphics g, ApplyGraphicsProperties properties)
         {
@@ -241,7 +201,6 @@ namespace System.Experimental.Gdi
             }
         }
 
-
         // Okay to suppress.
         //"WindowsGraphics object does not own the Graphics object.  For instance in a control’s Paint event we pass the 
         //GraphicsContainer object to TextRenderer, which uses WindowsGraphics; 
@@ -254,8 +213,6 @@ namespace System.Experimental.Gdi
         }
 
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed")]
-
-
         internal void Dispose(bool disposing)
         {
             if (dc != null)
@@ -293,8 +250,6 @@ namespace System.Experimental.Gdi
                 }
             }
         }
-
-
 
         public IntPtr GetHdc()
         {

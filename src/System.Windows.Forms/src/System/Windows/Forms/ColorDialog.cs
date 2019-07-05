@@ -2,22 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
-    using System.Runtime.InteropServices;
-    using System.Runtime.Versioning;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-
-    using System;
-    using System.Drawing;
-
-    using System.ComponentModel;
-    using System.Windows.Forms;
-
-    using Microsoft.Win32;
-
     /// <summary>
     ///    <para>
     ///       Represents a common dialog box that displays available colors along with
@@ -337,17 +328,6 @@ namespace System.Windows.Forms
             {
                 options &= ~option;
             }
-        }
-
-        /// <summary>
-        ///    <para>
-        ///       Indicates whether the <see cref='System.Windows.Forms.ColorDialog.Color'/> property should be
-        ///       persisted.
-        ///    </para>
-        /// </summary>
-        private bool ShouldSerializeColor()
-        {
-            return !Color.Equals(Color.Black);
         }
 
         /// <summary>

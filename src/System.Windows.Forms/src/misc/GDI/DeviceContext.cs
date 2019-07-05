@@ -11,13 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
     /// <summary>
     ///     Represents a Win32 device context.  Provides operations for setting some of the properties
@@ -26,12 +20,7 @@ namespace System.Experimental.Gdi
     ///     This class is divided into two files separating the code that needs to be compiled into
     ///     reatail builds and debugging code.
     /// </summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class DeviceContext : MarshalByRefObject, IDeviceContext, IDisposable
+    internal sealed partial class DeviceContext : MarshalByRefObject, IDeviceContext, IDisposable
     {
         /// <summary>
         ///     This class is a wrapper to a Win32 device context, and the Hdc property is the way to get a 
@@ -103,25 +92,6 @@ namespace System.Experimental.Gdi
         private string DeAllocationSite = string.Empty;
 #endif
 
-        ///
-        /// Class properties...
-        ///
-
-        /// <summary>
-        ///     Specifies whether a modification has been applied to the dc, like setting the clipping area or a coordinate transform.
-        /// </summary>
-
-        /// <summary>
-        ///     The device type the context refers to.
-        /// </summary>
-        public DeviceContextType DeviceContextType
-        {
-            get
-            {
-                return dcType;
-            }
-        }
-
         /// <summary>
         ///     This object's hdc.  If this property is called, then the object will be used as an HDC wrapper,
         ///     so the hdc is cached and calls to GetHdc/ReleaseHdc won't PInvoke into GDI.
@@ -129,8 +99,6 @@ namespace System.Experimental.Gdi
         /// </summary>
         public IntPtr Hdc
         {
-
-
             get
             {
                 if (hDC == IntPtr.Zero)
@@ -164,7 +132,6 @@ namespace System.Experimental.Gdi
         // a currently selected object is disposed, it is first replaced in the DC and then
         // deleted.
 
-
         private void CacheInitialState()
         {
             Debug.Assert(hDC != IntPtr.Zero, "Cannot get initial state without a valid HDC");
@@ -173,8 +140,6 @@ namespace System.Experimental.Gdi
             hCurrentBmp = hInitialBmp = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_BITMAP);
             hCurrentFont = hInitialFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_FONT);
         }
-
-
 
         public void DeleteObject(IntPtr handle, GdiObjectType type)
         {
@@ -237,8 +202,6 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     Constructor to contruct a DeviceContext object from an existing Win32 device context handle.
         /// </summary>
-
-
         private DeviceContext(IntPtr hDC, DeviceContextType dcType)
         {
             this.hDC = hDC;
@@ -257,40 +220,10 @@ namespace System.Experimental.Gdi
         }
 
         /// <summary>
-        ///     CreateDC creates a DeviceContext object wrapping an hdc created with the Win32 CreateDC function.
-        /// </summary>
-
-
-        public static DeviceContext CreateDC(string driverName, string deviceName, string fileName, HandleRef devMode)
-        {
-            // Note: All input params can be null but not at the same time.  See MSDN for information.
-
-            IntPtr hdc = IntUnsafeNativeMethods.CreateDC(driverName, deviceName, fileName, devMode);
-            return new DeviceContext(hdc, DeviceContextType.NamedDevice);
-        }
-
-        /// <summary>
-        ///     CreateIC creates a DeviceContext object wrapping an hdc created with the Win32 CreateIC function.
-        /// </summary>
-
-
-        public static DeviceContext CreateIC(string driverName, string deviceName, string fileName, HandleRef devMode)
-        {
-            // Note: All input params can be null but not at the same time.  See MSDN for information.
-
-            IntPtr hdc = IntUnsafeNativeMethods.CreateIC(driverName, deviceName, fileName, devMode);
-            return new DeviceContext(hdc, DeviceContextType.Information);
-        }
-
-        /// <summary>
         ///     Creates a DeviceContext object wrapping a memory DC compatible with the specified device.
         /// </summary>
-
-
         public static DeviceContext FromCompatibleDC(IntPtr hdc)
         {
-
-
             // If hdc is null, the function creates a memory DC compatible with the application's current screen.
             // In this case the thread that calls CreateCompatibleDC owns the HDC that is created. When this thread is destroyed, 
             // the HDC is no longer valid.
@@ -303,8 +236,6 @@ namespace System.Experimental.Gdi
         ///     Used for wrapping an existing hdc.  In this case, this object doesn't own the hdc
         ///     so calls to GetHdc/ReleaseHdc don't PInvoke into GDI.
         /// </summary>
-
-
         public static DeviceContext FromHdc(IntPtr hdc)
         {
             Debug.Assert(hdc != IntPtr.Zero, "hdc == 0");
@@ -318,7 +249,6 @@ namespace System.Experimental.Gdi
         {
             return new DeviceContext(hwnd);
         }
-
 
         ~DeviceContext()
         {
@@ -342,9 +272,7 @@ namespace System.Experimental.Gdi
 
             disposed = true;
 
-#if !DRAWING_NAMESPACE
             DisposeFont(disposing);
-#endif
 
             switch (dcType)
             {
@@ -381,13 +309,7 @@ namespace System.Experimental.Gdi
                     break;
 
                 // case DeviceContextType.Metafile: - not yet supported.
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-                case DeviceContextType.Metafile:
-                    IntUnsafeNativeMethods.CloseEnhMetaFile(new HandleRef(this, this.Hdc));
-                    
-                    this.hDC = IntPtr.Zero;
-                    break;
-#endif
+
                 case DeviceContextType.Unknown:
                 default:
                     return;
@@ -403,8 +325,6 @@ namespace System.Experimental.Gdi
         ///     as a wrapper around an hdc that is always available, and for performance reasons since it caches the hdc 
         ///     if used in this way.
         /// </summary>
-
-
         IntPtr IDeviceContext.GetHdc()
         {
             if (hDC == IntPtr.Zero)
@@ -416,12 +336,11 @@ namespace System.Experimental.Gdi
                 hDC = IntUnsafeNativeMethods.GetDC(new HandleRef(this, hWnd));
 #if TRACK_HDC
                 Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("hdc[0x{0:x8}]=DC.GetHdc(hWnd=0x{1:x8})", unchecked((int) this.hDC), unchecked((int) this.hWnd))));
-#endif            
+#endif
             }
 
             return hDC;
         }
-
 
         ///<summary>
         ///     If the object was created from a DC, this object doesn't 'own' the dc so we just ignore 
@@ -441,37 +360,6 @@ namespace System.Experimental.Gdi
 #endif                 
                 hDC = IntPtr.Zero;
             }
-        }
-
-
-        /// <summary>
-        ///     Specifies whether the DC is in GM_ADVANCE mode (supported only in NT platforms).  
-        ///     If false, it is in GM_COMPATIBLE mode.
-        /// </summary>
-        public DeviceContextGraphicsMode GraphicsMode
-        {
-
-
-            get
-            {
-                return (DeviceContextGraphicsMode)IntUnsafeNativeMethods.GetGraphicsMode(new HandleRef(this, Hdc));
-            }
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            set
-            {
-                SetGraphicsMode(value);
-            }
-#endif
-        }
-
-        /// <summary>
-        ///     Sets the dc graphics mode and returns the old value.
-        /// </summary>
-
-
-        public DeviceContextGraphicsMode SetGraphicsMode(DeviceContextGraphicsMode newMode)
-        {
-            return (DeviceContextGraphicsMode)IntUnsafeNativeMethods.SetGraphicsMode(new HandleRef(this, Hdc), unchecked((int)newMode));
         }
 
         /// <summary>
@@ -530,8 +418,7 @@ namespace System.Experimental.Gdi
             // we dont actually know what the font is in our measurement DC so 
             // we need to clear it off.
             MeasurementDCInfo.ResetIfIsMeasurementDC(hDC);
-#endif        
-
+#endif
         }
 
         /// <summary>
@@ -542,8 +429,6 @@ namespace System.Experimental.Gdi
         ///     A saved state can be restored by using the RestoreHdc method.
         ///     See MSDN for more details. 
         /// </summary>
-
-
         public int SaveHdc()
         {
             HandleRef hdc = new HandleRef(this, Hdc);
@@ -581,8 +466,6 @@ namespace System.Experimental.Gdi
         ///         - The SelectClipRgn function assumes that the coordinates for a region are specified in device units. 
         ///         - To remove a device-context's clipping region, specify a NULL region handle. 
         /// </summary>
-
-
         public void SetClip(WindowsRegion region)
         {
             HandleRef hdc = new HandleRef(this, Hdc);
@@ -595,8 +478,6 @@ namespace System.Experimental.Gdi
         ///     Creates a new clipping region from the intersection of the current clipping region and 
         ///     the specified rectangle. 
         ///</summary>
-
-
         public void IntersectClip(WindowsRegion wr)
         {
             //if the incoming windowsregion is infinite, there is no need to do any intersecting.
@@ -628,8 +509,6 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     Modifies the viewport origin for a device context using the specified horizontal and vertical offsets in logical units.
         /// </summary>
-
-
         public void TranslateTransform(int dx, int dy)
         {
             IntNativeMethods.POINT orgn = new IntNativeMethods.POINT();
@@ -638,8 +517,6 @@ namespace System.Experimental.Gdi
 
         /// <summary>
         /// </summary>
-
-
         public override bool Equals(object obj)
         {
             DeviceContext other = obj as DeviceContext;
@@ -661,13 +538,10 @@ namespace System.Experimental.Gdi
         /// <summary>
         ///     This allows collections to treat DeviceContext objects wrapping the same HDC as the same objects.
         /// </summary>
-
-
         public override int GetHashCode()
         {
             return Hdc.GetHashCode();
         }
-
 
         internal class GraphicsState
         {
@@ -675,9 +549,7 @@ namespace System.Experimental.Gdi
             internal IntPtr hFont;
             internal IntPtr hPen;
             internal IntPtr hBitmap;
-#if !DRAWING_NAMESPACE
             internal WeakReference font;
-#endif
         }
     }
 }

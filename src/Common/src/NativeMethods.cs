@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -11,11 +10,9 @@ namespace System.Windows.Forms
     internal static class NativeMethods
     {
         public static IntPtr InvalidIntPtr = (IntPtr)(-1);
-        public static IntPtr LPSTR_TEXTCALLBACK = (IntPtr)(-1);
         public static HandleRef NullHandleRef = new HandleRef(null, IntPtr.Zero);
 
         public const int BITMAPINFO_MAX_COLORSIZE = 256;
-        public const int BI_BITFIELDS = 3;
 
         public enum RegionFlags
         {
@@ -27,88 +24,17 @@ namespace System.Windows.Forms
 
         public const int STATUS_PENDING = 0x103; //259 = STILL_ALIVE
 
-        public const int
-            DESKTOP_SWITCHDESKTOP = 0x0100,
-            ERROR_ACCESS_DENIED = 0x0005;
-
-        public const int
-        /* FONT WEIGHT (BOLD) VALUES */
-        FW_DONTCARE = 0,
-        FW_NORMAL = 400,
-        FW_BOLD = 700,
-        // some others...
-
-        /* FONT CHARACTER SET */
-        ANSI_CHARSET = 0,
-        DEFAULT_CHARSET = 1,
-        // plus others ....
-
-        /* Font OutPrecision */
-        OUT_DEFAULT_PRECIS = 0,
-        OUT_TT_PRECIS = 4,
-        OUT_TT_ONLY_PRECIS = 7,
+        public const int DESKTOP_SWITCHDESKTOP = 0x0100;
+        public const int ERROR_ACCESS_DENIED = 0x0005;
 
         /* polygon fill mode */
-        ALTERNATE = 1,
-        WINDING = 2,
+        public const int WINDING = 2;
 
         // text align
-        TA_DEFAULT = 0,
+        public const int TA_DEFAULT = 0;
 
         // brush
-        BS_SOLID = 0,
-        HOLLOW_BRUSH = 5,
-
-        // Binary raster operations.
-        R2_BLACK = 1,  /*  0       */
-        R2_NOTMERGEPEN = 2,  /* DPon     */
-        R2_MASKNOTPEN = 3,  /* DPna     */
-        R2_NOTCOPYPEN = 4,  /* PN       */
-        R2_MASKPENNOT = 5,  /* PDna     */
-        R2_NOT = 6,  /* Dn       */
-        R2_XORPEN = 7,  /* DPx      */
-        R2_NOTMASKPEN = 8,  /* DPan     */
-        R2_MASKPEN = 9,  /* DPa      */
-        R2_NOTXORPEN = 10, /* DPxn     */
-        R2_NOP = 11, /* D        */
-        R2_MERGENOTPEN = 12, /* DPno     */
-        R2_COPYPEN = 13, /* P        */
-        R2_MERGEPENNOT = 14, /* PDno     */
-        R2_MERGEPEN = 15, /* DPo      */
-        R2_WHITE = 16 /*  1       */;
-
-        public const int
-        /* SetGraphicsMode(hdc, iMode ) */
-        GM_COMPATIBLE = 1,
-        GM_ADVANCED = 2,
-        MWT_IDENTITY = 1;
-
-        public const int
-        PAGE_READONLY = 0x02,
-        PAGE_READWRITE = 0x04,
-        PAGE_WRITECOPY = 0x08,
-        FILE_MAP_COPY = 0x0001,
-        FILE_MAP_WRITE = 0x0002,
-        FILE_MAP_READ = 0x0004;
-
-        public const int SHGFI_ICON = 0x000000100,   // get icon
-        SHGFI_DISPLAYNAME = 0x000000200,     // get display name
-        SHGFI_TYPENAME = 0x000000400,     // get type name
-        SHGFI_ATTRIBUTES = 0x000000800,     // get attributes
-        SHGFI_ICONLOCATION = 0x000001000,     // get icon location
-        SHGFI_EXETYPE = 0x000002000,     // return exe type
-        SHGFI_SYSICONINDEX = 0x000004000,     // get system icon index
-        SHGFI_LINKOVERLAY = 0x000008000,     // put a link overlay on icon
-        SHGFI_SELECTED = 0x000010000,     // show icon in selected state
-        SHGFI_ATTR_SPECIFIED = 0x000020000,     // get only specified attributes
-        SHGFI_LARGEICON = 0x000000000,     // get large icon
-        SHGFI_SMALLICON = 0x000000001,     // get small icon
-        SHGFI_OPENICON = 0x000000002,     // get open icon
-        SHGFI_SHELLICONSIZE = 0x000000004,     // get shell size icon
-        SHGFI_PIDL = 0x000000008,     // pszPath is a pidl
-        SHGFI_USEFILEATTRIBUTES = 0x000000010,     // use passed dwFileAttribute
-        SHGFI_ADDOVERLAYS = 0x000000020,     // apply the appropriate overlays
-        SHGFI_OVERLAYINDEX = 0x000000040;     // Get the index of the overlay
+        public const int HOLLOW_BRUSH = 5;
 
         public const int DM_DISPLAYORIENTATION = 0x00000080;
 
@@ -126,25 +52,19 @@ namespace System.Windows.Forms
         ARW_UP = 0x0004,
         ARW_DOWN = 0x0004,
         ARW_HIDE = 0x0008,
-        ACM_OPENA = (0x0400 + 100),
-        ACM_OPENW = (0x0400 + 103),
-        ADVF_NODATA = 1,
         ADVF_ONLYONCE = 4,
         ADVF_PRIMEFIRST = 2;
         // Note: ADVF_ONLYONCE and ADVF_PRIMEFIRST values now conform with objidl.dll but are backwards from
         // Platform SDK documentation as of 07/21/2003.
         // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/com/htm/oen_a2z_8jxi.asp.
 
-        public const int BCM_GETIDEALSIZE = 0x1601,
-        BI_RGB = 0,
+        public const int BI_RGB = 0,
         BS_PATTERN = 3,
         BITSPIXEL = 12,
         BDR_RAISEDOUTER = 0x0001,
         BDR_SUNKENOUTER = 0x0002,
         BDR_RAISEDINNER = 0x0004,
         BDR_SUNKENINNER = 0x0008,
-        BDR_RAISED = 0x0005,
-        BDR_SUNKEN = 0x000a,
         BF_LEFT = 0x0001,
         BF_TOP = 0x0002,
         BF_RIGHT = 0x0004,
@@ -176,22 +96,7 @@ namespace System.Windows.Forms
         BM_SETSTATE = 0x00F3,
         BM_CLICK = 0x00F5;
 
-        public const int CDERR_DIALOGFAILURE = 0xFFFF,
-        CDERR_STRUCTSIZE = 0x0001,
-        CDERR_INITIALIZATION = 0x0002,
-        CDERR_NOTEMPLATE = 0x0003,
-        CDERR_NOHINSTANCE = 0x0004,
-        CDERR_LOADSTRFAILURE = 0x0005,
-        CDERR_FINDRESFAILURE = 0x0006,
-        CDERR_LOADRESFAILURE = 0x0007,
-        CDERR_LOCKRESFAILURE = 0x0008,
-        CDERR_MEMALLOCFAILURE = 0x0009,
-        CDERR_MEMLOCKFAILURE = 0x000A,
-        CDERR_NOHOOK = 0x000B,
-        CDERR_REGISTERMSGFAIL = 0x000C,
-        CFERR_NOFONTS = 0x2001,
-        CFERR_MAXLESSTHANMIN = 0x2002,
-        CC_RGBINIT = 0x00000001,
+        public const int CC_RGBINIT = 0x00000001,
         CC_FULLOPEN = 0x00000002,
         CC_PREVENTFULLOPEN = 0x00000004,
         CC_SHOWHELP = 0x00000008,
@@ -236,10 +141,8 @@ namespace System.Windows.Forms
         CF_HDROP = 15,
         CF_LOCALE = 16,
         CLSCTX_INPROC_SERVER = 0x1,
-        CLSCTX_LOCAL_SERVER = 0x4,
         CW_USEDEFAULT = (unchecked((int)0x80000000)),
         CWP_SKIPINVISIBLE = 0x0001,
-        COLOR_WINDOW = 5,
         CB_ERR = (-1),
         CBN_SELCHANGE = 1,
         CBN_DBLCLK = 2,
@@ -305,17 +208,10 @@ namespace System.Windows.Forms
         CCS_NORESIZE = 0x00000004,
         CCS_NOPARENTALIGN = 0x00000008,
         CCS_NODIVIDER = 0x00000040,
-        CBEM_INSERTITEM = (0x0400 + 11),
-        CBEM_SETITEM = (0x0400 + 12),
-        CBEM_GETITEM = (0x0400 + 13),
-        CBEN_ENDEDIT = ((0 - 800) - 6),
-        CONNECT_E_NOCONNECTION = unchecked((int)0x80040200),
-        CONNECT_E_CANNOTCONNECT = unchecked((int)0x80040202),
         CTRLINFO_EATS_RETURN = 1,
         CTRLINFO_EATS_ESCAPE = 2;
 
-        public const int DUPLICATE = 0x06,
-        DISPID_UNKNOWN = (-1),
+        public const int DISPID_UNKNOWN = (-1),
         DISPID_PROPERTYPUT = (-3),
         DISPATCH_METHOD = 0x1,
         DISPATCH_PROPERTYGET = 0x2,
@@ -324,7 +220,6 @@ namespace System.Windows.Forms
         DISP_E_MEMBERNOTFOUND = unchecked((int)0x80020003),
         DISP_E_PARAMNOTFOUND = unchecked((int)0x80020004),
         DISP_E_EXCEPTION = unchecked((int)0x80020009),
-        DEFAULT_GUI_FONT = 17,
         DIB_RGB_COLORS = 0,
         DRAGDROP_E_NOTREGISTERED = unchecked((int)0x80040100),
         DRAGDROP_E_ALREADYREGISTERED = unchecked((int)0x80040101),
@@ -378,10 +273,6 @@ namespace System.Windows.Forms
         DTS_TIMEFORMAT = 0x0009,
         DTS_RIGHTALIGN = 0x0020,
         DTN_DATETIMECHANGE = ((0 - 760) + 1),
-        DTN_USERSTRING = ((0 - 760) + 15),
-        DTN_WMKEYDOWN = ((0 - 760) + 16),
-        DTN_FORMAT = ((0 - 760) + 17),
-        DTN_FORMATQUERY = ((0 - 760) + 18),
         DTN_DROPDOWN = ((0 - 760) + 6),
         DTN_CLOSEUP = ((0 - 760) + 7),
         DVASPECT_CONTENT = 1,
@@ -396,10 +287,8 @@ namespace System.Windows.Forms
         E_FAIL = unchecked((int)0x80004005),
         E_ABORT = unchecked((int)0x80004004),
         E_UNEXPECTED = unchecked((int)0x8000FFFF),
-        INET_E_DEFAULT_ACTION = unchecked((int)0x800C0011),
         ETO_OPAQUE = 0x0002,
         ETO_CLIPPED = 0x0004,
-        EMR_POLYTEXTOUT = 97,
         EDGE_RAISED = (0x0001 | 0x0004),
         EDGE_SUNKEN = (0x0002 | 0x0008),
         EDGE_ETCHED = (0x0002 | 0x0004),
@@ -431,32 +320,16 @@ namespace System.Windows.Forms
         FNERR_INVALIDFILENAME = 0x3002,
         FNERR_BUFFERTOOSMALL = 0x3003,
         FRERR_BUFFERLENGTHZERO = 0x4001,
-        FADF_BSTR = (0x100),
-        FADF_UNKNOWN = (0x200),
-        FADF_DISPATCH = (0x400),
-        FADF_VARIANT = (unchecked((int)0x800)),
         FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000,
         FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200,
         FVIRTKEY = 0x01,
         FSHIFT = 0x04,
         FALT = 0x10;
 
-
         public const int GMEM_FIXED = 0x0000,
         GMEM_MOVEABLE = 0x0002,
-        GMEM_NOCOMPACT = 0x0010,
-        GMEM_NODISCARD = 0x0020,
         GMEM_ZEROINIT = 0x0040,
-        GMEM_MODIFY = 0x0080,
-        GMEM_DISCARDABLE = 0x0100,
-        GMEM_NOT_BANKED = 0x1000,
-        GMEM_SHARE = 0x2000,
         GMEM_DDESHARE = 0x2000,
-        GMEM_NOTIFY = 0x4000,
-        GMEM_LOWER = GMEM_NOT_BANKED,
-        GMEM_VALID_FLAGS = 0x7F72,
-        GMEM_INVALID_HANDLE = 0x8000,
-        GHND = (GMEM_MOVEABLE | GMEM_ZEROINIT),
         GPTR = (GMEM_FIXED | GMEM_ZEROINIT),
         GCL_WNDPROC = (-24),
         GWL_WNDPROC = (-4),
@@ -482,16 +355,7 @@ namespace System.Windows.Forms
         // ImmGetCompostionString index.
         public const int
         GCS_COMPSTR = 0x0008,
-        GCS_COMPATTR = 0x0010,
         GCS_RESULTSTR = 0x0800,
-
-        // attribute for COMPOSITIONSTRING Structure
-        ATTR_INPUT = 0x00,
-        ATTR_TARGET_CONVERTED = 0x01,
-        ATTR_CONVERTED = 0x02,
-        ATTR_TARGET_NOTCONVERTED = 0x03,
-        ATTR_INPUT_ERROR = 0x04,
-        ATTR_FIXEDCONVERTED = 0x05,
 
         // dwAction for ImmNotifyIME
         NI_COMPOSITIONSTR = 0x0015,
@@ -512,29 +376,18 @@ namespace System.Windows.Forms
         HTBOTTOMLEFT = 16,
         HTBOTTOMRIGHT = 17,
         HTBORDER = 18,
-        HELPINFO_WINDOW = 0x0001,
         HCF_HIGHCONTRASTON = 0x00000001,
         HDI_ORDER = 0x0080,
         HDI_WIDTH = 0x0001,
         HDM_GETITEMCOUNT = (0x1200 + 0),
-        HDM_INSERTITEMW = (0x1200 + 10),
-        HDM_GETITEMW = (0x1200 + 11),
         HDM_LAYOUT = (0x1200 + 5),
-        HDM_SETITEMW = (0x1200 + 12),
         HDN_ITEMCHANGING = ((0 - 300) - 20),
         HDN_ITEMCHANGED = ((0 - 300) - 21),
-        HDN_ITEMCLICK = ((0 - 300) - 22),
-        HDN_ITEMDBLCLICK = ((0 - 300) - 23),
         HDN_DIVIDERDBLCLICK = ((0 - 300) - 25),
-        HDN_BEGINTDRAG = ((0 - 300) - 10),
         HDN_BEGINTRACK = ((0 - 300) - 26),
         HDN_ENDDRAG = ((0 - 300) - 11),
-        HDN_ENDTRACK = ((0 - 300) - 27),
-        HDN_TRACK = ((0 - 300) - 28),
-        HDN_GETDISPINFO = ((0 - 300) - 29);
+        HDN_ENDTRACK = ((0 - 300) - 27);
         // HOVER_DEFAULT = Do not use this value ever! It crashes entire servers.
-
-        public const int HDS_FULLDRAG = 0x0080;
 
         // Corresponds to bitmaps in MENUITEMINFO
         public const int HBMMENU_CALLBACK = -1,
@@ -614,21 +467,7 @@ namespace System.Windows.Forms
         public const int CSC_NAVIGATEFORWARD = 0x00000001,
         CSC_NAVIGATEBACK = 0x00000002;
 
-        public const int STG_E_INVALIDFUNCTION = unchecked((int)0x80030001);
         public const int STG_E_FILENOTFOUND = unchecked((int)0x80030002);
-        public const int STG_E_PATHNOTFOUND = unchecked((int)0x80030003);
-        public const int STG_E_TOOMANYOPENFILES = unchecked((int)0x80030004);
-        public const int STG_E_ACCESSDENIED = unchecked((int)0x80030005);
-        public const int STG_E_INVALIDHANDLE = unchecked((int)0x80030006);
-        public const int STG_E_INSUFFICIENTMEMORY = unchecked((int)0x80030008);
-        public const int STG_E_INVALIDPOINTER = unchecked((int)0x80030009);
-        public const int STG_E_NOMOREFILES = unchecked((int)0x80030012);
-        public const int STG_E_DISKISWRITEPROTECTED = unchecked((int)0x80030013);
-        public const int STG_E_SEEKERROR = unchecked((int)0x80030019);
-        public const int STG_E_WRITEFAULT = unchecked((int)0x8003001D);
-        public const int STG_E_READFAULT = unchecked((int)0x8003001E);
-        public const int STG_E_SHAREVIOLATION = unchecked((int)0x80030020);
-        public const int STG_E_LOCKVIOLATION = unchecked((int)0x80030021);
 
         public const int INPUT_KEYBOARD = 1;
 
@@ -666,7 +505,6 @@ namespace System.Windows.Forms
         LB_GETITEMRECT = 0x0198,
         LB_SETITEMHEIGHT = 0x01A0,
         LB_GETITEMHEIGHT = 0x01A1,
-        LB_FINDSTRINGEXACT = 0x01A2,
         LB_ITEMFROMPOINT = 0x01A9,
         LB_SETLOCALE = 0x01A5;
 
@@ -682,9 +520,6 @@ namespace System.Windows.Forms
         LBS_EXTENDEDSEL = 0x0800,
         LBS_DISABLENOSCROLL = 0x1000,
         LBS_NOSEL = 0x4000,
-        LOCK_WRITE = 0x1,
-        LOCK_EXCLUSIVE = 0x2,
-        LOCK_ONLYONCE = 0x4,
         LV_VIEW_TILE = 0x0004,
         LVBKIF_SOURCE_NONE = 0x0000,
         LVBKIF_SOURCE_URL = 0x0002,
@@ -706,7 +541,7 @@ namespace System.Windows.Forms
         LVS_ALIGNTOP = 0x0000,
         LVS_ALIGNLEFT = 0x0800,
         LVS_NOCOLUMNHEADER = 0x4000,
-        LVS_NOSORTHEADER = unchecked((int)0x8000),
+        LVS_NOSORTHEADER = 0x8000,
         LVS_OWNERDATA = 0x1000,
         LVSCW_AUTOSIZE = -1,
         LVSCW_AUTOSIZE_USEHEADER = -2,
@@ -793,25 +628,15 @@ namespace System.Windows.Forms
         LVGA_HEADER_LEFT = 0x00000001,
         LVGA_HEADER_CENTER = 0x00000002,
         LVGA_HEADER_RIGHT = 0x00000004,
-        LVGA_FOOTER_LEFT = 0x00000008,
-        LVGA_FOOTER_CENTER = 0x00000010,
-        LVGA_FOOTER_RIGHT = 0x00000020,
-        LVGF_NONE = 0x00000000,
         LVGF_HEADER = 0x00000001,
-        LVGF_FOOTER = 0x00000002,
-        LVGF_STATE = 0x00000004,
         LVGF_ALIGN = 0x00000008,
         LVGF_GROUPID = 0x00000010,
-        LVGS_NORMAL = 0x00000000,
-        LVGS_COLLAPSED = 0x00000001,
-        LVGS_HIDDEN = 0x00000002,
         LVIM_AFTER = 0x00000001,
         LVTVIF_FIXEDSIZE = 0x00000003,
         LVTVIM_TILESIZE = 0x00000001,
         LVTVIM_COLUMNS = 0x00000002,
         LVM_ENABLEGROUPVIEW = (0x1000 + 157),
         LVM_MOVEITEMTOGROUP = (0x1000 + 154),
-        LVM_GETCOLUMN = (0x1000 + 95),
         LVM_SETCOLUMN = (0x1000 + 96),
         LVM_INSERTCOLUMN = (0x1000 + 97),
         LVM_INSERTGROUP = (0x1000 + 145),
@@ -869,7 +694,6 @@ namespace System.Windows.Forms
         LVN_GETDISPINFO = ((0 - 100) - 77),
         LVN_ODCACHEHINT = ((0 - 100) - 13),
         LVN_ODSTATECHANGED = ((0 - 100) - 15),
-        LVN_SETDISPINFO = ((0 - 100) - 78),
         LVN_GETINFOTIP = ((0 - 100) - 58),
         LVN_KEYDOWN = ((0 - 100) - 55),
 
@@ -914,10 +738,8 @@ namespace System.Windows.Forms
 
         public const int MEMBERID_NIL = (-1),
         ERROR_INSUFFICIENT_BUFFER = 122, //https://msdn.microsoft.com/en-us/library/windows/desktop/ms681382(v=vs.85).aspx
-        MA_ACTIVATE = 0x0001,
         MA_ACTIVATEANDEAT = 0x0002,
         MA_NOACTIVATE = 0x0003,
-        MA_NOACTIVATEANDEAT = 0x0004,
         MM_TEXT = 1,
         MM_ANISOTROPIC = 8,
         MK_LBUTTON = 0x0001,
@@ -935,7 +757,6 @@ namespace System.Windows.Forms
         MIIM_STRING = 0x00000040,
         MIIM_BITMAP = 0x00000080,
         MIIM_FTYPE = 0x00000100,
-        MB_OK = 0x00000000,
         MF_BYCOMMAND = 0x00000000,
         MF_BYPOSITION = 0x00000400,
         MF_ENABLED = 0x00000000,
@@ -947,10 +768,8 @@ namespace System.Windows.Forms
         MFT_SEPARATOR = 0x00000800,
         MFT_RIGHTORDER = 0x00002000,
         MFT_RIGHTJUSTIFY = 0x00004000,
-        MDIS_ALLCHILDSTYLES = 0x0001,
         MDITILE_VERTICAL = 0x0000,
         MDITILE_HORIZONTAL = 0x0001,
-        MDITILE_SKIPDISABLED = 0x0002,
         MCM_SETMAXSELCOUNT = (0x1000 + 4),
         MCM_SETSELRANGE = (0x1000 + 6),
         MCM_GETMONTHRANGE = (0x1000 + 7),
@@ -963,8 +782,6 @@ namespace System.Windows.Forms
         MCM_SETRANGE = (0x1000 + 18),
         MCM_SETMONTHDELTA = (0x1000 + 20),
         MCM_GETMAXTODAYWIDTH = (0x1000 + 21),
-        MCHT_TITLE = 0x00010000,
-        MCHT_CALENDAR = 0x00020000,
         MCHT_TODAYLINK = 0x00030000,
         MCHT_TITLEBK = (0x00010000),
         MCHT_TITLEMONTH = (0x00010000 | 0x0001),
@@ -997,7 +814,6 @@ namespace System.Windows.Forms
         NIM_MODIFY = 0x00000001,
         NIM_DELETE = 0x00000002,
         NIF_MESSAGE = 0x00000001,
-        NIM_SETVERSION = 0x00000004,
         NIF_ICON = 0x00000002,
         NIF_INFO = 0x00000010,
         NIF_TIP = 0x00000004,
@@ -1009,15 +825,13 @@ namespace System.Windows.Forms
         NIN_BALLOONHIDE = (Interop.WindowMessages.WM_USER + 3),
         NIN_BALLOONTIMEOUT = (Interop.WindowMessages.WM_USER + 4),
         NIN_BALLOONUSERCLICK = (Interop.WindowMessages.WM_USER + 5),
-        NFR_ANSI = 1,
         NFR_UNICODE = 2,
         NM_CLICK = ((0 - 0) - 2),
         NM_DBLCLK = ((0 - 0) - 3),
         NM_RCLICK = ((0 - 0) - 5),
         NM_RDBLCLK = ((0 - 0) - 6),
         NM_CUSTOMDRAW = ((0 - 0) - 12),
-        NM_RELEASEDCAPTURE = ((0 - 0) - 16),
-        NONANTIALIASED_QUALITY = 3;
+        NM_RELEASEDCAPTURE = ((0 - 0) - 16);
 
         public const int OFN_READONLY = 0x00000001,
         OFN_OVERWRITEPROMPT = 0x00000002,
@@ -1075,46 +889,16 @@ namespace System.Windows.Forms
         OLECLOSE_SAVEIFDIRTY = 0,
         OLECLOSE_PROMPTSAVE = 2;
 
-        public const int PDERR_SETUPFAILURE = 0x1001,
-        PDERR_PARSEFAILURE = 0x1002,
-        PDERR_RETDEFFAILURE = 0x1003,
-        PDERR_LOADDRVFAILURE = 0x1004,
-        PDERR_GETDEVMODEFAIL = 0x1005,
-        PDERR_INITFAILURE = 0x1006,
-        PDERR_NODEVICES = 0x1007,
-        PDERR_NODEFAULTPRN = 0x1008,
-        PDERR_DNDMMISMATCH = 0x1009,
-        PDERR_CREATEICFAILURE = 0x100A,
-        PDERR_PRINTERNOTFOUND = 0x100B,
-        PDERR_DEFAULTDIFFERENT = 0x100C,
-        PD_ALLPAGES = 0x00000000,
-        PD_SELECTION = 0x00000001,
-        PD_PAGENUMS = 0x00000002,
-        PD_NOSELECTION = 0x00000004,
+        public const int PD_NOSELECTION = 0x00000004,
         PD_NOPAGENUMS = 0x00000008,
         PD_COLLATE = 0x00000010,
         PD_PRINTTOFILE = 0x00000020,
-        PD_PRINTSETUP = 0x00000040,
-        PD_NOWARNING = 0x00000080,
-        PD_RETURNDC = 0x00000100,
-        PD_RETURNIC = 0x00000200,
-        PD_RETURNDEFAULT = 0x00000400,
         PD_SHOWHELP = 0x00000800,
         PD_ENABLEPRINTHOOK = 0x00001000,
-        PD_ENABLESETUPHOOK = 0x00002000,
-        PD_ENABLEPRINTTEMPLATE = 0x00004000,
-        PD_ENABLESETUPTEMPLATE = 0x00008000,
-        PD_ENABLEPRINTTEMPLATEHANDLE = 0x00010000,
-        PD_ENABLESETUPTEMPLATEHANDLE = 0x00020000,
-        PD_USEDEVMODECOPIES = 0x00040000,
         PD_USEDEVMODECOPIESANDCOLLATE = 0x00040000,
         PD_DISABLEPRINTTOFILE = 0x00080000,
-        PD_HIDEPRINTTOFILE = 0x00100000,
         PD_NONETWORKBUTTON = 0x00200000,
-        PD_CURRENTPAGE = 0x00400000,
         PD_NOCURRENTPAGE = 0x00800000,
-        PD_EXCLUSIONFLAGS = 0x01000000,
-        PD_USELARGETEMPLATE = 0x10000000,
         PSD_MINMARGINS = 0x00000001,
         PSD_MARGINS = 0x00000002,
         PSD_INHUNDREDTHSOFMILLIMETERS = 0x00000008,
@@ -1128,25 +912,18 @@ namespace System.Windows.Forms
         PS_SOLID = 0,
         PS_DOT = 2,
         PLANES = 14,
-        PRF_CHECKVISIBLE = 0x00000001,
         PRF_NONCLIENT = 0x00000002,
         PRF_CLIENT = 0x00000004,
         PRF_ERASEBKGND = 0x00000008,
         PRF_CHILDREN = 0x00000010,
         PM_NOREMOVE = 0x0000,
         PM_REMOVE = 0x0001,
-        PM_NOYIELD = 0x0002,
-        PBM_SETRANGE = (0x0400 + 1),
         PBM_SETPOS = (0x0400 + 2),
         PBM_SETSTEP = (0x0400 + 4),
         PBM_SETRANGE32 = (0x0400 + 6),
         PBM_SETBARCOLOR = (0x0400 + 9),
         PBM_SETMARQUEE = (0x0400 + 10),
         PBM_SETBKCOLOR = (0x2000 + 1),
-        PSM_SETTITLEA = (0x0400 + 111),
-        PSM_SETTITLEW = (0x0400 + 120),
-        PSM_SETFINISHTEXTA = (0x0400 + 115),
-        PSM_SETFINISHTEXTW = (0x0400 + 121),
         PATCOPY = 0x00F00021,
         PATINVERT = 0x005A0049;
 
@@ -1164,7 +941,6 @@ namespace System.Windows.Forms
         QS_ALLPOSTMESSAGE = 0x0100,
         QS_MOUSE = QS_MOUSEMOVE | QS_MOUSEBUTTON,
         QS_INPUT = QS_MOUSE | QS_KEY,
-        QS_ALLEVENTS = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY,
         QS_ALLINPUT = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE;
 
         public const int MWMO_INPUTAVAILABLE = 0x0004;  // don't use MWMO_WAITALL, see ddb#176342
@@ -1176,7 +952,6 @@ namespace System.Windows.Forms
                                                     //public const int RECO_DRAG  = 0x00000004;    // drag
 
         public const int RPC_E_CHANGED_MODE = unchecked((int)0x80010106),
-            RPC_E_CANTCALLOUT_ININPUTSYNCCALL = unchecked((int)0x8001010D),
             RGN_AND = 1,
             RGN_XOR = 3,
             RGN_DIFF = 4,
@@ -1185,20 +960,14 @@ namespace System.Windows.Forms
             RDW_ALLCHILDREN = 0x0080,
             RDW_ERASENOW = 0x0200,
             RDW_UPDATENOW = 0x0100,
-            RDW_FRAME = 0x0400,
-            RB_INSERTBANDA = (0x0400 + 1),
-            RB_INSERTBANDW = (0x0400 + 10);
+            RDW_FRAME = 0x0400;
 
         public const int stc4 = 0x0443,
-        SHGFP_TYPE_CURRENT = 0,
         STGM_READ = 0x00000000,
         STGM_WRITE = 0x00000001,
         STGM_READWRITE = 0x00000002,
         STGM_SHARE_EXCLUSIVE = 0x00000010,
         STGM_CREATE = 0x00001000,
-        STGM_TRANSACTED = 0x00010000,
-        STGM_CONVERT = 0x00020000,
-        STGM_DELETEONRELEASE = 0x04000000,
         STARTF_USESHOWWINDOW = 0x00000001,
         SB_HORZ = 0,
         SB_VERT = 1,
@@ -1408,16 +1177,9 @@ namespace System.Windows.Forms
         SBT_POPOUT = 0x0200,
         SBT_RTLREADING = 0x0400,
         SRCCOPY = 0x00CC0020,
-        SRCAND = 0x008800C6, /* dest = source AND dest          */
-        SRCPAINT = 0x00EE0086, /* dest = source OR dest           */
-        NOTSRCCOPY = 0x00330008, /* dest = (NOT source)             */
         STATFLAG_DEFAULT = 0x0,
-        STATFLAG_NONAME = 0x1,
-        STATFLAG_NOOPEN = 0x2,
         STGC_DEFAULT = 0x0,
         STGC_OVERWRITE = 0x1,
-        STGC_ONLYIFCURRENT = 0x2,
-        STGC_DANGEROUSLYCOMMITMERELYTODISKCACHE = 0x4,
         STREAM_SEEK_SET = 0x0,
         STREAM_SEEK_CUR = 0x1,
         STREAM_SEEK_END = 0x2;
@@ -1436,7 +1198,6 @@ namespace System.Windows.Forms
         }
 
         public const int TRANSPARENT = 1,
-        OPAQUE = 2,
         TME_HOVER = 0x00000001,
         TME_LEAVE = 0x00000002,
         TPM_LEFTBUTTON = 0x0000,
@@ -1477,8 +1238,6 @@ namespace System.Windows.Forms
         TB_GETBUTTONINFO = (0x0400 + 63),
         TB_SETBUTTONINFO = (0x0400 + 64),
         TB_SETEXTENDEDSTYLE = (0x0400 + 84),
-        TB_MAPACCELERATOR = (0x0400 + 90),
-        TB_GETTOOLTIPS = (0x0400 + 35),
         TB_SETTOOLTIPS = (0x0400 + 36),
         TBIF_IMAGE = 0x00000001,
         TBIF_TEXT = 0x00000002,
@@ -1486,25 +1245,17 @@ namespace System.Windows.Forms
         TBIF_STYLE = 0x00000008,
         TBIF_COMMAND = 0x00000020,
         TBIF_SIZE = 0x00000040,
-        TBN_GETBUTTONINFO = ((0 - 700) - 20),
         TBN_QUERYINSERT = ((0 - 700) - 6),
         TBN_DROPDOWN = ((0 - 700) - 10),
         TBN_HOTITEMCHANGE = ((0 - 700) - 13),
-        TBN_GETDISPINFO = ((0 - 700) - 17),
-        TBN_GETINFOTIP = ((0 - 700) - 19),
         TTS_ALWAYSTIP = 0x01,
         TTS_NOPREFIX = 0x02,
         TTS_NOANIMATE = 0x10,
         TTS_NOFADE = 0x20,
         TTS_BALLOON = 0x40,
-        //TTI_NONE                =0,
-        //TTI_INFO                =1,
-        TTI_WARNING = 2,
-        //TTI_ERROR               =3,
         TTF_IDISHWND = 0x0001,
         TTF_RTLREADING = 0x0004,
         TTF_TRACK = 0x0020,
-        TTF_CENTERTIP = 0x0002,
         TTF_SUBCLASS = 0x0010,
         TTF_TRANSPARENT = 0x0100,
         TTF_ABSOLUTE = 0x0080,
@@ -1523,17 +1274,12 @@ namespace System.Windows.Forms
         TTM_DELTOOL = (0x0400 + 51),
         TTM_NEWTOOLRECT = (0x0400 + 52),
         TTM_RELAYEVENT = (0x0400 + 7),
-        TTM_GETTIPBKCOLOR = (0x0400 + 22),
         TTM_SETTIPBKCOLOR = (0x0400 + 19),
         TTM_SETTIPTEXTCOLOR = (0x0400 + 20),
-        TTM_GETTIPTEXTCOLOR = (0x0400 + 23),
         TTM_GETTOOLINFO = (0x0400 + 53),
         TTM_SETTOOLINFO = (0x0400 + 54),
-        TTM_HITTEST = (0x0400 + 55),
-        TTM_GETTEXT = (0x0400 + 56),
         TTM_UPDATE = (0x0400 + 29),
         TTM_UPDATETIPTEXT = (0x0400 + 57),
-        TTM_ENUMTOOLS = (0x0400 + 58),
         TTM_GETCURRENTTOOL = (0x0400 + 59),
         TTM_WINDOWFROMPOINT = (0x0400 + 16),
         TTM_GETDELAYTIME = (0x0400 + 21),
@@ -1550,7 +1296,6 @@ namespace System.Windows.Forms
         TBS_BOTH = 0x0008,
         TBS_NOTICKS = 0x0010,
         TBM_GETPOS = (0x0400),
-        TBM_SETTIC = (0x0400 + 4),
         TBM_SETPOS = (0x0400 + 5),
         TBM_SETRANGE = (0x0400 + 6),
         TBM_SETRANGEMIN = (0x0400 + 7),
@@ -1589,7 +1334,6 @@ namespace System.Windows.Forms
         TVIS_EXPANDED = 0x0020,
         TVIS_EXPANDEDONCE = 0x0040,
         TVIS_STATEIMAGEMASK = 0xF000,
-        TVI_ROOT = (unchecked((int)0xFFFF0000)),
         TVI_FIRST = (unchecked((int)0xFFFF0001)),
         TVM_INSERTITEM = (0x1100 + 50),
         TVM_DELETEITEM = (0x1100 + 1),
@@ -1618,11 +1362,9 @@ namespace System.Windows.Forms
         TVM_HITTEST = (0x1100 + 17),
         TVM_ENSUREVISIBLE = (0x1100 + 20),
         TVM_ENDEDITLABELNOW = (0x1100 + 22),
-        TVM_GETISEARCHSTRING = (0x1100 + 64),
         TVM_SETITEMHEIGHT = (0x1100 + 27),
         TVM_GETITEMHEIGHT = (0x1100 + 28),
         TVN_SELCHANGING = ((0 - 400) - 50),
-        TVN_GETINFOTIP = ((0 - 400) - 14),
         TVN_SELCHANGED = ((0 - 400) - 51),
         TVC_UNKNOWN = 0x0000,
         TVC_BYMOUSE = 0x0001,
@@ -1675,7 +1417,6 @@ namespace System.Windows.Forms
         TVM_SETLINECOLOR = (TV_FIRST + 40),
         TVM_SETTOOLTIPS = (TV_FIRST + 24),
         TVSIL_STATE = 2,
-        TVM_SORTCHILDRENCB = (TV_FIRST + 21),
         TMPF_FIXED_PITCH = 0x01;
 
         public const int TVHT_NOWHERE = 0x0001,
@@ -1771,29 +1512,14 @@ namespace System.Windows.Forms
         public const int WHEEL_DELTA = 120;
 
         // wParam of report message WM_IME_NOTIFY (public\sdk\imm.h)
-        public const int
-        //IMN_CLOSESTATUSWINDOW = 0x0001,
-        IMN_OPENSTATUSWINDOW = 0x0002,
-        //IMN_CHANGECANDIDATE   = 0x0003,
-        //IMN_CLOSECANDIDATE    = 0x0004,
-        //IMN_OPENCANDIDATE     = 0x0005,
-        IMN_SETCONVERSIONMODE = 0x0006,
-        //IMN_SETSENTENCEMODE   = 0x0007,
-        IMN_SETOPENSTATUS = 0x0008;
-        //IMN_SETCANDIDATEPOS    = 0x0009,
-        //IMN_SETCOMPOSITIONFONT = 0x000A,
-        //IMN_SETCOMPOSITIONWINDOW = 0x000B,
-        //IMN_SETSTATUSWINDOWPOS   = 0x000C,
-        //IMN_GUIDELINE            = 0x000D,
-        //IMN_PRIVATE              = 0x000E;
-
+        public const int IMN_SETCONVERSIONMODE = 0x0006;
+        public const int IMN_SETOPENSTATUS = 0x0008;
 
         public static int START_PAGE_GENERAL = unchecked((int)0xffffffff);
 
         //  Result action ids for PrintDlgEx.
         public const int PD_RESULT_CANCEL = 0;
         public const int PD_RESULT_PRINT = 1;
-        public const int PD_RESULT_APPLY = 2;
 
         private static int wmMouseEnterMessage = -1;
 
@@ -1810,6 +1536,7 @@ namespace System.Windows.Forms
         }
 
         private static int wmUnSubclass = -1;
+
         public static int WM_UIUNSUBCLASS
         {
             get
@@ -2017,7 +1744,6 @@ namespace System.Windows.Forms
             internal string pszFont = null;
         }
 
-        [SuppressMessage("Microsoft.Performance", "CA1802:UseLiteralsWhereAppropriate")]
         public const int HH_FTS_DEFAULT_PROXIMITY = -1;
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -3085,7 +2811,7 @@ namespace System.Windows.Forms
             public int biClrImportant = 0;
         }
 
-        public class Ole
+        public static class Ole
         {
             public const int PICTYPE_UNINITIALIZED = -1;
             public const int PICTYPE_NONE = 0;
@@ -3100,7 +2826,6 @@ namespace System.Windows.Forms
         [StructLayout(LayoutKind.Sequential)]
         public class STATSTG
         {
-
             [MarshalAs(UnmanagedType.LPWStr)]
             public string pwcsName = null;
 
@@ -3710,7 +3435,7 @@ namespace System.Windows.Forms
             public string lpszClassName = null;
         }
 
-        public class MSOCM
+        public static class MSOCM
         {
             // MSO Component registration flags
             public const int msocrfNeedIdleTime = 1;
@@ -3940,15 +3665,6 @@ namespace System.Windows.Forms
             public int cbSize;
             public int dwFlags;
             public IntPtr lpszDefaultScheme;
-        }
-
-        public enum HRESULT : long
-        {
-            S_FALSE = 0x0001,
-            S_OK = 0x0000,
-            E_INVALIDARG = 0x80070057,
-            E_OUTOFMEMORY = 0x8007000E,
-            ERROR_CANCELLED = 0x800704C7
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -4198,16 +3914,15 @@ namespace System.Windows.Forms
             public int dwFlags;
         }
 
-        public const int HICF_OTHER = 0x00000000;
-        public const int HICF_MOUSE = 0x00000001;          // Triggered by mouse
-        public const int HICF_ARROWKEYS = 0x00000002;          // Triggered by arrow keys
-        public const int HICF_ACCELERATOR = 0x00000004;          // Triggered by accelerator
-        public const int HICF_DUPACCEL = 0x00000008;          // This accelerator is not unique
-        public const int HICF_ENTERING = 0x00000010;          // idOld is invalid
-        public const int HICF_LEAVING = 0x00000020;          // idNew is invalid
-        public const int HICF_RESELECT = 0x00000040;          // hot item reselected
-        public const int HICF_LMOUSE = 0x00000080;          // left mouse button selected
-        public const int HICF_TOGGLEDROPDOWN = 0x00000100;          // Toggle button's dropdown state
+        public const int HICF_MOUSE = 0x00000001;               // Triggered by mouse
+        public const int HICF_ARROWKEYS = 0x00000002;           // Triggered by arrow keys
+        public const int HICF_ACCELERATOR = 0x00000004;         // Triggered by accelerator
+        public const int HICF_DUPACCEL = 0x00000008;            // This accelerator is not unique
+        public const int HICF_ENTERING = 0x00000010;            // idOld is invalid
+        public const int HICF_LEAVING = 0x00000020;             // idNew is invalid
+        public const int HICF_RESELECT = 0x00000040;            // hot item reselected
+        public const int HICF_LMOUSE = 0x00000080;              // left mouse button selected
+        public const int HICF_TOGGLEDROPDOWN = 0x00000100;      // Toggle button's dropdown state
 
         // HDN_ITEMCHANGING will send us an HDITEM w/ pszText set to some random pointer.
         // Marshal.PtrToStructure chokes when it has to convert a random pointer to a string.
@@ -4323,7 +4038,7 @@ namespace System.Windows.Forms
             public int clrTextBk;
             public int iSubItem;
             public int dwItemType;
-            // Item Custom Draw    
+            // Item Custom Draw
             public int clrFace;
             public int iIconEffect;
             public int iIconPhase;
@@ -4717,8 +4432,8 @@ namespace System.Windows.Forms
         [StructLayout(LayoutKind.Sequential)]
         public class GETTEXTLENGTHEX
         {                               // Taken from richedit.h:
-            public uint flags;          // Flags (see GTL_XXX defines)              
-            public uint codepage;       // Code page for translation (CP_ACP for default, 1200 for Unicode)                         
+            public uint flags;          // Flags (see GTL_XXX defines)
+            public uint codepage;       // Code page for translation (CP_ACP for default, 1200 for Unicode)
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
@@ -4897,105 +4612,40 @@ namespace System.Windows.Forms
             public byte[] contents = new byte[56];
         }
 
-        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-        public class ActiveX
+        public static class ActiveX
         {
             public const int OCM__BASE = 0x2000;
-            public const int DISPID_VALUE = unchecked((int)0x0);
             public const int DISPID_UNKNOWN = unchecked((int)0xFFFFFFFF);
-            public const int DISPID_AUTOSIZE = unchecked((int)0xFFFFFE0C);
             public const int DISPID_BACKCOLOR = unchecked((int)0xFFFFFE0B);
-            public const int DISPID_BACKSTYLE = unchecked((int)0xFFFFFE0A);
-            public const int DISPID_BORDERCOLOR = unchecked((int)0xFFFFFE09);
             public const int DISPID_BORDERSTYLE = unchecked((int)0xFFFFFE08);
-            public const int DISPID_BORDERWIDTH = unchecked((int)0xFFFFFE07);
-            public const int DISPID_DRAWMODE = unchecked((int)0xFFFFFE05);
-            public const int DISPID_DRAWSTYLE = unchecked((int)0xFFFFFE04);
-            public const int DISPID_DRAWWIDTH = unchecked((int)0xFFFFFE03);
-            public const int DISPID_FILLCOLOR = unchecked((int)0xFFFFFE02);
-            public const int DISPID_FILLSTYLE = unchecked((int)0xFFFFFE01);
             public const int DISPID_FONT = unchecked((int)0xFFFFFE00);
             public const int DISPID_FORECOLOR = unchecked((int)0xFFFFFDFF);
             public const int DISPID_ENABLED = unchecked((int)0xFFFFFDFE);
             public const int DISPID_HWND = unchecked((int)0xFFFFFDFD);
             public const int DISPID_TABSTOP = unchecked((int)0xFFFFFDFC);
             public const int DISPID_TEXT = unchecked((int)0xFFFFFDFB);
-            public const int DISPID_CAPTION = unchecked((int)0xFFFFFDFA);
-            public const int DISPID_BORDERVISIBLE = unchecked((int)0xFFFFFDF9);
-            public const int DISPID_APPEARANCE = unchecked((int)0xFFFFFDF8);
-            public const int DISPID_MOUSEPOINTER = unchecked((int)0xFFFFFDF7);
             public const int DISPID_MOUSEICON = unchecked((int)0xFFFFFDF6);
-            public const int DISPID_PICTURE = unchecked((int)0xFFFFFDF5);
-            public const int DISPID_VALID = unchecked((int)0xFFFFFDF4);
             public const int DISPID_READYSTATE = unchecked((int)0xFFFFFDF3);
-            public const int DISPID_REFRESH = unchecked((int)0xFFFFFDDA);
-            public const int DISPID_DOCLICK = unchecked((int)0xFFFFFDD9);
             public const int DISPID_ABOUTBOX = unchecked((int)0xFFFFFDD8);
-            public const int DISPID_CLICK = unchecked((int)0xFFFFFDA8);
-            public const int DISPID_DBLCLICK = unchecked((int)0xFFFFFDA7);
-            public const int DISPID_KEYDOWN = unchecked((int)0xFFFFFDA6);
-            public const int DISPID_KEYPRESS = unchecked((int)0xFFFFFDA5);
-            public const int DISPID_KEYUP = unchecked((int)0xFFFFFDA4);
-            public const int DISPID_MOUSEDOWN = unchecked((int)0xFFFFFDA3);
-            public const int DISPID_MOUSEMOVE = unchecked((int)0xFFFFFDA2);
-            public const int DISPID_MOUSEUP = unchecked((int)0xFFFFFDA1);
-            public const int DISPID_ERROREVENT = unchecked((int)0xFFFFFDA0);
-            public const int DISPID_RIGHTTOLEFT = unchecked((int)0xFFFFFD9D);
-            public const int DISPID_READYSTATECHANGE = unchecked((int)0xFFFFFD9F);
             public const int DISPID_AMBIENT_BACKCOLOR = unchecked((int)0xFFFFFD43);
             public const int DISPID_AMBIENT_DISPLAYNAME = unchecked((int)0xFFFFFD42);
             public const int DISPID_AMBIENT_FONT = unchecked((int)0xFFFFFD41);
             public const int DISPID_AMBIENT_FORECOLOR = unchecked((int)0xFFFFFD40);
             public const int DISPID_AMBIENT_LOCALEID = unchecked((int)0xFFFFFD3F);
             public const int DISPID_AMBIENT_MESSAGEREFLECT = unchecked((int)0xFFFFFD3E);
-            public const int DISPID_AMBIENT_SCALEUNITS = unchecked((int)0xFFFFFD3D);
-            public const int DISPID_AMBIENT_TEXTALIGN = unchecked((int)0xFFFFFD3C);
             public const int DISPID_AMBIENT_USERMODE = unchecked((int)0xFFFFFD3B);
             public const int DISPID_AMBIENT_UIDEAD = unchecked((int)0xFFFFFD3A);
             public const int DISPID_AMBIENT_SHOWGRABHANDLES = unchecked((int)0xFFFFFD39);
             public const int DISPID_AMBIENT_SHOWHATCHING = unchecked((int)0xFFFFFD38);
             public const int DISPID_AMBIENT_DISPLAYASDEFAULT = unchecked((int)0xFFFFFD37);
-            public const int DISPID_AMBIENT_SUPPORTSMNEMONICS = unchecked((int)0xFFFFFD36);
             public const int DISPID_AMBIENT_AUTOCLIP = unchecked((int)0xFFFFFD35);
-            public const int DISPID_AMBIENT_APPEARANCE = unchecked((int)0xFFFFFD34);
-            public const int DISPID_AMBIENT_PALETTE = unchecked((int)0xFFFFFD2A);
-            public const int DISPID_AMBIENT_TRANSFERPRIORITY = unchecked((int)0xFFFFFD28);
             public const int DISPID_AMBIENT_RIGHTTOLEFT = unchecked((int)0xFFFFFD24);
             public const int DISPID_Name = unchecked((int)0xFFFFFCE0);
-            public const int DISPID_Delete = unchecked((int)0xFFFFFCDF);
-            public const int DISPID_Object = unchecked((int)0xFFFFFCDE);
-            public const int DISPID_Parent = unchecked((int)0xFFFFFCDD);
             public const int DVASPECT_CONTENT = 0x1;
-            public const int DVASPECT_THUMBNAIL = 0x2;
-            public const int DVASPECT_ICON = 0x4;
-            public const int DVASPECT_DOCPRINT = 0x8;
-            public const int OLEMISC_RECOMPOSEONRESIZE = 0x1;
-            public const int OLEMISC_ONLYICONIC = 0x2;
-            public const int OLEMISC_INSERTNOTREPLACE = 0x4;
-            public const int OLEMISC_STATIC = 0x8;
-            public const int OLEMISC_CANTLINKINSIDE = 0x10;
-            public const int OLEMISC_CANLINKBYOLE1 = 0x20;
-            public const int OLEMISC_ISLINKOBJECT = 0x40;
-            public const int OLEMISC_INSIDEOUT = 0x80;
-            public const int OLEMISC_ACTIVATEWHENVISIBLE = 0x100;
-            public const int OLEMISC_RENDERINGISDEVICEINDEPENDENT = 0x200;
             public const int OLEMISC_INVISIBLEATRUNTIME = 0x400;
-            public const int OLEMISC_ALWAYSRUN = 0x800;
-            public const int OLEMISC_ACTSLIKEBUTTON = 0x1000;
-            public const int OLEMISC_ACTSLIKELABEL = 0x2000;
-            public const int OLEMISC_NOUIACTIVATE = 0x4000;
-            public const int OLEMISC_ALIGNABLE = 0x8000;
             public const int OLEMISC_SIMPLEFRAME = 0x10000;
             public const int OLEMISC_SETCLIENTSITEFIRST = 0x20000;
-            public const int OLEMISC_IMEMODE = 0x40000;
-            public const int OLEMISC_IGNOREACTIVATEWHENVISIBLE = 0x80000;
-            public const int OLEMISC_WANTSTOMENUMERGE = 0x100000;
-            public const int OLEMISC_SUPPORTSMULTILEVELUNDO = 0x200000;
-            public const int QACONTAINER_SHOWHATCHING = 0x1;
-            public const int QACONTAINER_SHOWGRABHANDLES = 0x2;
             public const int QACONTAINER_USERMODE = 0x4;
-            public const int QACONTAINER_DISPLAYASDEFAULT = 0x8;
-            public const int QACONTAINER_UIDEAD = 0x10;
             public const int QACONTAINER_AUTOCLIP = 0x20;
             public const int QACONTAINER_MESSAGEREFLECT = 0x40;
             public const int QACONTAINER_SUPPORTSMNEMONICS = 0x80;
@@ -5023,10 +4673,7 @@ namespace System.Windows.Forms
             public const int GC_WCH_FONLYPREV = 0x20000000;
             public const int GC_WCH_FSELECTED = 0x40000000;
             public const int OLECONTF_EMBEDDINGS = 0x1;
-            public const int OLECONTF_LINKS = 0x2;
             public const int OLECONTF_OTHERS = 0x4;
-            public const int OLECONTF_ONLYUSER = 0x8;
-            public const int OLECONTF_ONLYIFRUNNING = 0x10;
             public const int ALIGN_MIN = 0x0;
             public const int ALIGN_NO_CHANGE = 0x0;
             public const int ALIGN_TOP = 0x1;
@@ -5034,14 +4681,9 @@ namespace System.Windows.Forms
             public const int ALIGN_LEFT = 0x3;
             public const int ALIGN_RIGHT = 0x4;
             public const int ALIGN_MAX = 0x4;
-            public const int OLEVERBATTRIB_NEVERDIRTIES = 0x1;
             public const int OLEVERBATTRIB_ONCONTAINERMENU = 0x2;
 
             public static Guid IID_IUnknown = new Guid("{00000000-0000-0000-C000-000000000046}");
-
-            private ActiveX()
-            {
-            }
         }
 
         public static class Util
@@ -5080,6 +4722,7 @@ namespace System.Windows.Forms
             {
                 return SignedHIWORD(unchecked((int)(long)n));
             }
+
             public static int SignedLOWORD(IntPtr n)
             {
                 return SignedLOWORD(unchecked((int)(long)n));
@@ -5113,10 +4756,6 @@ namespace System.Windows.Forms
                     return s.Length;
                 }
             }
-
-            [DllImport(ExternDll.Kernel32, CharSet = CharSet.Auto)]
-
-            private static extern int lstrlen(string s);
         }
 
         public enum tagTYPEKIND
@@ -5389,16 +5028,7 @@ namespace System.Windows.Forms
         public const int STAP_ALLOW_CONTROLS = (1 << 1);
         public const int STAP_ALLOW_WEBCONTENT = (1 << 2);
 
-        public const int PS_NULL = 5;
-        public const int PS_INSIDEFRAME = 6;
-
-        public const int PS_GEOMETRIC = 0x00010000;
-        public const int PS_ENDCAP_SQUARE = 0x00000100;
-
         public const int WS_EX_TRANSPARENT = 0x00000020;
-
-        public const int NULL_BRUSH = 5;
-        public const int MM_HIMETRIC = 3;
 
         // Threading stuff
         public const uint STILL_ACTIVE = 259;
@@ -5432,74 +5062,21 @@ namespace System.Windows.Forms
         internal const int UIA_ExpandCollapsePatternId = 10005;
         internal const int UIA_GridPatternId = 10006;
         internal const int UIA_GridItemPatternId = 10007;
-        internal const int UIA_MultipleViewPatternId = 10008;
-        internal const int UIA_WindowPatternId = 10009;
         internal const int UIA_SelectionItemPatternId = 10010;
-        internal const int UIA_DockPatternId = 10011;
         internal const int UIA_TablePatternId = 10012;
         internal const int UIA_TableItemPatternId = 10013;
-        internal const int UIA_TextPatternId = 10014;
         internal const int UIA_TogglePatternId = 10015;
-        internal const int UIA_TransformPatternId = 10016;
         internal const int UIA_ScrollItemPatternId = 10017;
         internal const int UIA_LegacyIAccessiblePatternId = 10018;
-        internal const int UIA_ItemContainerPatternId = 10019;
-        internal const int UIA_VirtualizedItemPatternId = 10020;
-        internal const int UIA_SynchronizedInputPatternId = 10021;
-        internal const int UIA_ObjectModelPatternId = 10022;
-        internal const int UIA_AnnotationPatternId = 10023;
-        internal const int UIA_TextPattern2Id = 10024;
-        internal const int UIA_StylesPatternId = 10025;
-        internal const int UIA_SpreadsheetPatternId = 10026;
-        internal const int UIA_SpreadsheetItemPatternId = 10027;
-        internal const int UIA_TransformPattern2Id = 10028;
-        internal const int UIA_TextChildPatternId = 10029;
-        internal const int UIA_DragPatternId = 10030;
-        internal const int UIA_DropTargetPatternId = 10031;
-        internal const int UIA_TextEditPatternId = 10032;
-        internal const int UIA_CustomNavigationPatternId = 10033;
 
         // UIA_EventIds
-        internal const int UIA_ToolTipOpenedEventId = 20000;
-        internal const int UIA_ToolTipClosedEventId = 20001;
-        internal const int UIA_StructureChangedEventId = 20002;
-        internal const int UIA_MenuOpenedEventId = 20003;
-        internal const int UIA_AutomationPropertyChangedEventId = 20004;
         internal const int UIA_AutomationFocusChangedEventId = 20005;
-        internal const int UIA_AsyncContentLoadedEventId = 20006;
-        internal const int UIA_MenuClosedEventId = 20007;
-        internal const int UIA_LayoutInvalidatedEventId = 20008;
-        internal const int UIA_Invoke_InvokedEventId = 20009;
-        internal const int UIA_SelectionItem_ElementAddedToSelectionEventId = 20010;
-        internal const int UIA_SelectionItem_ElementRemovedFromSelectionEventId = 20011;
         internal const int UIA_SelectionItem_ElementSelectedEventId = 20012;
-        internal const int UIA_Selection_InvalidatedEventId = 20013;
-        internal const int UIA_Text_TextSelectionChangedEventId = 20014;
-        internal const int UIA_Text_TextChangedEventId = 20015;
-        internal const int UIA_Window_WindowOpenedEventId = 20016;
-        internal const int UIA_Window_WindowClosedEventId = 20017;
-        internal const int UIA_MenuModeStartEventId = 20018;
-        internal const int UIA_MenuModeEndEventId = 20019;
-        internal const int UIA_InputReachedTargetEventId = 20020;
-        internal const int UIA_InputReachedOtherElementEventId = 20021;
-        internal const int UIA_InputDiscardedEventId = 20022;
-        internal const int UIA_SystemAlertEventId = 20023;
         internal const int UIA_LiveRegionChangedEventId = 20024;
-        internal const int UIA_HostedFragmentRootsInvalidatedEventId = 20025;
-        internal const int UIA_Drag_DragStartEventId = 20026;
-        internal const int UIA_Drag_DragCancelEventId = 20027;
-        internal const int UIA_Drag_DragCompleteEventId = 20028;
-        internal const int UIA_DropTarget_DragEnterEventId = 20029;
-        internal const int UIA_DropTarget_DragLeaveEventId = 20030;
-        internal const int UIA_DropTarget_DroppedEventId = 20031;
-        internal const int UIA_TextEdit_TextChangedEventId = 20032;
-        internal const int UIA_TextEdit_ConversionTargetChangedEventId = 20033;
-        internal const int UIA_ChangesEventId = 20034;
 
         // UIAutomation PropertyIds
         internal const int UIA_RuntimeIdPropertyId = 30000;
         internal const int UIA_BoundingRectanglePropertyId = 30001;
-        internal const int UIA_ProcessIdPropertyId = 30002;
         internal const int UIA_ControlTypePropertyId = 30003;
         internal const int UIA_LocalizedControlTypePropertyId = 30004;
         internal const int UIA_NamePropertyId = 30005;
@@ -5509,27 +5086,17 @@ namespace System.Windows.Forms
         internal const int UIA_IsKeyboardFocusablePropertyId = 30009;
         internal const int UIA_IsEnabledPropertyId = 30010;
         internal const int UIA_AutomationIdPropertyId = 30011;
-        internal const int UIA_ClassNamePropertyId = 30012;
         internal const int UIA_HelpTextPropertyId = 30013;
-        internal const int UIA_ClickablePointPropertyId = 30014;
-        internal const int UIA_CulturePropertyId = 30015;
         internal const int UIA_IsControlElementPropertyId = 30016;
         internal const int UIA_IsContentElementPropertyId = 30017;
-        internal const int UIA_LabeledByPropertyId = 30018;
         internal const int UIA_IsPasswordPropertyId = 30019;
         internal const int UIA_NativeWindowHandlePropertyId = 30020;
-        internal const int UIA_ItemTypePropertyId = 30021;
         internal const int UIA_IsOffscreenPropertyId = 30022;
-        internal const int UIA_OrientationPropertyId = 30023;
-        internal const int UIA_FrameworkIdPropertyId = 30024;
-        internal const int UIA_IsRequiredForFormPropertyId = 30025;
         internal const int UIA_ItemStatusPropertyId = 30026;
-        internal const int UIA_IsDockPatternAvailablePropertyId = 30027;
         internal const int UIA_IsExpandCollapsePatternAvailablePropertyId = 30028;
         internal const int UIA_IsGridItemPatternAvailablePropertyId = 30029;
         internal const int UIA_IsGridPatternAvailablePropertyId = 30030;
         internal const int UIA_IsInvokePatternAvailablePropertyId = 30031;
-        internal const int UIA_IsMultipleViewPatternAvailablePropertyId = 30032;
         internal const int UIA_IsRangeValuePatternAvailablePropertyId = 30033;
         internal const int UIA_IsScrollPatternAvailablePropertyId = 30034;
         internal const int UIA_IsScrollItemPatternAvailablePropertyId = 30035;
@@ -5537,138 +5104,26 @@ namespace System.Windows.Forms
         internal const int UIA_IsSelectionPatternAvailablePropertyId = 30037;
         internal const int UIA_IsTablePatternAvailablePropertyId = 30038;
         internal const int UIA_IsTableItemPatternAvailablePropertyId = 30039;
-        internal const int UIA_IsTextPatternAvailablePropertyId = 30040;
         internal const int UIA_IsTogglePatternAvailablePropertyId = 30041;
-        internal const int UIA_IsTransformPatternAvailablePropertyId = 30042;
         internal const int UIA_IsValuePatternAvailablePropertyId = 30043;
-        internal const int UIA_IsWindowPatternAvailablePropertyId = 30044;
-        internal const int UIA_ValueValuePropertyId = 30045;
-        internal const int UIA_ValueIsReadOnlyPropertyId = 30046;
-        internal const int UIA_RangeValueValuePropertyId = 30047;
         internal const int UIA_RangeValueIsReadOnlyPropertyId = 30048;
-        internal const int UIA_RangeValueMinimumPropertyId = 30049;
-        internal const int UIA_RangeValueMaximumPropertyId = 30050;
         internal const int UIA_RangeValueLargeChangePropertyId = 30051;
         internal const int UIA_RangeValueSmallChangePropertyId = 30052;
-        internal const int UIA_ScrollHorizontalScrollPercentPropertyId = 30053;
-        internal const int UIA_ScrollHorizontalViewSizePropertyId = 30054;
-        internal const int UIA_ScrollVerticalScrollPercentPropertyId = 30055;
-        internal const int UIA_ScrollVerticalViewSizePropertyId = 30056;
-        internal const int UIA_ScrollHorizontallyScrollablePropertyId = 30057;
-        internal const int UIA_ScrollVerticallyScrollablePropertyId = 30058;
-        internal const int UIA_SelectionSelectionPropertyId = 30059;
         internal const int UIA_SelectionCanSelectMultiplePropertyId = 30060;
         internal const int UIA_SelectionIsSelectionRequiredPropertyId = 30061;
-        internal const int UIA_GridRowCountPropertyId = 30062;
-        internal const int UIA_GridColumnCountPropertyId = 30063;
-        internal const int UIA_GridItemRowPropertyId = 30064;
-        internal const int UIA_GridItemColumnPropertyId = 30065;
-        internal const int UIA_GridItemRowSpanPropertyId = 30066;
-        internal const int UIA_GridItemColumnSpanPropertyId = 30067;
         internal const int UIA_GridItemContainingGridPropertyId = 30068;
-        internal const int UIA_DockDockPositionPropertyId = 30069;
         internal const int UIA_ExpandCollapseExpandCollapseStatePropertyId = 30070;
-        internal const int UIA_MultipleViewCurrentViewPropertyId = 30071;
-        internal const int UIA_MultipleViewSupportedViewsPropertyId = 30072;
-        internal const int UIA_WindowCanMaximizePropertyId = 30073;
-        internal const int UIA_WindowCanMinimizePropertyId = 30074;
-        internal const int UIA_WindowWindowVisualStatePropertyId = 30075;
-        internal const int UIA_WindowWindowInteractionStatePropertyId = 30076;
-        internal const int UIA_WindowIsModalPropertyId = 30077;
-        internal const int UIA_WindowIsTopmostPropertyId = 30078;
         internal const int UIA_SelectionItemIsSelectedPropertyId = 30079;
         internal const int UIA_SelectionItemSelectionContainerPropertyId = 30080;
-        internal const int UIA_TableRowHeadersPropertyId = 30081;
-        internal const int UIA_TableColumnHeadersPropertyId = 30082;
-        internal const int UIA_TableRowOrColumnMajorPropertyId = 30083;
-        internal const int UIA_TableItemRowHeaderItemsPropertyId = 30084;
-        internal const int UIA_TableItemColumnHeaderItemsPropertyId = 30085;
-        internal const int UIA_ToggleToggleStatePropertyId = 30086;
-        internal const int UIA_TransformCanMovePropertyId = 30087;
-        internal const int UIA_TransformCanResizePropertyId = 30088;
-        internal const int UIA_TransformCanRotatePropertyId = 30089;
         internal const int UIA_IsLegacyIAccessiblePatternAvailablePropertyId = 30090;
-        internal const int UIA_LegacyIAccessibleChildIdPropertyId = 30091;
-        internal const int UIA_LegacyIAccessibleNamePropertyId = 30092;
-        internal const int UIA_LegacyIAccessibleValuePropertyId = 30093;
-        internal const int UIA_LegacyIAccessibleDescriptionPropertyId = 30094;
         internal const int UIA_LegacyIAccessibleRolePropertyId = 30095;
         internal const int UIA_LegacyIAccessibleStatePropertyId = 30096;
-        internal const int UIA_LegacyIAccessibleHelpPropertyId = 30097;
-        internal const int UIA_LegacyIAccessibleKeyboardShortcutPropertyId = 30098;
-        internal const int UIA_LegacyIAccessibleSelectionPropertyId = 30099;
         internal const int UIA_LegacyIAccessibleDefaultActionPropertyId = 30100;
-        internal const int UIA_AriaRolePropertyId = 30101;
-        internal const int UIA_AriaPropertiesPropertyId = 30102;
-        internal const int UIA_IsDataValidForFormPropertyId = 30103;
-        internal const int UIA_ControllerForPropertyId = 30104;
-        internal const int UIA_DescribedByPropertyId = 30105;
-        internal const int UIA_FlowsToPropertyId = 30106;
         internal const int UIA_ProviderDescriptionPropertyId = 30107;
-        internal const int UIA_IsItemContainerPatternAvailablePropertyId = 30108;
-        internal const int UIA_IsVirtualizedItemPatternAvailablePropertyId = 30109;
-        internal const int UIA_IsSynchronizedInputPatternAvailablePropertyId = 30110;
-        internal const int UIA_OptimizeForVisualContentPropertyId = 30111;
-        internal const int UIA_IsObjectModelPatternAvailablePropertyId = 30112;
-        internal const int UIA_AnnotationAnnotationTypeIdPropertyId = 30113;
-        internal const int UIA_AnnotationAnnotationTypeNamePropertyId = 30114;
-        internal const int UIA_AnnotationAuthorPropertyId = 30115;
-        internal const int UIA_AnnotationDateTimePropertyId = 30116;
-        internal const int UIA_AnnotationTargetPropertyId = 30117;
-        internal const int UIA_IsAnnotationPatternAvailablePropertyId = 30118;
-        internal const int UIA_IsTextPattern2AvailablePropertyId = 30119;
-        internal const int UIA_StylesStyleIdPropertyId = 30120;
-        internal const int UIA_StylesStyleNamePropertyId = 30121;
-        internal const int UIA_StylesFillColorPropertyId = 30122;
-        internal const int UIA_StylesFillPatternStylePropertyId = 30123;
-        internal const int UIA_StylesShapePropertyId = 30124;
-        internal const int UIA_StylesFillPatternColorPropertyId = 30125;
-        internal const int UIA_StylesExtendedPropertiesPropertyId = 30126;
-        internal const int UIA_IsStylesPatternAvailablePropertyId = 30127;
-        internal const int UIA_IsSpreadsheetPatternAvailablePropertyId = 30128;
-        internal const int UIA_SpreadsheetItemFormulaPropertyId = 30129;
-        internal const int UIA_SpreadsheetItemAnnotationObjectsPropertyId = 30130;
-        internal const int UIA_SpreadsheetItemAnnotationTypesPropertyId = 30131;
-        internal const int UIA_IsSpreadsheetItemPatternAvailablePropertyId = 30132;
-        internal const int UIA_Transform2CanZoomPropertyId = 30133;
-        internal const int UIA_IsTransformPattern2AvailablePropertyId = 30134;
         internal const int UIA_LiveSettingPropertyId = 30135;
-        internal const int UIA_IsTextChildPatternAvailablePropertyId = 30136;
-        internal const int UIA_IsDragPatternAvailablePropertyId = 30137;
-        internal const int UIA_DragIsGrabbedPropertyId = 30138;
-        internal const int UIA_DragDropEffectPropertyId = 30139;
-        internal const int UIA_DragDropEffectsPropertyId = 30140;
-        internal const int UIA_IsDropTargetPatternAvailablePropertyId = 30141;
-        internal const int UIA_DropTargetDropTargetEffectPropertyId = 30142;
-        internal const int UIA_DropTargetDropTargetEffectsPropertyId = 30143;
-        internal const int UIA_DragGrabbedItemsPropertyId = 30144;
-        internal const int UIA_Transform2ZoomLevelPropertyId = 30145;
-        internal const int UIA_Transform2ZoomMinimumPropertyId = 30146;
-        internal const int UIA_Transform2ZoomMaximumPropertyId = 30147;
-        internal const int UIA_FlowsFromPropertyId = 30148;
-        internal const int UIA_IsTextEditPatternAvailablePropertyId = 30149;
-        internal const int UIA_IsPeripheralPropertyId = 30150;
-        internal const int UIA_IsCustomNavigationPatternAvailablePropertyId = 30151;
-        internal const int UIA_PositionInSetPropertyId = 30152;
-        internal const int UIA_SizeOfSetPropertyId = 30153;
-        internal const int UIA_LevelPropertyId = 30154;
-        internal const int UIA_AnnotationTypesPropertyId = 30155;
-        internal const int UIA_AnnotationObjectsPropertyId = 30156;
-        internal const int UIA_LandmarkTypePropertyId = 30157;
-        internal const int UIA_LocalizedLandmarkTypePropertyId = 30158;
-        internal const int UIA_FullDescriptionPropertyId = 30159;
-        internal const int UIA_FillColorPropertyId = 30160;
-        internal const int UIA_OutlineColorPropertyId = 30161;
-        internal const int UIA_FillTypePropertyId = 30162;
-        internal const int UIA_VisualEffectsPropertyId = 30163;
-        internal const int UIA_OutlineThicknessPropertyId = 30164;
-        internal const int UIA_CenterPointPropertyId = 30165;
-        internal const int UIA_RotationPropertyId = 30166;
-        internal const int UIA_SizePropertyId = 30167;
 
         // UIA_ControlTypeIds
         internal const int UIA_ButtonControlTypeId = 50000;
-        internal const int UIA_CalendarControlTypeId = 50001;
         internal const int UIA_CheckBoxControlTypeId = 50002;
         internal const int UIA_ComboBoxControlTypeId = 50003;
         internal const int UIA_EditControlTypeId = 50004;
@@ -5683,7 +5138,6 @@ namespace System.Windows.Forms
         internal const int UIA_RadioButtonControlTypeId = 50013;
         internal const int UIA_ScrollBarControlTypeId = 50014;
         internal const int UIA_SliderControlTypeId = 50015;
-        internal const int UIA_SpinnerControlTypeId = 50016;
         internal const int UIA_StatusBarControlTypeId = 50017;
         internal const int UIA_TabControlTypeId = 50018;
         internal const int UIA_TabItemControlTypeId = 50019;
@@ -5692,22 +5146,14 @@ namespace System.Windows.Forms
         internal const int UIA_ToolTipControlTypeId = 50022;
         internal const int UIA_TreeControlTypeId = 50023;
         internal const int UIA_TreeItemControlTypeId = 50024;
-        internal const int UIA_CustomControlTypeId = 50025;
         internal const int UIA_GroupControlTypeId = 50026;
         internal const int UIA_ThumbControlTypeId = 50027;
         internal const int UIA_DataGridControlTypeId = 50028;
         internal const int UIA_DataItemControlTypeId = 50029;
-        internal const int UIA_DocumentControlTypeId = 50030;
-        internal const int UIA_SplitButtonControlTypeId = 50031;
-        internal const int UIA_WindowControlTypeId = 50032;
         internal const int UIA_PaneControlTypeId = 50033;
         internal const int UIA_HeaderControlTypeId = 50034;
-        internal const int UIA_HeaderItemControlTypeId = 50035;
         internal const int UIA_TableControlTypeId = 50036;
-        internal const int UIA_TitleBarControlTypeId = 50037;
         internal const int UIA_SeparatorControlTypeId = 50038;
-        internal const int UIA_SemanticZoomControlTypeId = 50039;
-        internal const int UIA_AppBarControlTypeId = 50040;
 
         // If this value is used, %windows%\system32 is searched for the DLL 
         // and its dependencies. Directories in the standard search path are not searched.
@@ -5728,12 +5174,6 @@ namespace System.Windows.Forms
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
-        [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
-
-        [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
-        public extern static IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [In, Out] TV_HITTESTINFO lParam);
 
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern short GetKeyState(int keyCode);
@@ -5771,5 +5211,4 @@ namespace System.Windows.Forms
         public static extern IntPtr SetParent(IntPtr hWnd, IntPtr hWndParent);
     }
 }
-
 

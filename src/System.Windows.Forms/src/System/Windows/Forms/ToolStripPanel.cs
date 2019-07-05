@@ -4,53 +4,40 @@
 
 //#define DEBUG_PAINT
 
-
+using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
-    using System.Drawing;
-    using System.Windows.Forms.Layout;
-    using System.Collections.Specialized;
-    using System.Collections;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel.Design.Serialization;
-    using System.Globalization;
-    using System.Windows.Forms.Internal;
-
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDispatch)]
     [Designer("System.Windows.Forms.Design.ToolStripPanelDesigner, " + AssemblyRef.SystemDesign)]
     [ToolboxBitmapAttribute(typeof(ToolStripPanel), "ToolStripPanel_standalone")]
     public class ToolStripPanel : ContainerControl, IArrangedElement
     {
-
-
         private Orientation orientation = Orientation.Horizontal;
         private static readonly Padding rowMargin = new Padding(3, 0, 0, 0);
         private Padding scaledRowMargin = rowMargin;
         private ToolStripRendererSwitcher rendererSwitcher = null;
-        private readonly Type currentRendererType = typeof(System.Type);
         private BitVector32 state = new BitVector32();
         private readonly ToolStripContainer owner;
-
 
 #if DEBUG
         internal static TraceSwitch ToolStripPanelDebug = new TraceSwitch("ToolStripPanelDebug", "Debug code for rafting mouse movement");
         internal static TraceSwitch ToolStripPanelFeedbackDebug = new TraceSwitch("ToolStripPanelFeedbackDebug", "Debug code for rafting feedback");
         internal static TraceSwitch ToolStripPanelMissingRowDebug = new TraceSwitch("ToolStripPanelMissingRowDebug", "Debug code for rafting feedback");
-
 #else
         internal static TraceSwitch ToolStripPanelDebug;
         internal static TraceSwitch ToolStripPanelFeedbackDebug;
         internal static TraceSwitch ToolStripPanelMissingRowDebug;
 #endif
-
-        [ThreadStatic]
-        private static Rectangle lastFeedbackRect = Rectangle.Empty;
-
 
         // properties
         private static readonly int PropToolStripPanelRowCollection = PropertyStore.CreateKey();
@@ -63,8 +50,6 @@ namespace System.Windows.Forms
         private static readonly int stateEndInit = BitVector32.CreateMask(stateInJoin);
         private static readonly int stateLayoutSuspended = BitVector32.CreateMask(stateEndInit);
         private static readonly int stateRightToLeftChanged = BitVector32.CreateMask(stateLayoutSuspended);
-
-
 
         // events
         internal static readonly Padding DragMargin = new Padding(10);
@@ -103,7 +88,6 @@ namespace System.Windows.Forms
         [
         Browsable(false),
         EditorBrowsable(EditorBrowsableState.Never), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-
         ]
         public override bool AllowDrop
         {

@@ -2,23 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms.PropertyGridInternal
 {
-    using System;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
-    using Message = System.Windows.Forms.Message;
-
     internal class GridToolTip : Control
     {
         readonly Control[] controls;
         string toolTipText;
         readonly NativeMethods.TOOLINFO_T[] toolInfos;
         bool dontShow;
-        Point lastMouseMove = Point.Empty;
         private readonly int maximumToolTipLength = 1000;
 
         internal GridToolTip(Control[] controls)
@@ -143,22 +137,6 @@ namespace System.Windows.Forms.PropertyGridInternal
             toolInfos[index].uId = c.Handle;
             return toolInfos[index];
         }
-
-        /*
-        private bool MouseMoved(Message msg){
-            bool moved = true;
-
-            Point newMove = new Point(NativeMethods.Util.LOWORD(msg.LParam), NativeMethods.Util.HIWORD(msg.LParam));
-
-            // check if the mouse has actually moved...
-            if (lastMouseMove == newMove){
-                  moved = false;
-            }
-
-            lastMouseMove = newMove;
-            return moved;
-        }
-        */
 
         private void OnControlCreateHandle(object sender, EventArgs e)
         {

@@ -4,44 +4,35 @@
 
 // #define DEBUG_PREFERREDSIZE
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope = "member", Target = "System.Windows.Forms.Control+ActiveXFontMarshaler..ctor()")]
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.ComponentModel.Design.Serialization;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms.Automation;
+using System.Windows.Forms.Internal;
+using System.Windows.Forms.Layout;
+using Microsoft.Win32;
+using Encoding = System.Text.Encoding;
+using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
+using Accessibility;
 
 namespace System.Windows.Forms
 {
-    using Accessibility;
-    using Microsoft.Win32;
-    using System;
-    using System.Collections;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.ComponentModel.Design.Serialization;
-    using System.Configuration.Assemblies;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Drawing2D;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Runtime.InteropServices.ComTypes;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using System.Text;
-    using System.Threading;
-    using System.Windows.Forms.Design;
-    using System.Windows.Forms.Internal;
-    using Encoding = System.Text.Encoding;
-    using System.Drawing.Imaging;
-    using System.Windows.Forms.Layout;
-    using System.Runtime.Versioning;
-    using Automation;
-
-    using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
-    using Collections.Generic;
-
     /// <summary>
     ///    <para>Defines the base class for controls, which are components
     ///       with visual representation.</para>
@@ -156,7 +147,6 @@ namespace System.Windows.Forms
         {
             WM_GETCONTROLNAME = SafeNativeMethods.RegisterWindowMessage("WM_GETCONTROLNAME");
             WM_GETCONTROLTYPE = SafeNativeMethods.RegisterWindowMessage("WM_GETCONTROLTYPE");
-
         }
 
         internal const int STATE_CREATED = 0x00000001;
@@ -239,7 +229,6 @@ namespace System.Windows.Forms
         private static readonly object EventLayout = new object();
         private static readonly object EventGotFocus = new object();
         private static readonly object EventLostFocus = new object();
-        private static readonly object EventEnabledChanged = new object();
         private static readonly object EventEnter = new object();
         private static readonly object EventLeave = new object();
         private static readonly object EventHandleCreated = new object();
@@ -354,7 +343,6 @@ namespace System.Windows.Forms
         private static readonly int PropAccessibleName = PropertyStore.CreateKey();
         private static readonly int PropAccessibleRole = PropertyStore.CreateKey();
 
-        private static readonly int PropPaintingException = PropertyStore.CreateKey();
         private static readonly int PropActiveXImpl = PropertyStore.CreateKey();
         private static readonly int PropControlVersionInfo = PropertyStore.CreateKey();
         private static readonly int PropBackgroundImageLayout = PropertyStore.CreateKey();
@@ -748,7 +736,6 @@ namespace System.Windows.Forms
             {
                 return (string)Properties.GetObject(PropAccessibleName);
             }
-
             set
             {
                 Properties.SetObject(PropAccessibleName, value);
@@ -765,7 +752,6 @@ namespace System.Windows.Forms
         ]
         public AccessibleRole AccessibleRole
         {
-
             get
             {
                 int role = Properties.GetInteger(PropAccessibleRole, out bool found);
@@ -778,7 +764,6 @@ namespace System.Windows.Forms
                     return AccessibleRole.Default;
                 }
             }
-
             set
             {
                 //valid values are -1 to 0x40
@@ -898,7 +883,6 @@ namespace System.Windows.Forms
             {
                 return GetState(STATE_ALLOWDROP);
             }
-
             set
             {
                 if (GetState(STATE_ALLOWDROP) != value)
@@ -1301,12 +1285,6 @@ namespace System.Windows.Forms
             }
         }
 
-        private bool ShouldSerializeAccessibleName()
-        {
-            string accName = AccessibleName;
-            return accName != null && accName.Length > 0;
-        }
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void ResetBindings()
         {
@@ -1703,8 +1681,6 @@ namespace System.Windows.Forms
         ]
         public string CompanyName
         {
-
-
             get
             {
                 return VersionInfo.CompanyName;
@@ -9883,71 +9859,6 @@ namespace System.Windows.Forms
         // Paints a red rectangle with a red X, painted on a white background
         private void PaintException(PaintEventArgs e)
         {
-#if false
-            StringFormat stringFormat = ControlPaint.StringFormatForAlignment(ContentAlignment.TopLeft);
-            string exceptionText = Properties.GetObject(PropPaintingException).ToString();
-            stringFormat.SetMeasurableCharacterRanges(new CharacterRange[] {new CharacterRange(0, exceptionText.Length)});
-
-            // rendering calculations...
-            //
-            int penThickness = 2;
-            Size glyphSize = SystemInformation.IconSize;
-            int marginX = penThickness * 2;
-            int marginY = penThickness * 2;
-
-            Rectangle clientRectangle = ClientRectangle;
-
-            Rectangle borderRectangle = ClientRectangle;
-            borderRectangle.X++;
-            borderRectangle.Y++;
-            borderRectangle.Width -= 2;
-            borderRectangle.Height-= 2;
-
-            Rectangle imageRect = new Rectangle(marginX, marginY, glyphSize.Width, glyphSize.Height);
-
-            Rectangle textRect = clientRectangle;
-            textRect.X = imageRect.X + imageRect.Width + 2 * marginX;
-            textRect.Y = imageRect.Y;
-            textRect.Width -= (textRect.X + marginX + penThickness);
-            textRect.Height -= (textRect.Y + marginY + penThickness);
-
-            using (Font errorFont = new Font(Font.FontFamily, Math.Max(SystemInformation.ToolWindowCaptionHeight - SystemInformation.BorderSize.Height - 2, Font.Height), GraphicsUnit.Pixel)) {
-
-                using(Region textRegion = e.Graphics.MeasureCharacterRanges(exceptionText, errorFont, textRect, stringFormat)[0]) {
-                    // paint contents... clipping optimizations for less flicker...
-                    //
-                    Region originalClip = e.Graphics.Clip;
-
-                    e.Graphics.ExcludeClip(textRegion);
-                    e.Graphics.ExcludeClip(imageRect);
-                    try {
-                        e.Graphics.FillRectangle(Brushes.White, clientRectangle);
-                    }
-                    finally {
-                        e.Graphics.Clip = originalClip;
-                    }
-
-                    using (Pen pen = new Pen(Color.Red, penThickness)) {
-                        e.Graphics.DrawRectangle(pen, borderRectangle);
-                    }
-
-                    Icon err = SystemIcons.Error;
-
-                    e.Graphics.FillRectangle(Brushes.White, imageRect);
-                    e.Graphics.DrawIcon(err, imageRect.X, imageRect.Y);
-
-                    textRect.X++;
-                    e.Graphics.IntersectClip(textRegion);
-                    try {
-                        e.Graphics.FillRectangle(Brushes.White, textRect);
-                        e.Graphics.DrawString(exceptionText, errorFont, new SolidBrush(ForeColor), textRect, stringFormat);
-                    }
-                    finally {
-                        e.Graphics.Clip = originalClip;
-                    }
-                }
-            }
-#else
             int penThickness = 2;
             using (Pen pen = new Pen(Color.Red, penThickness))
             {
@@ -9966,7 +9877,6 @@ namespace System.Windows.Forms
                 e.Graphics.DrawLine(pen, clientRectangle.Left, clientRectangle.Bottom,
                                     clientRectangle.Right, clientRectangle.Top);
             }
-#endif
         }
 
         internal void PaintTransparentBackground(PaintEventArgs e, Rectangle rectangle)
@@ -12540,15 +12450,6 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///     Returns true if the enabled property should be persisted in code gen.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private bool ShouldSerializeEnabled()
-        {
-            return (!GetState(STATE_ENABLED));
-        }
-
-        /// <summary>
         ///     Returns true if the foreColor should be persisted in code gen.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -12576,15 +12477,6 @@ namespace System.Windows.Forms
         {
             int rtl = Properties.GetInteger(PropRightToLeft, out bool found);
             return (found && rtl != (int)RightToLeft.Inherit);
-        }
-
-        /// <summary>
-        ///     Returns true if the visible property should be persisted in code gen.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private bool ShouldSerializeVisible()
-        {
-            return (!GetState(STATE_VISIBLE));
         }
 
         // Helper function - translates text alignment for Rtl controls
@@ -12706,27 +12598,9 @@ namespace System.Windows.Forms
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool ShouldSerializeMargin()
-        {
-            return !Margin.Equals(DefaultMargin);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal virtual bool ShouldSerializeMaximumSize()
-        {
-            return MaximumSize != DefaultMaximumSize;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
         internal virtual bool ShouldSerializeMinimumSize()
         {
             return MinimumSize != DefaultMinimumSize;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool ShouldSerializePadding()
-        {
-            return !Padding.Equals(DefaultPadding);
         }
 
         /// <summary>
@@ -12736,7 +12610,7 @@ namespace System.Windows.Forms
         internal virtual bool ShouldSerializeSize()
         {
             // In Whidbey the ControlDesigner class will always serialize size as it replaces the Size
-            // property descriptor with its own.  This is here for compat.                    
+            // property descriptor with its own.  This is here for compat.
             Size s = DefaultSize;
             return width != s.Width || height != s.Height;
         }
@@ -12761,13 +12635,13 @@ namespace System.Windows.Forms
                 OnLayoutSuspended();
             }
 
-#if DEBUG          
+#if DEBUG
             Debug.Assert(layoutSuspendCount > 0, "SuspendLayout: layoutSuspendCount overflowed.");
             if (CompModSwitches.LayoutSuspendResume.TraceInfo)
             {
                 Debug.WriteLine(GetType().Name + "::SuspendLayout( newCount = " + layoutSuspendCount + ")");
             }
-#endif            
+#endif
         }
 
         /// <summary>

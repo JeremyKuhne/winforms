@@ -2,43 +2,23 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#if DRAWING_DESIGN_NAMESPACE
-namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
-{
-    using System;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Drawing.Drawing2D;
-    using System.Globalization;
-    using System.Runtime.Versioning;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 
+namespace System.Windows.Forms.Internal
+{
     /// <summary>
     ///     <para>
     ///         Encapsulates a GDI Pen object.
     ///     </para>
     /// </summary>
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class WindowsPen : MarshalByRefObject, ICloneable, IDisposable
+    internal sealed partial class WindowsPen : MarshalByRefObject, ICloneable, IDisposable
     {
         //
         // Handle to the native Windows pen object.
         // 
         private IntPtr nativeHandle;
-
-        private const int dashStyleMask = 0x0000000F;
-        private const int endCapMask = 0x00000F00;
-        private const int joinMask = 0x0000F000;
 
         private readonly DeviceContext dc;
 
@@ -56,27 +36,10 @@ namespace System.Experimental.Gdi
         private string AllocationSite = DbgUtil.StackTrace;
 #endif
 
-
-
-        public WindowsPen(DeviceContext dc) :
-            this(dc, WindowsPenStyle.Default, cosmeticPenWidth, Color.Black)
-        {
-        }
-
-
-
         public WindowsPen(DeviceContext dc, Color color) :
             this(dc, WindowsPenStyle.Default, cosmeticPenWidth, color)
         {
         }
-
-
-
-        public WindowsPen(DeviceContext dc, WindowsBrush windowsBrush) :
-            this(dc, WindowsPenStyle.Default, cosmeticPenWidth, windowsBrush)
-        {
-        }
-
 
         public WindowsPen(DeviceContext dc, WindowsPenStyle style, int width, Color color)
         {
@@ -87,8 +50,6 @@ namespace System.Experimental.Gdi
 
             // CreatePen() created on demand.
         }
-
-
 
         public WindowsPen(DeviceContext dc, WindowsPenStyle style, int width, WindowsBrush windowsBrush)
         {
@@ -102,8 +63,6 @@ namespace System.Experimental.Gdi
 
             // CreatePen() created on demand.
         }
-
-
 
         private void CreatePen()
         {
@@ -130,8 +89,6 @@ namespace System.Experimental.Gdi
                 nativeHandle = IntSafeNativeMethods.ExtCreatePen((int)style, width, lb, 0, null);
             }
         }
-
-
 
         public object Clone()
         {
@@ -195,5 +152,4 @@ namespace System.Experimental.Gdi
                 wndBrush != null ? wndBrush.ToString() : "null");
         }
     }
-
 }

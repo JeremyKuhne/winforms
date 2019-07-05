@@ -1055,9 +1055,6 @@ namespace System.Windows.Forms
 
         private class HorizontalRowManager : ToolStripPanelRowManager
         {
-            private const int DRAG_BOUNDS_INFLATE = 4;
-
-
             public HorizontalRowManager(ToolStripPanelRow owner) : base(owner)
             {
                 owner.SuspendLayout();
@@ -1647,16 +1644,10 @@ namespace System.Windows.Forms
             {
                 base.OnBoundsChanged(oldBounds, newBounds);
             }
-
-
-
         }
 
         private class VerticalRowManager : ToolStripPanelRowManager
         {
-
-            private const int DRAG_BOUNDS_INFLATE = 4;
-
             public VerticalRowManager(ToolStripPanelRow owner) : base(owner)
             {
                 owner.SuspendLayout();
@@ -1664,7 +1655,6 @@ namespace System.Windows.Forms
                 FlowLayoutSettings.FlowDirection = FlowDirection.TopDown;
                 owner.ResumeLayout(false);
             }
-
 
             public override Rectangle DisplayRectangle
             {

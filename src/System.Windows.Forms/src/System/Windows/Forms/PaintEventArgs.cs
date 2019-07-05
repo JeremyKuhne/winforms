@@ -48,7 +48,6 @@ namespace System.Windows.Forms
                 return "Enabled 'PaintEventFinalization' trace switch to see stack of allocation";
             }
         }
-        private readonly string AllocationSite = PaintEventArgs.GetAllocationStack();
 #endif
 
         /// <summary>

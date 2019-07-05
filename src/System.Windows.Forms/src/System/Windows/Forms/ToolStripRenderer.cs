@@ -2,20 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
+using System.Windows.Forms.Layout;
+
 namespace System.Windows.Forms
 {
-
-    using System.Windows.Forms.VisualStyles;
-    using System.Drawing;
-    using System.Drawing.Text;
-    using System.Windows.Forms.Internal;
-    using System.Drawing.Imaging;
-    using System.ComponentModel;
-    using System.Windows.Forms.Layout;
-
     public abstract class ToolStripRenderer
     {
-
         private static readonly object EventRenderSplitButtonBackground = new object();
         private static readonly object EventRenderItemBackground = new object();
         private static readonly object EventRenderItemImage = new object();
@@ -30,7 +26,6 @@ namespace System.Windows.Forms
         private static readonly object EventRenderImageMargin = new object();
         private static readonly object EventRenderBorder = new object();
         private static readonly object EventRenderArrow = new object();
-        private static readonly object EventRenderStatusStripPanelBackground = new object();
         private static readonly object EventRenderToolStripStatusLabelBackground = new object();
         private static readonly object EventRenderSeparator = new object();
         private static readonly object EventRenderItemCheck = new object();
@@ -82,8 +77,6 @@ namespace System.Windows.Forms
                 if (disabledImageColorMatrix == null)
                 {
                     // this is the result of a GreyScale matrix multiplied by a transparency matrix of .5
-
-
 
                     float[][] greyscale = new float[5][];
                     greyscale[0] = new float[5] { 0.2125f, 0.2125f, 0.2125f, 0, 0 };

@@ -11,7 +11,6 @@ namespace System.ComponentModel
 
     internal static class CompModSwitches
     {
-
         private static TraceSwitch activeX;
         private static TraceSwitch flowLayout;
         private static TraceSwitch dataCursor;

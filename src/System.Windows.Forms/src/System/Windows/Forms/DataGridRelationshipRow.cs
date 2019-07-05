@@ -2,21 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+
 namespace System.Windows.Forms
 {
-
-    using System;
-    using System.Runtime.InteropServices;
-
-    using System.Windows.Forms;
-    using System.ComponentModel;
-    using System.Drawing;
-
-    using Microsoft.Win32;
-    using System.Diagnostics;
-    using System.Collections;
-    using System.Globalization;
-
     /// <summary>
     ///      This class fully encapsulates the painting logic for a row
     ///      appearing in a DataGrid.
@@ -25,57 +19,21 @@ namespace System.Windows.Forms
     {
         private const bool defaultOpen = false;
         private const int expandoBoxWidth = 14;
-        private const int indentWidth = 20;
-        // private const int  relationshipSpacing = 1;
-        private const int triangleSize = 5;
 
         private bool expanded = defaultOpen;
-        // private bool hasRelationships = false;
-        // private Font linkFont = null;
-        // private new DataGrid dataGrid; // Currently used only to obtain a Graphics object for measuring text
-
-        // private Rectangle relationshipRect   = Rectangle.Empty;
-        // private int       relationshipHeight = 0;
-
-        // relationships
-        // we should get this directly from the dgTable.
-        // private ArrayList     relationships;
-        // private int            focusedRelation = -1;
-        // private int          focusedTextWidth;
 
         public DataGridRelationshipRow(DataGrid dataGrid, DataGridTableStyle dgTable, int rowNumber)
         : base(dataGrid, dgTable, rowNumber)
         {
-            // this.dataGrid = dataGrid;
-            // linkFont = dataGrid.LinkFont;
-            // relationshipHeight = dataGrid.LinkFontHeight + this.dgTable.relationshipSpacing;
-
-            // if (DataGrid.AllowNavigation) {
-            //     hasRelationships = dgTable.RelationsList.Count > 0;
-            // }
         }
 
         internal protected override int MinimumRowHeight(GridColumnStylesCollection cols)
         {
-            /*
-            if (DataGrid != null && DataGrid.LinkFontHeight + this.dgTable.relationshipSpacing != relationshipHeight) {
-                relationshipRect = Rectangle.Empty;
-                relationshipHeight = DataGrid.LinkFontHeight + this.dgTable.relationshipSpacing;
-            }
-            */
-
             return base.MinimumRowHeight(cols) + (expanded ? GetRelationshipRect().Height : 0);
         }
 
         internal protected override int MinimumRowHeight(DataGridTableStyle dgTable)
         {
-            /*
-            if (DataGrid != null && DataGrid.LinkFontHeight + this.dgTable.relationshipSpacing != relationshipHeight) {
-                relationshipRect = Rectangle.Empty;
-                relationshipHeight = DataGrid.LinkFontHeight + this.dgTable.relationshipSpacing;
-            }
-            */
-
             return base.MinimumRowHeight(dgTable) + (expanded ? GetRelationshipRect().Height : 0);
         }
 
@@ -106,42 +64,6 @@ namespace System.Windows.Forms
                 }
             }
         }
-
-        /*
-        private Color BorderColor {
-            get {
-                if (DataGrid == null)
-                    return Color.Empty;
-                return DataGrid.GridLineColor;
-            }
-        }
-        */
-
-#if FALSE
-        private int BorderWidth {
-            get {
-                DataGrid dataGrid = this.DataGrid;
-                if (dataGrid == null)
-                    return 0;
-                // if the user set the GridLineStyle property on the dataGrid.
-                // then use the value of that property
-                DataGridLineStyle gridStyle;
-                int gridLineWidth;
-                if (this.dgTable.IsDefault) {
-                    gridStyle = this.DataGrid.GridLineStyle;
-                    gridLineWidth = this.DataGrid.GridLineWidth;
-                } else {
-                    gridStyle = this.dgTable.GridLineStyle;
-                    gridLineWidth = this.dgTable.GridLineWidth;
-                }
-
-                if (gridStyle == DataGridLineStyle.None)
-                    return 0;
-
-                return gridLineWidth;
-            }
-        }
-#endif //FALSE
 
         private int FocusedRelation
         {
@@ -264,40 +186,6 @@ namespace System.Windows.Forms
             ret.Y = base.Height - dgTable.BorderWidth;
             return ret;
         }
-
-#if FALSE
-        private Rectangle GetRelationshipRect() {
-            if (relationshipRect.IsEmpty) {
-                Debug.WriteLineIf(CompModSwitches.DGRelationShpRowLayout.TraceVerbose, "GetRelationshipRect grinding away");
-                if (!expanded) {
-                    return(relationshipRect = new Rectangle(0,0,0,0));
-                }
-                Graphics g = DataGrid.CreateGraphicsInternal();
-                relationshipRect = new Rectangle();
-                relationshipRect.X = 0; //indentWidth;
-                relationshipRect.Y = base.Height - this.dgTable.BorderWidth;
-
-                // Determine the width of the widest relationship name
-                int longestRelationship = 0;
-                for (int r = 0; r < this.dgTable.RelationsList.Count; ++r) {
-                    int rwidth = (int) Math.Ceiling(g.MeasureString(((string) this.dgTable.RelationsList[r]), this.DataGrid.LinkFont).Width);
-                    if (rwidth > longestRelationship)
-                        longestRelationship = rwidth;
-                }
-
-                g.Dispose();
-
-                relationshipRect.Width = longestRelationship + 5;
-                relationshipRect.Width += 2; // relationshipRect border;
-                relationshipRect.Height = this.dgTable.BorderWidth + relationshipHeight * this.dgTable.RelationsList.Count;
-                relationshipRect.Height += 2; // relationship border
-                if (this.dgTable.RelationsList.Count > 0)
-                    relationshipRect.Height += 2 * System.Windows.Forms.DataGridTableStyle.relationshipSpacing;
-            }
-            return relationshipRect;
-        }
-
-#endif// FALSE
 
         private Rectangle GetRelationshipRectWithMirroring()
         {

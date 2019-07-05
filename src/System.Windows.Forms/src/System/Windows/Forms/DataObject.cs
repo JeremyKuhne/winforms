@@ -2,25 +2,24 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Drawing;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Runtime.InteropServices.ComTypes;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using System.Text;
-    using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
-
     /// <summary>
     ///    <para>Implements a basic data transfer mechanism.</para>
     /// </summary>
@@ -29,15 +28,12 @@ namespace System.Windows.Forms
     ]
     public class DataObject : IDataObject, IComDataObject
     {
-
         private static readonly string CF_DEPRECATED_FILENAME = "FileName";
         private static readonly string CF_DEPRECATED_FILENAMEW = "FileNameW";
 
         private const int DV_E_FORMATETC = unchecked((int)0x80040064);
-        private const int DV_E_LINDEX = unchecked((int)0x80040068);
         private const int DV_E_TYMED = unchecked((int)0x80040069);
         private const int DV_E_DVASPECT = unchecked((int)0x8004006B);
-        private const int OLE_E_NOTRUNNING = unchecked((int)0x80040005);
         private const int OLE_E_ADVISENOTSUPPORTED = unchecked((int)0x80040003);
         private const int DATA_S_SAMEFORMATETC = 0x00040130;
 

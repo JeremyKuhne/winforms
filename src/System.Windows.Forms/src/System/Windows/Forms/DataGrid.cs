@@ -71,8 +71,6 @@ namespace System.Windows.Forms
         private System.Collections.Specialized.BitVector32 gridState;                  // see GRIDSTATE_ consts above
 
         // for column widths
-        private const int NumRowsForAutoResize = 10;
-
         private const int errorRowBitmapWidth = 15;
 
         private const DataGridParentRowsLabelStyle defaultParentRowsLabelStyle = DataGridParentRowsLabelStyle.Both;
@@ -697,6 +695,7 @@ namespace System.Windows.Forms
                 return new Pen(SystemColors.ControlText);
             }
         }
+
         private static SolidBrush DefaultLinkBrush
         {
             get
@@ -704,7 +703,6 @@ namespace System.Windows.Forms
                 return (SolidBrush)SystemBrushes.HotTrack;
             }
         }
-
 
         private bool ListHasErrors
         {
@@ -792,11 +790,6 @@ namespace System.Windows.Forms
             }
         }
 
-        private void ResetCaptionBackColor()
-        {
-            Caption.ResetBackColor();
-        }
-
         /// <summary>
         ///    <para>
         ///       Gets a value
@@ -832,11 +825,6 @@ namespace System.Windows.Forms
             }
         }
 
-        private void ResetCaptionForeColor()
-        {
-            Caption.ResetForeColor();
-        }
-
         /// <summary>
         ///    <para>
         ///       Gets a value
@@ -870,22 +858,6 @@ namespace System.Windows.Forms
             {
                 Caption.Font = value;
             }
-        }
-
-        /// <summary>
-        ///    <para>
-        ///       Gets a value indicating whether the
-        ///       caption's font is persisted.
-        ///    </para>
-        /// </summary>
-        private bool ShouldSerializeCaptionFont()
-        {
-            return Caption.ShouldSerializeFont();
-        }
-
-        private void ResetCaptionFont()
-        {
-            Caption.ResetFont();
         }
 
         /// <summary>

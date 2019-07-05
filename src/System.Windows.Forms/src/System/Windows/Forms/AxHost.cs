@@ -2,37 +2,29 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Windows.Forms.ComponentModel.Com2Interop;
+using System.Windows.Forms.Design;
 
 namespace System.Windows.Forms
 {
-    using Microsoft.Win32;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.ComponentModel.Design;
-    using System.Configuration.Assemblies;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-    using System.Drawing.Design;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Windows.Forms.ComponentModel;
-    using System.Windows.Forms.ComponentModel.Com2Interop;
-    using System.Windows.Forms.Design;
-    using System.Runtime.Versioning;
-
     /// <summary>
     ///    <para>
-    ///
     ///       Wraps ActiveX controls and exposes them as
     ///       fully featured windows forms controls.
     ///    </para>
@@ -47,11 +39,9 @@ namespace System.Windows.Forms
     ]
     public abstract class AxHost : Control, ISupportInitialize, ICustomTypeDescriptor
     {
-
         private static readonly TraceSwitch AxHTraceSwitch = new TraceSwitch("AxHTrace", "ActiveX handle tracing");
         private static readonly TraceSwitch AxPropTraceSwitch = new TraceSwitch("AxPropTrace", "ActiveX property tracing");
         private static readonly TraceSwitch AxHostSwitch = new TraceSwitch("AxHost", "ActiveX host creation");
-        private static readonly BooleanSwitch AxIgnoreTMSwitch = new BooleanSwitch("AxIgnoreTM", "ActiveX switch to ignore thread models");
         private static readonly BooleanSwitch AxAlwaysSaveSwitch = new BooleanSwitch("AxAlwaysSave", "ActiveX to save all controls regardless of their IsDirty function return value");
 
         /// <summary>
@@ -84,7 +74,6 @@ namespace System.Windows.Forms
             internal const int IgnoreThreadModel = 0x10000000;
         }
 
-        private static readonly COMException E_NOTIMPL = new COMException(SR.AXNotImplemented, unchecked((int)0x80000001));
         private static readonly COMException E_INVALIDARG = new COMException(SR.AXInvalidArgument, unchecked((int)0x80070057));
         private static readonly COMException E_FAIL = new COMException(SR.AXUnknownError, unchecked((int)0x80004005));
         private static readonly COMException E_NOINTERFACE = new COMException(SR.AxInterfaceNotSupported, unchecked((int)0x80004002));
@@ -110,8 +99,6 @@ namespace System.Windows.Forms
         private const int OLEIVERB_HIDE = -3;
         private const int OLEIVERB_UIACTIVATE = -4;
         private const int OLEIVERB_INPLACEACTIVATE = -5;
-        private const int OLEIVERB_PROPERTIES = -7;
-        private const int OLEIVERB_PRIMARY = 0;
 
         private readonly int REGMSG_MSG = SafeNativeMethods.RegisterWindowMessage(Application.WindowMessagesVersion + "_subclassCheck");
         private const int REGMSG_RETVAL = 123;
@@ -2323,15 +2310,6 @@ namespace System.Windows.Forms
             {
             }
             return ret;
-        }
-
-        /// <summary>
-        ///     Determines whether to persist the ContainingControl property.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private bool ShouldSerializeContainingControl()
-        {
-            return ContainingControl != ParentInternal;
         }
 
         private ContainerControl FindContainerControlInternal()
@@ -5740,13 +5718,6 @@ namespace System.Windows.Forms
             private Hashtable components = null;  // Control -> any
             private Hashtable proxyCache = null;
             private AxHost ctlInEditMode = null;
-
-            private const int GC_CHILD = 0x1;
-            private const int GC_LASTSIBLING = 0x2;
-            private const int GC_FIRSTSIBLING = 0x4;
-            private const int GC_CONTAINER = 0x20;
-            private const int GC_PREVSIBLING = 0x40;
-            private const int GC_NEXTSIBLING = 0x80;
 
             internal AxContainer(ContainerControl parent)
             {

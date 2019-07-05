@@ -6,21 +6,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-#if DRAWING_DESIGN_NAMESPACE
 namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
 {
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    partial class IntNativeMethods
+    internal partial class IntNativeMethods
     {
         public const int
         DT_TOP = 0x00000000,
@@ -49,7 +37,6 @@ namespace System.Experimental.Gdi
         DT_PREFIXONLY = 0x00200000,
 
         DIB_RGB_COLORS = 0,
-        BI_BITFIELDS = 3,
         BI_RGB = 0,
         BITMAPINFO_MAX_COLORSIZE = 256,
         SPI_GETICONTITLELOGFONT = 0x001F,
@@ -58,7 +45,6 @@ namespace System.Experimental.Gdi
         HOLLOW_BRUSH = 5,
 
         BITSPIXEL = 12,
-        ALTERNATE = 1,
         WINDING = 2,
 
         SRCCOPY = 0x00CC0020,
@@ -78,20 +64,16 @@ namespace System.Experimental.Gdi
         WHITENESS = 0x00FF0062, /* dest = WHITE                    */
         CAPTUREBLT = 0x40000000, /* Include layered windows */
 
-
-        /* FONT WEIGHT (BOLD) VALUES */
-        FW_DONTCARE = 0,
+        /* FONT WEIGHT VALUES */
         FW_NORMAL = 400,
         FW_BOLD = 700,
         // some others...
 
         /* FONT CHARACTER SET */
-        ANSI_CHARSET = 0,
         DEFAULT_CHARSET = 1,
         // plus others ....
 
         /* Font OutPrecision */
-        OUT_DEFAULT_PRECIS = 0,
         OUT_TT_PRECIS = 4,
         OUT_TT_ONLY_PRECIS = 7,
         // some others...
@@ -189,14 +171,6 @@ namespace System.Experimental.Gdi
                     return new Size(right - left, bottom - top);
                 }
             }
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            public override string ToString()
-            {
-                Size size = this.Size;
-                return string.Format("{0}=[left={1}, top={2}, width={3}, height={4}]", this.GetType().Name, left, top, size.Width, size.Height);
-            }
-#endif
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -209,22 +183,10 @@ namespace System.Experimental.Gdi
             {
             }
 
-            public POINT(int x, int y)
-            {
-                this.x = x;
-                this.y = y;
-            }
-
             public System.Drawing.Point ToPoint()
             {
                 return new System.Drawing.Point(x, y);
             }
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            public override string ToString()
-            {
-                return string.Format("{0}=[x={1}, y={2}]", this.GetType().Name, x, y);
-            }
-#endif
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -245,25 +207,12 @@ namespace System.Experimental.Gdi
             public DRAWTEXTPARAMS()
             {
             }
-            public DRAWTEXTPARAMS(DRAWTEXTPARAMS original)
-            {
-                iLeftMargin = original.iLeftMargin;
-                iRightMargin = original.iRightMargin;
-                iTabLength = original.iTabLength;
-            }
 
             public DRAWTEXTPARAMS(int leftMargin, int rightMargin)
             {
                 iLeftMargin = leftMargin;
                 iRightMargin = rightMargin;
             }
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            public override string ToString()
-            {
-                return string.Format("{0}=[tabLength={1}, leftMargin={2}, rightMargin={3}, lengthDrawn={4}]", this.GetType().Name, iTabLength, iLeftMargin, iRightMargin, uiLengthDrawn);
-            }
-#endif
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -316,40 +265,6 @@ namespace System.Experimental.Gdi
                 lfPitchAndFamily = lf.lfPitchAndFamily;
                 lfFaceName = lf.lfFaceName;
             }
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            public override string ToString() 
-            {
-                return 
-                    "FaceName="  + lfFaceName + ", " +
-                    "Height="    + lfHeight   + ", " +
-                    "Width="     + lfWidth    + ", " +
-                    "Bold="      + (lfWeight    <= FW_NORMAL ? false : true) + ", " +
-                    "Italic="    + (lfItalic    == 0 ? false : true) + ", " +
-                    "Underline=" + (lfUnderline == 0 ? false : true) + ", " +
-                    "StrikeOut=" + (lfStrikeOut == 0 ? false : true) + ", " +
-                    "CharSet="   + lfCharSet;
-            }
-
-            public string DumpObject() 
-            {
-                return 
-                    "Height="         + lfHeight         + ", " +
-                    "Width="          + lfWidth          + ", " +
-                    "Escapement="     + lfEscapement     + ", " +
-                    "Orientation="    + lfOrientation    + ", " +
-                    "Weight="         + lfWeight         + ", " +
-                    "Italic="         + lfItalic         + ", " +
-                    "Underline="      + lfUnderline      + ", " +
-                    "StrikeOut="      + lfStrikeOut      + ", " +
-                    "CharSet="        + lfCharSet        + ", " +
-                    "OutPrecision="   + lfOutPrecision   + ", " +
-                    "ClipPrecision="  + lfClipPrecision  + ", " +
-                    "Quality="        + lfQuality        + ", " +
-                    "PitchAndFamily=" + lfPitchAndFamily + ", " +
-                    "FaceName="       + lfFaceName;
-            }
-#endif
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -377,31 +292,6 @@ namespace System.Experimental.Gdi
             public byte tmCharSet;
         }
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct TEXTMETRICA
-        {
-            public int tmHeight;
-            public int tmAscent;
-            public int tmDescent;
-            public int tmInternalLeading;
-            public int tmExternalLeading;
-            public int tmAveCharWidth;
-            public int tmMaxCharWidth;
-            public int tmWeight;
-            public int tmOverhang;
-            public int tmDigitizedAspectX;
-            public int tmDigitizedAspectY;
-            public byte tmFirstChar;
-            public byte tmLastChar;
-            public byte tmDefaultChar;
-            public byte tmBreakChar;
-            public byte tmItalic;
-            public byte tmUnderlined;
-            public byte tmStruckOut;
-            public byte tmPitchAndFamily;
-            public byte tmCharSet;
-        }
-
         [StructLayout(LayoutKind.Sequential)]
         public class SIZE
         {
@@ -412,22 +302,10 @@ namespace System.Experimental.Gdi
             {
             }
 
-            public SIZE(int cx, int cy)
-            {
-                this.cx = cx;
-                this.cy = cy;
-            }
-
             public System.Drawing.Size ToSize()
             {
                 return new System.Drawing.Size(cx, cy);
             }
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-            public override string ToString()
-            {
-                return string.Format("{0}=[width={1}, height={2}]", this.GetType().Name, cx, cy);
-            }
-#endif
         }
     }
 }

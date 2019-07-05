@@ -2,35 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#if DRAWING_DESIGN_NAMESPACE
-namespace System.Windows.Forms.Internal
-#elif DRAWING_NAMESPACE
-namespace System.Drawing.Internal
-#else
-namespace System.Experimental.Gdi
-#endif
-{
-    using System;
-    using System.Runtime.InteropServices;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Globalization;
-    using System.Runtime.Versioning;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
+namespace System.Windows.Forms.Internal
+{
     /// <summary>
     ///     <para>
     ///         Encapsulates a GDI Region object.
     ///     </para>
     /// </summary>
-
-#if WINFORMS_PUBLIC_GRAPHICS_LIBRARY
-    public
-#else
-    internal
-#endif
-    sealed partial class WindowsRegion : MarshalByRefObject, ICloneable, IDisposable
+    internal sealed partial class WindowsRegion : MarshalByRefObject, ICloneable, IDisposable
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources")]
         private IntPtr nativeHandle; // The hRegion, this class always takes ownership of the hRegion.
@@ -40,24 +23,14 @@ namespace System.Experimental.Gdi
         private string AllocationSite = DbgUtil.StackTrace;
 #endif
 
-        /// <summary>
-        /// </summary>
         private WindowsRegion()
         {
         }
-
-        /// <summary>
-        /// </summary>
-
 
         public WindowsRegion(Rectangle rect)
         {
             CreateRegion(rect);
         }
-
-        /// <summary>
-        /// </summary>
-
 
         public WindowsRegion(int x, int y, int width, int height)
         {
@@ -110,10 +83,6 @@ namespace System.Experimental.Gdi
             return WindowsRegion.FromHregion(region.GetHrgn(g), true);
         }
 
-        /// <summary>
-        /// </summary>
-
-
         public object Clone()
         {
             // WARNING: WindowsRegion currently supports rectangulare regions only, if the WindowsRegion was created
@@ -133,10 +102,6 @@ namespace System.Experimental.Gdi
             return IntUnsafeNativeMethods.CombineRgn(new HandleRef(this, HRegion), new HandleRef(region1, region1.HRegion), new HandleRef(region2, region2.HRegion), mode);
         }
 
-        /// <summary>
-        /// </summary>
-
-
         private void CreateRegion(Rectangle rect)
         {
             Debug.Assert(nativeHandle == IntPtr.Zero, "nativeHandle should be null, we're leaking handle");
@@ -144,15 +109,11 @@ namespace System.Experimental.Gdi
             ownHandle = true;
         }
 
-        /// <summary>
-        /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
 
-        /// <summary>
-        /// </summary>
         public void Dispose(bool disposing)
         {
             if (nativeHandle != IntPtr.Zero)
@@ -173,7 +134,6 @@ namespace System.Experimental.Gdi
             }
         }
 
-        /// <summary>
         /// </summary>
         ~WindowsRegion()
         {
@@ -191,8 +151,6 @@ namespace System.Experimental.Gdi
             }
         }
 
-        /// <summary>
-        /// </summary>
         public bool IsInfinite
         {
             get
@@ -217,4 +175,3 @@ namespace System.Experimental.Gdi
         }
     }
 }
-

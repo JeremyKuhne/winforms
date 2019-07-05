@@ -82,12 +82,8 @@ namespace System.Windows.Forms
         [ThreadStatic]
         private static Image defaultErrorImageForThread = null;
 
-
-        private static readonly object defaultInitialImageKey = new object();
-        private static readonly object defaultErrorImageKey = new object();
         private static readonly object loadCompletedKey = new object();
         private static readonly object loadProgressChangedKey = new object();
-
 
         private const int PICTUREBOXSTATE_asyncOperationInProgress = 0x00000001;
         private const int PICTUREBOXSTATE_cancellationPending = 0x00000002;

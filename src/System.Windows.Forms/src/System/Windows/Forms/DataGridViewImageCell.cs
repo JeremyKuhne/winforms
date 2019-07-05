@@ -2,21 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Globalization;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Windows.Forms;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-    using System.Drawing.Drawing2D;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Runtime.Versioning;
-
     public class DataGridViewImageCell : DataGridViewCell
     {
-        private static readonly ColorMap[] colorMap = new ColorMap[] { new ColorMap() };
         private static readonly int PropImageCellDescription = PropertyStore.CreateKey();
         private static readonly int PropImageCellLayout = PropertyStore.CreateKey();
         private static readonly Type defaultTypeImage = typeof(System.Drawing.Image);
