@@ -1963,7 +1963,6 @@ namespace System.ComponentModel.Design
                     // The listbox draws with GDI, not GDI+.  So, we use a normal DC here.
                     IntPtr hdc = UnsafeNativeMethods.GetDC(new HandleRef(listBox, listBox.Handle));
                     IntPtr hFont = listBox.Font.ToHfont();
-                    Interop.HandleCollector.Add(hFont, Interop.CommonHandles.GDI);
                     NativeMethods.TEXTMETRIC tm = new NativeMethods.TEXTMETRIC();
                     try
                     {
@@ -2604,7 +2603,6 @@ namespace System.ComponentModel.Design
                 private static extern bool IntDeleteObject(HandleRef hObject);
                 public static bool DeleteObject(HandleRef hObject)
                 {
-                    Interop.HandleCollector.Remove((IntPtr)hObject, Interop.CommonHandles.GDI);
                     return IntDeleteObject(hObject);
                 }
 
@@ -2677,22 +2675,11 @@ namespace System.ComponentModel.Design
                 [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
                 public static extern IntPtr GetCapture();
 
-                [DllImport(ExternDll.User32, ExactSpelling = true, EntryPoint = "GetDC", CharSet = CharSet.Auto)]
-                private static extern IntPtr IntGetDC(HandleRef hWnd);
+                [DllImport(ExternDll.User32, ExactSpelling = true)]
+                public static extern IntPtr GetDC(HandleRef hWnd);
 
-                public static IntPtr GetDC(HandleRef hWnd)
-                {
-                    return Interop.HandleCollector.Add(IntGetDC(hWnd), Interop.CommonHandles.HDC);
-                }
-
-                [DllImport(ExternDll.User32, ExactSpelling = true, EntryPoint = "ReleaseDC", CharSet = CharSet.Auto)]
-                private static extern int IntReleaseDC(HandleRef hWnd, HandleRef hDC);
-
-                public static int ReleaseDC(HandleRef hWnd, HandleRef hDC)
-                {
-                    Interop.HandleCollector.Remove((IntPtr)hDC, Interop.CommonHandles.HDC);
-                    return IntReleaseDC(hWnd, hDC);
-                }
+                [DllImport(ExternDll.User32, ExactSpelling = true)]
+                public static extern int ReleaseDC(HandleRef hWnd, HandleRef hDC);
             }
             #endregion
 

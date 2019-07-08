@@ -2,29 +2,23 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms.Internal;
+using System.Windows.Forms.Layout;
+using Microsoft.Win32;
+
 namespace System.Windows.Forms
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.ComponentModel.Design.Serialization;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Drawing;
-    using System.Drawing.Drawing2D;
-    using System.Globalization;
-    using System.Runtime.InteropServices;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Windows.Forms.Internal;
-    using System.Windows.Forms.Layout;
-    using Microsoft.Win32;
-
-    /// <summary>
-    /// Summary of ToolStrip.
-    /// </summary>
-
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDispatch)]
     [DesignerSerializer("System.Windows.Forms.Design.ToolStripCodeDomSerializer, " + AssemblyRef.SystemDesign, "System.ComponentModel.Design.Serialization.CodeDomSerializer, " + AssemblyRef.SystemDesign)]
@@ -32,8 +26,6 @@ namespace System.Windows.Forms
     [DefaultProperty(nameof(Items))]
     [SRDescription(nameof(SR.DescriptionToolStrip))]
     [DefaultEvent(nameof(ItemClicked))]
-
-
     public class ToolStrip : System.Windows.Forms.ScrollableControl,
                              IArrangedElement,
                              ISupportToolStripPanel
@@ -5771,13 +5763,8 @@ namespace System.Windows.Forms
         }
     }
 
-
-
-
-
     internal class CachedItemHdcInfo : IDisposable
     {
-
         internal CachedItemHdcInfo()
         {
         }
@@ -5792,14 +5779,12 @@ namespace System.Windows.Forms
         private HandleRef cachedItemBitmap = NativeMethods.NullHandleRef;
         // this DC is cached and should only be deleted on Dispose or when the size changes.
 
-
         public HandleRef GetCachedItemDC(HandleRef toolStripHDC, Size bitmapSize)
         {
 
             if ((cachedHDCSize.Width < bitmapSize.Width)
                  || (cachedHDCSize.Height < bitmapSize.Height))
             {
-
                 if (cachedItemHDC.Handle == IntPtr.Zero)
                 {
                     // create a new DC - we dont have one yet.
@@ -5814,11 +5799,9 @@ namespace System.Windows.Forms
                 // delete the old bitmap
                 if (oldBitmap != IntPtr.Zero)
                 {
-                    // ExternalDelete to prevent Handle underflow
-                    SafeNativeMethods.ExternalDeleteObject(new HandleRef(null, oldBitmap));
+                    SafeNativeMethods.DeleteObject(new HandleRef(null, oldBitmap));
                     oldBitmap = IntPtr.Zero;
                 }
-
 
                 // remember what size we created.
                 cachedHDCSize = bitmapSize;
@@ -5840,7 +5823,7 @@ namespace System.Windows.Forms
                     cachedItemBitmap = NativeMethods.NullHandleRef;
                 }
                 // delete the DC itself.
-                UnsafeNativeMethods.DeleteCompatibleDC(cachedItemHDC);
+                UnsafeNativeMethods.DeleteDC(cachedItemHDC);
             }
 
             cachedItemHDC = NativeMethods.NullHandleRef;

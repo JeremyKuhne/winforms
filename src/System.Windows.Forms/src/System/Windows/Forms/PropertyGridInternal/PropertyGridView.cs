@@ -4258,12 +4258,12 @@ namespace System.Windows.Forms.PropertyGridInternal
         {
             if (baseHfont != IntPtr.Zero)
             {
-                SafeNativeMethods.ExternalDeleteObject(new HandleRef(this, baseHfont));
+                SafeNativeMethods.DeleteObject(new HandleRef(this, baseHfont));
                 baseHfont = IntPtr.Zero;
             }
             if (boldHfont != IntPtr.Zero)
             {
-                SafeNativeMethods.ExternalDeleteObject(new HandleRef(this, boldHfont));
+                SafeNativeMethods.DeleteObject(new HandleRef(this, boldHfont));
                 boldHfont = IntPtr.Zero;
             }
         }
@@ -4503,7 +4503,6 @@ namespace System.Windows.Forms.PropertyGridInternal
                     //
                     IntPtr hdc = UnsafeNativeMethods.GetDC(new HandleRef(DropDownListBox, DropDownListBox.Handle));
                     IntPtr hFont = Font.ToHfont();
-                    Interop.HandleCollector.Add(hFont, Interop.CommonHandles.GDI);
                     NativeMethods.TEXTMETRIC tm = new NativeMethods.TEXTMETRIC();
                     int iSel = -1;
                     try
@@ -6454,7 +6453,7 @@ namespace System.Windows.Forms.PropertyGridInternal
                     cp.Style |= NativeMethods.WS_POPUP | NativeMethods.WS_BORDER;
                     if (OSFeature.IsPresent(SystemParameter.DropShadow))
                     {
-                        cp.ClassStyle |= NativeMethods.CS_DROPSHADOW;
+                        cp.ClassStyle |= (int)NativeMethods.ClassStyle.CS_DROPSHADOW;
                     }
                     if (gridView != null)
                     {

@@ -215,14 +215,6 @@ namespace System.Windows.Forms.Internal
             }
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public class LOGBRUSH
-        {
-            public int lbStyle;
-            public int lbColor;
-            public int lbHatch;
-        }
-
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public class LOGFONT
         {

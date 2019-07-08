@@ -3870,24 +3870,6 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        /// <para>Determines if the <see cref='System.Windows.Forms.ToolStripItem.Padding'/> property needs to be persisted.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private bool ShouldSerializePadding()
-        {
-            return (Padding != DefaultPadding);
-        }
-
-        /// <summary>
-        /// <para>Determines if the <see cref='System.Windows.Forms.ToolStripItem.Margin'/> property needs to be persisted.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private bool ShouldSerializeMargin()
-        {
-            return (Margin != DefaultMargin);
-        }
-
-        /// <summary>
         /// <para>Determines if the <see cref='System.Windows.Forms.ToolStripItem.Visible'/> property needs to be persisted.</para>
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]

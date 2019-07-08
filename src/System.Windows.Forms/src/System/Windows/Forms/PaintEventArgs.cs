@@ -10,8 +10,7 @@ using System.Runtime.InteropServices;
 namespace System.Windows.Forms
 {
     /// <summary>
-    /// Provides data for the <see cref='System.Windows.Forms.Control.Paint'/>
-    /// event.
+    /// Provides data for the <see cref='Control.Paint'/> event.
     /// NOTE: Please keep this class consistent with PrintPageEventArgs.
     /// </summary>
     public class PaintEventArgs : EventArgs, IDisposable
@@ -34,24 +33,8 @@ namespace System.Windows.Forms
 
         private IntPtr oldPal = IntPtr.Zero;
 
-#if DEBUG
-        private static readonly TraceSwitch s_paintEventFinalizationSwitch = new TraceSwitch("PaintEventFinalization", "Tracks the creation and finalization of PaintEvent objects");
-
-        internal static string GetAllocationStack()
-        {
-            if (s_paintEventFinalizationSwitch.TraceVerbose)
-            {
-                return Environment.StackTrace;
-            }
-            else
-            {
-                return "Enabled 'PaintEventFinalization' trace switch to see stack of allocation";
-            }
-        }
-#endif
-
         /// <summary>
-        /// Initializes a new instance of the <see cref='System.Windows.Forms.PaintEventArgs'/>
+        /// Initializes a new instance of the <see cref='PaintEventArgs'/>
         /// class with the specified graphics and clipping rectangle.
         /// </summary>
         public PaintEventArgs(Graphics graphics, Rectangle clipRect)
@@ -89,7 +72,7 @@ namespace System.Windows.Forms
         /// <summary>
         /// Gets the <see cref='System.Drawing.Graphics'/> object used to paint.
         /// </summary>
-        public System.Drawing.Graphics Graphics
+        public Graphics Graphics
         {
             get
             {
@@ -107,7 +90,7 @@ namespace System.Windows.Forms
 
         /// <summary>
         /// Disposes of the resources (other than memory) used by the
-        /// <see cref='System.Windows.Forms.PaintEventArgs'/>.
+        /// <see cref='PaintEventArgs'/>.
         /// </summary>
         public void Dispose()
         {

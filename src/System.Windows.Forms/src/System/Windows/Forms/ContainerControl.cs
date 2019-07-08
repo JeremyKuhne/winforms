@@ -811,7 +811,7 @@ namespace System.Windows.Forms
             }
             finally
             {
-                UnsafeNativeMethods.DeleteCompatibleDC(hdc);
+                UnsafeNativeMethods.DeleteDC(hdc);
             }
 
             return retval;

@@ -2,30 +2,22 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace System.Windows.Forms
 {
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System;
-    using System.Drawing;
-    using System.Drawing.Design;
-    using System.ComponentModel;
-    using System.IO;
-    using Microsoft.Win32;
-    using System.Runtime.Serialization;
-    using System.Globalization;
-
-
     /// <summary>
-    ///    <para>
-    ///       Represents the image used to paint the mouse pointer.
-    ///       Different cursor shapes are used to inform the user what operation the mouse will
-    ///       have.
-    ///    </para>
+    /// Represents the image used to paint the mouse pointer. Different cursor shapes are used
+    /// to inform the user what operation the mouse will have.
     /// </summary>
-    // 
     [
     TypeConverterAttribute(typeof(CursorConverter)),
     Serializable,
@@ -285,13 +277,13 @@ namespace System.Windows.Forms
                     if (info.hbmMask != IntPtr.Zero)
                     {
                         // ExternalDelete to prevent Handle underflow
-                        SafeNativeMethods.ExternalDeleteObject(new HandleRef(null, info.hbmMask));
+                        SafeNativeMethods.DeleteObject(new HandleRef(null, info.hbmMask));
                         info.hbmMask = IntPtr.Zero;
                     }
                     if (info.hbmColor != IntPtr.Zero)
                     {
                         // ExternalDelete to prevent Handle underflow
-                        SafeNativeMethods.ExternalDeleteObject(new HandleRef(null, info.hbmColor));
+                        SafeNativeMethods.DeleteObject(new HandleRef(null, info.hbmColor));
                         info.hbmColor = IntPtr.Zero;
                     }
                     currentIcon.Dispose();
@@ -621,7 +613,7 @@ namespace System.Windows.Forms
             if (info.hbmColor != IntPtr.Zero)
             {
                 UnsafeNativeMethods.GetObject(new HandleRef(null, info.hbmColor), Marshal.SizeOf<NativeMethods.BITMAP>(), bmp);
-                SafeNativeMethods.IntDeleteObject(new HandleRef(null, info.hbmColor));
+                SafeNativeMethods.DeleteObject(new HandleRef(null, info.hbmColor));
                 iconSize = new Size(bmp.bmWidth, bmp.bmHeight);
             }
             else if (info.hbmMask != IntPtr.Zero)
@@ -632,12 +624,11 @@ namespace System.Windows.Forms
 
             if (info.hbmMask != IntPtr.Zero)
             {
-                SafeNativeMethods.IntDeleteObject(new HandleRef(null, info.hbmMask));
+                SafeNativeMethods.DeleteObject(new HandleRef(null, info.hbmMask));
             }
+
             return iconSize;
         }
-
-
 
         /// <summary>
         ///     Loads a picture from the requested stream.
@@ -669,8 +660,13 @@ namespace System.Windows.Forms
                             picSize = DpiHelper.LogicalToDeviceUnits(picSize);
                         }
 
-                        handle = SafeNativeMethods.CopyImageAsCursor(new HandleRef(this, cursorHandle), NativeMethods.IMAGE_CURSOR,
-                            picSize.Width, picSize.Height, 0);
+                        handle = SafeNativeMethods.CopyImage(
+                            new HandleRef(this, cursorHandle),
+                            NativeMethods.IMAGE_CURSOR,
+                            picSize.Width,
+                            picSize.Height,
+                            0);
+
                         ownHandle = true;
                     }
                     else

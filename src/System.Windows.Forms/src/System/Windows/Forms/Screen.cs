@@ -87,7 +87,7 @@ namespace System.Windows.Forms
 
                 if (hdc == IntPtr.Zero)
                 {
-                    screenDC = UnsafeNativeMethods.CreateDC(deviceName);
+                    screenDC = UnsafeNativeMethods.CreateDC(deviceName, null, null, NativeMethods.NullHandleRef);
                 }
             }
             hmonitor = monitor;

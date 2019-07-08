@@ -5,9 +5,8 @@
 // #define TRACK_HDC
 // #define GDI_FINALIZATION_WATCH
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -62,30 +61,28 @@ namespace System.Windows.Forms.Internal
         ///     See book "Windows Graphics Programming - Feng Yuang", P315 - Device Context Attributes.
         /// </summary>
 
-        [SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources")]
-        IntPtr hDC;
-        readonly DeviceContextType dcType;
+        private IntPtr _hDC;
+        private readonly DeviceContextType _dcType;
 
         public event EventHandler Disposing;
 
-        bool disposed;
+        private bool _disposed;
 
         // We cache the hWnd when creating the dc from one, to provide support forIDeviceContext.GetHdc/ReleaseHdc.  
         // This hWnd could be null, in such case it is referring to the screen.
-        [SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources")]
-        readonly IntPtr hWnd = (IntPtr)(-1); // Unlikely to be a valid hWnd.  
+        private readonly IntPtr _hWnd = (IntPtr)(-1); // Unlikely to be a valid hWnd. 
 
-        IntPtr hInitialPen;
-        IntPtr hInitialBrush;
-        IntPtr hInitialBmp;
-        IntPtr hInitialFont;
+        private IntPtr _hInitialPen;
+        private IntPtr _hInitialBrush;
+        private IntPtr _hInitialBmp;
+        private IntPtr _hInitialFont;
 
-        IntPtr hCurrentPen;
-        IntPtr hCurrentBrush;
-        IntPtr hCurrentBmp;
-        IntPtr hCurrentFont;
+        private IntPtr _hCurrentPen;
+        private IntPtr _hCurrentBrush;
+        private IntPtr _hCurrentBmp;
+        private IntPtr _hCurrentFont;
 
-        Stack contextStack;
+        private Stack<GraphicsState> contextStack;
 
 #if GDI_FINALIZATION_WATCH
         private string AllocationSite = DbgUtil.StackTrace;
@@ -101,15 +98,15 @@ namespace System.Windows.Forms.Internal
         {
             get
             {
-                if (hDC == IntPtr.Zero)
+                if (_hDC == IntPtr.Zero)
                 {
-                    if (dcType == DeviceContextType.Display)
+                    if (_dcType == DeviceContextType.Display)
                     {
-                        Debug.Assert(!disposed, "Accessing a disposed DC, forcing recreation of HDC - this will generate a Handle leak!");
+                        Debug.Assert(!_disposed, "Accessing a disposed DC, forcing recreation of HDC - this will generate a Handle leak!");
 
                         // Note: ReleaseDC must be called from the same thread. This applies only to HDC obtained
                         // from calling GetDC. This means Display DeviceContext objects should never be finalized.
-                        hDC = ((IDeviceContext)this).GetHdc();  // this.hDC will be released on call to Dispose.
+                        _hDC = ((IDeviceContext)this).GetHdc();  // this.hDC will be released on call to Dispose.
                         CacheInitialState();
                     }
 #if GDI_FINALIZATION_WATCH
@@ -120,9 +117,9 @@ namespace System.Windows.Forms.Internal
 #endif
                 }
 
-                Debug.Assert(hDC != IntPtr.Zero, "Attempt to use deleted HDC - DC type: " + dcType);
+                Debug.Assert(_hDC != IntPtr.Zero, "Attempt to use deleted HDC - DC type: " + _dcType);
 
-                return hDC;
+                return _hDC;
             }
         }
 
@@ -134,11 +131,11 @@ namespace System.Windows.Forms.Internal
 
         private void CacheInitialState()
         {
-            Debug.Assert(hDC != IntPtr.Zero, "Cannot get initial state without a valid HDC");
-            hCurrentPen = hInitialPen = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_PEN);
-            hCurrentBrush = hInitialBrush = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_BRUSH);
-            hCurrentBmp = hInitialBmp = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_BITMAP);
-            hCurrentFont = hInitialFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_FONT);
+            Debug.Assert(_hDC != IntPtr.Zero, "Cannot get initial state without a valid HDC");
+            _hCurrentPen = _hInitialPen = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, _hDC), IntNativeMethods.OBJ_PEN);
+            _hCurrentBrush = _hInitialBrush = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, _hDC), IntNativeMethods.OBJ_BRUSH);
+            _hCurrentBmp = _hInitialBmp = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, _hDC), IntNativeMethods.OBJ_BITMAP);
+            _hCurrentFont = _hInitialFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, _hDC), IntNativeMethods.OBJ_FONT);
         }
 
         public void DeleteObject(IntPtr handle, GdiObjectType type)
@@ -147,35 +144,35 @@ namespace System.Windows.Forms.Internal
             switch (type)
             {
                 case GdiObjectType.Pen:
-                    if (handle == hCurrentPen)
+                    if (handle == _hCurrentPen)
                     {
-                        IntPtr currentPen = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, hInitialPen));
-                        Debug.Assert(currentPen == hCurrentPen, "DeviceContext thinks a different pen is selected than the HDC");
-                        hCurrentPen = IntPtr.Zero;
+                        IntPtr currentPen = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, _hInitialPen));
+                        Debug.Assert(currentPen == _hCurrentPen, "DeviceContext thinks a different pen is selected than the HDC");
+                        _hCurrentPen = IntPtr.Zero;
                     }
                     handleToDelete = handle;
                     break;
                 case GdiObjectType.Brush:
-                    if (handle == hCurrentBrush)
+                    if (handle == _hCurrentBrush)
                     {
-                        IntPtr currentBrush = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, hInitialBrush));
-                        Debug.Assert(currentBrush == hCurrentBrush, "DeviceContext thinks a different brush is selected than the HDC");
-                        hCurrentBrush = IntPtr.Zero;
+                        IntPtr currentBrush = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, _hInitialBrush));
+                        Debug.Assert(currentBrush == _hCurrentBrush, "DeviceContext thinks a different brush is selected than the HDC");
+                        _hCurrentBrush = IntPtr.Zero;
                     }
                     handleToDelete = handle;
                     break;
                 case GdiObjectType.Bitmap:
-                    if (handle == hCurrentBmp)
+                    if (handle == _hCurrentBmp)
                     {
-                        IntPtr currentBmp = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, hInitialBmp));
-                        Debug.Assert(currentBmp == hCurrentBmp, "DeviceContext thinks a different brush is selected than the HDC");
-                        hCurrentBmp = IntPtr.Zero;
+                        IntPtr currentBmp = IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(this, _hInitialBmp));
+                        Debug.Assert(currentBmp == _hCurrentBmp, "DeviceContext thinks a different brush is selected than the HDC");
+                        _hCurrentBmp = IntPtr.Zero;
                     }
                     handleToDelete = handle;
                     break;
             }
 
-            IntUnsafeNativeMethods.DeleteObject(new HandleRef(this, handleToDelete));
+            SafeNativeMethods.DeleteObject(new HandleRef(this, handleToDelete));
         }
 
         //
@@ -187,8 +184,8 @@ namespace System.Windows.Forms.Internal
         /// </summary>
         private DeviceContext(IntPtr hWnd)
         {
-            this.hWnd = hWnd;
-            dcType = DeviceContextType.Display;
+            _hWnd = hWnd;
+            _dcType = DeviceContextType.Display;
 
             DeviceContexts.AddDeviceContext(this);
 
@@ -204,15 +201,15 @@ namespace System.Windows.Forms.Internal
         /// </summary>
         private DeviceContext(IntPtr hDC, DeviceContextType dcType)
         {
-            this.hDC = hDC;
-            this.dcType = dcType;
+            _hDC = hDC;
+            _dcType = dcType;
 
             CacheInitialState();
             DeviceContexts.AddDeviceContext(this);
 
             if (dcType == DeviceContextType.Display)
             {
-                hWnd = IntUnsafeNativeMethods.WindowFromDC(new HandleRef(this, this.hDC));
+                _hWnd = IntUnsafeNativeMethods.WindowFromDC(new HandleRef(this, this._hDC));
             }
 #if TRACK_HDC
             Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("DeviceContext( hDC=0x{0:X8}, Type={1} )", unchecked((int) hDC), dcType) ));
@@ -228,7 +225,7 @@ namespace System.Windows.Forms.Internal
             // In this case the thread that calls CreateCompatibleDC owns the HDC that is created. When this thread is destroyed, 
             // the HDC is no longer valid.
 
-            IntPtr compatibleDc = IntUnsafeNativeMethods.CreateCompatibleDC(new HandleRef(null, hdc));
+            IntPtr compatibleDc = UnsafeNativeMethods.CreateCompatibleDC(new HandleRef(null, hdc));
             return new DeviceContext(compatibleDc, DeviceContextType.Memory);
         }
 
@@ -263,18 +260,18 @@ namespace System.Windows.Forms.Internal
 
         internal void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
             Disposing?.Invoke(this, EventArgs.Empty);
 
-            disposed = true;
+            _disposed = true;
 
             DisposeFont(disposing);
 
-            switch (dcType)
+            switch (_dcType)
             {
                 case DeviceContextType.Display:
                     Debug.Assert(disposing, "WARNING: Finalizing a Display DeviceContext.\r\nReleaseDC may fail when not called from the same thread GetDC was called from.");
@@ -291,9 +288,9 @@ namespace System.Windows.Forms.Internal
                     Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("DC.DeleteHDC(hdc=0x{0:x8})", unchecked((int) this.hDC))));
 #endif
 
-                    IntUnsafeNativeMethods.DeleteHDC(new HandleRef(this, hDC));
+                    UnsafeNativeMethods.DeleteDC(new HandleRef(this, _hDC));
 
-                    hDC = IntPtr.Zero;
+                    _hDC = IntPtr.Zero;
                     break;
 
                 case DeviceContextType.Memory:
@@ -303,9 +300,9 @@ namespace System.Windows.Forms.Internal
 #if TRACK_HDC
                     Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("DC.DeleteDC(hdc=0x{0:x8})", unchecked((int) this.hDC))));
 #endif
-                    IntUnsafeNativeMethods.DeleteDC(new HandleRef(this, hDC));
+                    UnsafeNativeMethods.DeleteDC(new HandleRef(this, _hDC));
 
-                    hDC = IntPtr.Zero;
+                    _hDC = IntPtr.Zero;
                     break;
 
                 // case DeviceContextType.Metafile: - not yet supported.
@@ -327,19 +324,19 @@ namespace System.Windows.Forms.Internal
         /// </summary>
         IntPtr IDeviceContext.GetHdc()
         {
-            if (hDC == IntPtr.Zero)
+            if (_hDC == IntPtr.Zero)
             {
-                Debug.Assert(dcType == DeviceContextType.Display, "Calling GetDC from a non display/window device.");
+                Debug.Assert(_dcType == DeviceContextType.Display, "Calling GetDC from a non display/window device.");
 
                 // Note: for common DCs, GetDC assigns default attributes to the DC each time it is retrieved. 
                 // For example, the default font is System.
-                hDC = IntUnsafeNativeMethods.GetDC(new HandleRef(this, hWnd));
+                _hDC = UnsafeNativeMethods.GetDC(new HandleRef(this, _hWnd));
 #if TRACK_HDC
                 Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("hdc[0x{0:x8}]=DC.GetHdc(hWnd=0x{1:x8})", unchecked((int) this.hDC), unchecked((int) this.hWnd))));
 #endif
             }
 
-            return hDC;
+            return _hDC;
         }
 
         ///<summary>
@@ -348,17 +345,17 @@ namespace System.Windows.Forms.Internal
         ///</summary>
         void IDeviceContext.ReleaseHdc()
         {
-            if (hDC != IntPtr.Zero && dcType == DeviceContextType.Display)
+            if (_hDC != IntPtr.Zero && _dcType == DeviceContextType.Display)
             {
 #if TRACK_HDC
                 int retVal = 
 #endif
-                IntUnsafeNativeMethods.ReleaseDC(new HandleRef(this, hWnd), new HandleRef(this, hDC));
+                UnsafeNativeMethods.ReleaseDC(new HandleRef(this, _hWnd), new HandleRef(this, _hDC));
                 // Note: retVal == 0 means it was not released but doesn't necessarily means an error; class or private DCs are never released.
 #if TRACK_HDC
                 Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("[ret={0}]=DC.ReleaseDC(hDc=0x{1:x8}, hWnd=0x{2:x8})", retVal, unchecked((int) this.hDC), unchecked((int) this.hWnd))));
 #endif                 
-                hDC = IntPtr.Zero;
+                _hDC = IntPtr.Zero;
             }
         }
 
@@ -379,7 +376,7 @@ namespace System.Windows.Forms.Internal
             bool result = 
 #endif
             // Note: Don't use the Hdc property here, it would force handle creation.
-            IntUnsafeNativeMethods.RestoreDC(new HandleRef(this, hDC), -1);
+            IntUnsafeNativeMethods.RestoreDC(new HandleRef(this, _hDC), -1);
 #if TRACK_HDC
             // Note: Winforms may call this method during app exit at which point the DC may have been finalized already causing this assert to popup.
             Debug.WriteLine( DbgUtil.StackTraceToStr( String.Format("ret[0]=DC.RestoreHdc(hDc=0x{1:x8})", result, unchecked((int) this.hDC)) ));
@@ -388,36 +385,33 @@ namespace System.Windows.Forms.Internal
 
             if (contextStack != null)
             {
-                GraphicsState g = (GraphicsState)contextStack.Pop();
+                GraphicsState g = contextStack.Pop();
 
-                hCurrentBmp = g.hBitmap;
-                hCurrentBrush = g.hBrush;
-                hCurrentPen = g.hPen;
-                hCurrentFont = g.hFont;
+                _hCurrentBmp = g.hBitmap;
+                _hCurrentBrush = g.hBrush;
+                _hCurrentPen = g.hPen;
+                _hCurrentFont = g.hFont;
 
-#if !DRAWING_NAMESPACE
                 if (g.font != null && g.font.IsAlive)
                 {
-                    selectedFont = g.font.Target as WindowsFont;
+                    ActiveFont = g.font.Target as WindowsFont;
                 }
                 else
                 {
-                    WindowsFont previousFont = selectedFont;
-                    selectedFont = null;
+                    WindowsFont previousFont = ActiveFont;
+                    ActiveFont = null;
                     if (previousFont != null && MeasurementDCInfo.IsMeasurementDC(this))
                     {
                         previousFont.Dispose();
                     }
                 }
-#endif
-
             }
 
 #if OPTIMIZED_MEASUREMENTDC
             // in this case, GDI will copy back the previously saved font into the DC.
             // we dont actually know what the font is in our measurement DC so 
             // we need to clear it off.
-            MeasurementDCInfo.ResetIfIsMeasurementDC(hDC);
+            MeasurementDCInfo.ResetIfIsMeasurementDC(_hDC);
 #endif
         }
 
@@ -436,19 +430,17 @@ namespace System.Windows.Forms.Internal
 
             if (contextStack == null)
             {
-                contextStack = new Stack();
+                contextStack = new Stack<GraphicsState>();
             }
 
-            GraphicsState g = new GraphicsState();
-            g.hBitmap = hCurrentBmp;
-            g.hBrush = hCurrentBrush;
-            g.hPen = hCurrentPen;
-            g.hFont = hCurrentFont;
-
-#if !DRAWING_NAMESPACE
-            g.font = new WeakReference(selectedFont);
-#endif
-
+            GraphicsState g = new GraphicsState
+            {
+                hBitmap = _hCurrentBmp,
+                hBrush = _hCurrentBrush,
+                hPen = _hCurrentPen,
+                hFont = _hCurrentFont,
+                font = new WeakReference(ActiveFont)
+            };
 
             contextStack.Push(g);
 
@@ -511,8 +503,8 @@ namespace System.Windows.Forms.Internal
         /// </summary>
         public void TranslateTransform(int dx, int dy)
         {
-            IntNativeMethods.POINT orgn = new IntNativeMethods.POINT();
-            IntUnsafeNativeMethods.OffsetViewportOrgEx(new HandleRef(this, Hdc), dx, dy, orgn);
+            Point point = new Point();
+            IntUnsafeNativeMethods.OffsetViewportOrgEx(new HandleRef(this, Hdc), dx, dy, ref point);
         }
 
         /// <summary>
@@ -543,7 +535,7 @@ namespace System.Windows.Forms.Internal
             return Hdc.GetHashCode();
         }
 
-        internal class GraphicsState
+        internal struct GraphicsState
         {
             internal IntPtr hBrush;
             internal IntPtr hFont;

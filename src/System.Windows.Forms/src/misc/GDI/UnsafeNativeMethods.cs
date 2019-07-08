@@ -5,86 +5,17 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace System.Windows.Forms.Internal
 {
     internal static partial class IntUnsafeNativeMethods
     {
-        [DllImport(ExternDll.User32, SetLastError = true, ExactSpelling = true, EntryPoint = "GetDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern IntPtr IntGetDC(HandleRef hWnd);
+        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true)]
+        public static extern int SaveDC(HandleRef hDC);
 
-        public static IntPtr GetDC(HandleRef hWnd)
-        {
-            IntPtr hdc = Interop.HandleCollector.Add(IntGetDC(hWnd), Interop.CommonHandles.HDC);
-            DbgUtil.AssertWin32(hdc != IntPtr.Zero, "GetHdc([hWnd=0x{0:X8}]) failed.", hWnd);
-            return hdc;
-        }
-
-        /// <summary>
-        ///     NOTE: DeleteDC is to be used to delete the hdc created from CreateCompatibleDC ONLY.  All other hdcs should be
-        ///     deleted with DeleteHDC.
-        /// </summary>
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "DeleteDC", CharSet = CharSet.Auto)]
-        public static extern bool IntDeleteDC(HandleRef hDC);
-
-        public static bool DeleteDC(HandleRef hDC)
-        {
-            Interop.HandleCollector.Remove((IntPtr)hDC, Interop.CommonHandles.GDI);
-            bool retVal = IntDeleteDC(hDC);
-            DbgUtil.AssertWin32(retVal, "DeleteDC([hdc=0x{0:X8}]) failed.", hDC.Handle);
-            return retVal;
-        }
-
-        public static bool DeleteHDC(HandleRef hDC)
-        {
-            Interop.HandleCollector.Remove((IntPtr)hDC, Interop.CommonHandles.HDC);
-            bool retVal = IntDeleteDC(hDC);
-            DbgUtil.AssertWin32(retVal, "DeleteHDC([hdc=0x{0:X8}]) failed.", hDC.Handle);
-            return retVal;
-        }
-
-        [DllImport(ExternDll.User32, SetLastError = true, ExactSpelling = true, EntryPoint = "ReleaseDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int IntReleaseDC(HandleRef hWnd, HandleRef hDC);
-
-        public static int ReleaseDC(HandleRef hWnd, HandleRef hDC)
-        {
-            Interop.HandleCollector.Remove((IntPtr)hDC, Interop.CommonHandles.HDC);
-            // Note: retVal == 0 means it was not released but doesn't necessarily means an error; class or private DCs are never released.
-            return IntReleaseDC(hWnd, hDC);
-        }
-
-        /// <summary>
-        ///     CreateCompatibleDC requires to add a GDI handle instead of an HDC handle to avoid perf penalty in HandleCollector.
-        ///     The hdc obtained from this method needs to be deleted with DeleteDC instead of DeleteHDC.
-        /// </summary>
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "CreateCompatibleDC", CharSet = CharSet.Auto)]
-        public static extern IntPtr IntCreateCompatibleDC(HandleRef hDC);
-
-        public static IntPtr CreateCompatibleDC(HandleRef hDC)
-        {
-            IntPtr compatibleDc = Interop.HandleCollector.Add(IntCreateCompatibleDC(hDC), Interop.CommonHandles.GDI);
-            DbgUtil.AssertWin32(compatibleDc != IntPtr.Zero, "CreateCompatibleDC([hdc=0x{0:X8}]) failed", hDC.Handle);
-            return compatibleDc;
-        }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "SaveDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int IntSaveDC(HandleRef hDC);
-
-        public static int SaveDC(HandleRef hDC)
-        {
-            int state = IntSaveDC(hDC);
-            DbgUtil.AssertWin32(state != 0, "SaveDC([hdc=0x{0:X8}]) failed", hDC.Handle);
-            return state;
-        }
-
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "RestoreDC", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern bool IntRestoreDC(HandleRef hDC, int nSavedDC);
-
-        public static bool RestoreDC(HandleRef hDC, int nSavedDC)
-        {
-            bool retVal = IntRestoreDC(hDC, nSavedDC);
-            return retVal;
-        }
+        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true)]
+        public static extern bool RestoreDC(HandleRef hDC, int nSavedDC);
 
         [DllImport(ExternDll.User32, SetLastError = true, ExactSpelling = true)]
         public static extern IntPtr WindowFromDC(HandleRef hDC);
@@ -92,15 +23,8 @@ namespace System.Windows.Forms.Internal
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern int GetDeviceCaps(HandleRef hDC, int nIndex);
 
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "OffsetViewportOrgEx", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern bool IntOffsetViewportOrgEx(HandleRef hDC, int nXOffset, int nYOffset, [In, Out] IntNativeMethods.POINT point);
-
-        public static bool OffsetViewportOrgEx(HandleRef hDC, int nXOffset, int nYOffset, [In, Out] IntNativeMethods.POINT point)
-        {
-            bool retVal = IntOffsetViewportOrgEx(hDC, nXOffset, nYOffset, point);
-            DbgUtil.AssertWin32(retVal, "OffsetViewportOrgEx([hdc=0x{0:X8}], dx=[{1}], dy=[{2}], [out pPoint]) failed.", hDC.Handle, nXOffset, nYOffset);
-            return retVal;
-        }
+        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true)]
+        public static extern bool OffsetViewportOrgEx(HandleRef hDC, int nXOffset, int nYOffset, ref Point point);
 
         [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true)]
         public static extern int GetROP2(HandleRef hdc);
@@ -158,34 +82,15 @@ namespace System.Windows.Forms.Internal
         }
 
         // Font.
-        [DllImport(ExternDll.Gdi32, SetLastError = true, EntryPoint = "CreateFontIndirect", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern IntPtr IntCreateFontIndirect([In, Out, MarshalAs(UnmanagedType.AsAny)] object lf); // need object here since LOGFONT is not public.
-
-        public static IntPtr CreateFontIndirect(/*IntNativeMethods.LOGFONT*/ object lf)
-        {
-            IntPtr hFont = Interop.HandleCollector.Add(IntCreateFontIndirect(lf), Interop.CommonHandles.GDI);
-            DbgUtil.AssertWin32(hFont != IntPtr.Zero, "CreateFontIndirect(logFont) failed.");
-            return hFont;
-        }
-
-        // Common.
-        [DllImport(ExternDll.Gdi32, SetLastError = true, ExactSpelling = true, EntryPoint = "DeleteObject", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern bool IntDeleteObject(HandleRef hObject);
-
-        public static bool DeleteObject(HandleRef hObject)
-        {
-            Interop.HandleCollector.Remove((IntPtr)hObject, Interop.CommonHandles.GDI);
-            bool retVal = IntDeleteObject(hObject);
-            DbgUtil.AssertWin32(retVal, "DeleteObject(hObj=[0x{0:X8}]) failed.", hObject.Handle);
-            return retVal;
-        }
+        [DllImport(ExternDll.Gdi32, SetLastError = true)]
+        public static extern IntPtr CreateFontIndirect([In, Out, MarshalAs(UnmanagedType.AsAny)] object lf); // need object here since LOGFONT is not public.
 
         [DllImport(ExternDll.Gdi32, SetLastError = true, EntryPoint = "GetObject", ExactSpelling = false, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern int IntGetObject(HandleRef hFont, int nSize, [In, Out] IntNativeMethods.LOGFONT lf);
 
         public static int GetObject(HandleRef hFont, IntNativeMethods.LOGFONT lp)
         {
-            int retVal = IntGetObject(hFont, System.Runtime.InteropServices.Marshal.SizeOf<IntNativeMethods.LOGFONT>(), lp);
+            int retVal = IntGetObject(hFont, Marshal.SizeOf<IntNativeMethods.LOGFONT>(), lp);
             DbgUtil.AssertWin32(retVal != 0, "GetObject(hObj=[0x{0:X8}], [LOGFONT]) failed.", hFont.Handle);
             return retVal;
         }

@@ -1958,11 +1958,6 @@ namespace System.Windows.Forms
             return !itemSize.Equals(DEFAULT_ITEMSIZE);
         }
 
-        private new bool ShouldSerializePadding()
-        {
-            return !padding.Equals(DEFAULT_PADDING);
-        }
-
         /// <summary>
         ///     Returns a string representation for this control.
         /// </summary>

@@ -56,7 +56,6 @@ namespace System.Windows.Forms.Internal
                 if (takeOwnership)
                 {
                     wr.ownHandle = true;
-                    Interop.HandleCollector.Add(hRegion, Interop.CommonHandles.GDI);
                 }
             }
             return wr;
@@ -105,7 +104,7 @@ namespace System.Windows.Forms.Internal
         private void CreateRegion(Rectangle rect)
         {
             Debug.Assert(nativeHandle == IntPtr.Zero, "nativeHandle should be null, we're leaking handle");
-            nativeHandle = IntSafeNativeMethods.CreateRectRgn(rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
+            nativeHandle = NativeMethods.CreateRectRgn(rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
             ownHandle = true;
         }
 
@@ -122,7 +121,7 @@ namespace System.Windows.Forms.Internal
 
                 if (ownHandle)
                 {
-                    IntUnsafeNativeMethods.DeleteObject(new HandleRef(this, nativeHandle));
+                    SafeNativeMethods.DeleteObject(new HandleRef(this, nativeHandle));
                 }
 
                 nativeHandle = IntPtr.Zero;

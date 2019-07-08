@@ -1012,11 +1012,12 @@ namespace System.Windows.Forms
                     {
                         return false;
                     }
+
                     CreateParams cparams = new CreateParams
                     {
                         Caption = string.Empty,
                         Style = NativeMethods.WS_VISIBLE | NativeMethods.WS_CHILD,
-                        ClassStyle = NativeMethods.CS_DBLCLKS,
+                        ClassStyle = (int)NativeMethods.ClassStyle.CS_DBLCLKS,
                         X = 0,
                         Y = 0,
                         Width = 0,
@@ -1363,7 +1364,6 @@ namespace System.Windows.Forms
                         try
                         {
                             windowRegionHandle = windowRegion.GetHrgn(graphics);
-                            Interop.HandleCollector.Add(windowRegionHandle, Interop.CommonHandles.GDI);
                         }
                         finally
                         {
@@ -1377,7 +1377,6 @@ namespace System.Windows.Forms
                             windowRegionHandle = IntPtr.Zero;
                         }
                     }
-
                     finally
                     {
                         if (dc != null)

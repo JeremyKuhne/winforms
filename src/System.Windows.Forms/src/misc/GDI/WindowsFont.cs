@@ -249,7 +249,7 @@ namespace System.Windows.Forms.Internal
                         Debug.Assert(hFont != IntPtr.Zero, "Unexpected null hFont.");
                         DbgUtil.AssertFinalization(this, disposing);
 
-                        IntUnsafeNativeMethods.DeleteObject(new HandleRef(this, hFont));
+                        SafeNativeMethods.DeleteObject(new HandleRef(this, hFont));
 #if TRACK_HFONT
                         Debug.WriteLine( DbgUtil.StackTraceToStr(String.Format( "DeleteObject(HFONT[0x{0:x8}]))", (int) this.hFont)));
 #endif

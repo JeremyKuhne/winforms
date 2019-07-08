@@ -999,6 +999,7 @@ namespace System.Windows.Forms
             get { return closeReason; }
             set { closeReason = value; }
         }
+
         /// <summary>
         ///     The default icon used by the Form. This is the standard "windows forms" icon.
         /// </summary>

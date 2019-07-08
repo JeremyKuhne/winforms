@@ -159,8 +159,8 @@ namespace System.Windows.Forms
             SafeNativeMethods.SelectObject(new HandleRef(null, dcSrc), new HandleRef(null, srcOld));
             SafeNativeMethods.SelectObject(new HandleRef(null, dcDest), new HandleRef(null, destOld));
 
-            UnsafeNativeMethods.DeleteCompatibleDC(new HandleRef(null, dcSrc));
-            UnsafeNativeMethods.DeleteCompatibleDC(new HandleRef(null, dcDest));
+            UnsafeNativeMethods.DeleteDC(new HandleRef(null, dcSrc));
+            UnsafeNativeMethods.DeleteDC(new HandleRef(null, dcDest));
             UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, hDC));
 
             SafeNativeMethods.DeleteObject(new HandleRef(bm, hBitmap));
@@ -1519,19 +1519,13 @@ namespace System.Windows.Forms
 
                 if (medium.unionmember != IntPtr.Zero)
                 {
-
-                    if (format.Equals(DataFormats.Bitmap)
-                    //||format.Equals(DataFormats.Dib))
-                    )
+                    if (format.Equals(DataFormats.Bitmap))
                     {
                         // as/urt 140870 -- GDI+ doesn't own this HBITMAP, but we can't
                         // delete it while the object is still around.  So we have to do the really expensive
                         // thing of cloning the image so we can release the HBITMAP.
-                        //
 
-                        //This bitmap is created by the com object which originally copied the bitmap to tbe 
-                        //clipboard. We call Add here, since DeleteObject calls Remove.
-                        Interop.HandleCollector.Add(medium.unionmember, Interop.CommonHandles.GDI);
+                        // This bitmap is created by the com object which originally copied the bitmap to the clipboard.
                         Image clipboardImage = Image.FromHbitmap(medium.unionmember);
                         if (clipboardImage != null)
                         {
@@ -1542,11 +1536,6 @@ namespace System.Windows.Forms
                         }
                         data = clipboardImage;
                     }
-                    /*
-                                        else if (format.Equals(DataFormats.EnhancedMetafile)) {
-                                            data = new Metafile(medium.unionmember);
-                                        }
-                    */
                 }
 
                 return data;

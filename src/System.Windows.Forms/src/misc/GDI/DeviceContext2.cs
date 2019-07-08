@@ -21,19 +21,11 @@ namespace System.Windows.Forms.Internal
     /// </summary>
     internal sealed partial class DeviceContext : MarshalByRefObject, IDeviceContext, IDisposable
     {
-        WindowsFont selectedFont;
-
         /// <summary>
         ///     See DeviceContext.cs for information about this class.  The class has been split to be able
         ///     to compile the right set of functionalities into different assemblies.
         /// </summary>
-        public WindowsFont ActiveFont
-        {
-            get
-            {
-                return selectedFont;
-            }
-        }
+        public WindowsFont ActiveFont { get; private set; }
 
         /// <summary>
         ///     DC background color.
@@ -162,7 +154,7 @@ namespace System.Windows.Forms.Internal
         {
             get
             {
-                return DeviceContext.FromHwnd(IntPtr.Zero);
+                return FromHwnd(IntPtr.Zero);
             }
         }
 
@@ -173,18 +165,18 @@ namespace System.Windows.Forms.Internal
                 DeviceContexts.RemoveDeviceContext(this);
             }
 
-            if (selectedFont != null && selectedFont.Hfont != IntPtr.Zero)
+            if (ActiveFont != null && ActiveFont.Hfont != IntPtr.Zero)
             {
-                IntPtr hCurrentFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, hDC), IntNativeMethods.OBJ_FONT);
-                if (hCurrentFont == selectedFont.Hfont)
+                IntPtr hCurrentFont = IntUnsafeNativeMethods.GetCurrentObject(new HandleRef(this, _hDC), IntNativeMethods.OBJ_FONT);
+                if (hCurrentFont == ActiveFont.Hfont)
                 {
                     // select initial font back in
-                    IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(null, hInitialFont));
-                    hCurrentFont = hInitialFont;
+                    IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(null, _hInitialFont));
+                    hCurrentFont = _hInitialFont;
                 }
 
-                selectedFont.Dispose(disposing);
-                selectedFont = null;
+                ActiveFont.Dispose(disposing);
+                ActiveFont = null;
             }
         }
 
@@ -205,9 +197,9 @@ namespace System.Windows.Forms.Internal
             }
             IntPtr result = SelectObject(font.Hfont, GdiObjectType.Font);
 
-            WindowsFont previousFont = selectedFont;
-            selectedFont = font;
-            hCurrentFont = font.Hfont;
+            WindowsFont previousFont = ActiveFont;
+            ActiveFont = font;
+            _hCurrentFont = font.Hfont;
 
             // the measurement DC always leaves fonts selected for pref reasons.
             // in this case, we need to diposse the font since the original 
@@ -240,21 +232,20 @@ namespace System.Windows.Forms.Internal
 
         public void ResetFont()
         {
-
 #if OPTIMIZED_MEASUREMENTDC
             // in this case, GDI will copy back the previously saved font into the DC.
             // we dont actually know what the font is in our measurement DC so 
             // we need to clear it off.
             MeasurementDCInfo.ResetIfIsMeasurementDC(Hdc);
-#endif        
-            IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(null, hInitialFont));
-            selectedFont = null;
-            hCurrentFont = hInitialFont;
+#endif
+            IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(null, _hInitialFont));
+            ActiveFont = null;
+            _hCurrentFont = _hInitialFont;
         }
 
         /// <summary>
         ///     Retrieves device-specific information for this device. 
-        /// </summary> 
+        /// </summary>
         public int GetDeviceCapabilities(DeviceCapabilities capabilityIndex)
         {
             return IntUnsafeNativeMethods.GetDeviceCaps(new HandleRef(this, Hdc), (int)capabilityIndex);
@@ -305,14 +296,14 @@ namespace System.Windows.Forms.Internal
             switch (type)
             {
                 case GdiObjectType.Pen:
-                    hCurrentPen = hObj;
+                    _hCurrentPen = hObj;
                     break;
                 case GdiObjectType.Brush:
-                    hCurrentBrush = hObj;
+                    _hCurrentBrush = hObj;
                     break;
 
                 case GdiObjectType.Bitmap:
-                    hCurrentBmp = hObj;
+                    _hCurrentBmp = hObj;
                     break;
             }
             return IntUnsafeNativeMethods.SelectObject(new HandleRef(this, Hdc), new HandleRef(null, hObj));

@@ -1511,28 +1511,28 @@ namespace System.Windows.Forms
         /// </summary>
         private class ComponentManager : UnsafeNativeMethods.IMsoComponentManager
         {
-
-            // ComponentManager instance data.
-            //
-            private class ComponentHashtableEntry
+            /// <summary>
+            /// ComponentManager instance data.
+            /// </summary>
+            private struct ComponentHashtableEntry
             {
                 public UnsafeNativeMethods.IMsoComponent component;
                 public NativeMethods.MSOCRINFOSTRUCT componentInfo;
             }
 
-            private Hashtable oleComponents;
+            private Dictionary<int, ComponentHashtableEntry> oleComponents;
             private int cookieCounter = 0;
             private UnsafeNativeMethods.IMsoComponent activeComponent = null;
             private UnsafeNativeMethods.IMsoComponent trackingComponent = null;
             private int currentState = 0;
 
-            private Hashtable OleComponents
+            private Dictionary<int, ComponentHashtableEntry> OleComponents
             {
                 get
                 {
                     if (oleComponents == null)
                     {
-                        oleComponents = new Hashtable();
+                        oleComponents = new Dictionary<int, ComponentHashtableEntry>();
                         cookieCounter = 0;
                     }
 
@@ -1612,8 +1612,7 @@ namespace System.Windows.Forms
 
                 Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager: Revoking component " + dwLocalComponentID.ToString(CultureInfo.InvariantCulture));
 
-                ComponentHashtableEntry entry = (ComponentHashtableEntry)OleComponents[dwLocalComponentID];
-                if (entry == null)
+                if (!OleComponents.TryGetValue(dwLocalComponentID, out ComponentHashtableEntry entry))
                 {
                     Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "Compoenent not registered.");
                     return false;
@@ -1648,10 +1647,9 @@ namespace System.Windows.Forms
                                                                   )
             {
                 int dwLocalComponentID = unchecked((int)(long)dwComponentID);
+
                 // Update the registration info
-                //
-                ComponentHashtableEntry entry = (ComponentHashtableEntry)OleComponents[dwLocalComponentID];
-                if (entry == null)
+                if (!OleComponents.TryGetValue(dwLocalComponentID, out ComponentHashtableEntry entry))
                 {
                     return false;
                 }
@@ -1675,12 +1673,10 @@ namespace System.Windows.Forms
             /// </summary>
             bool UnsafeNativeMethods.IMsoComponentManager.FOnComponentActivate(IntPtr dwComponentID)
             {
-
                 int dwLocalComponentID = unchecked((int)(long)dwComponentID);
                 Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager: Component activated.  ID: " + dwLocalComponentID.ToString(CultureInfo.InvariantCulture));
 
-                ComponentHashtableEntry entry = (ComponentHashtableEntry)OleComponents[dwLocalComponentID];
-                if (entry == null)
+                if (!OleComponents.TryGetValue(dwLocalComponentID, out ComponentHashtableEntry entry))
                 {
                     Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "*** Component not registered ***");
                     return false;
@@ -1710,10 +1706,8 @@ namespace System.Windows.Forms
             /// </summary>
             bool UnsafeNativeMethods.IMsoComponentManager.FSetTrackingComponent(IntPtr dwComponentID, bool fTrack)
             {
-
                 int dwLocalComponentID = unchecked((int)(long)dwComponentID);
-                ComponentHashtableEntry entry = (ComponentHashtableEntry)OleComponents[dwLocalComponentID];
-                if (entry == null)
+                if (!OleComponents.TryGetValue(dwLocalComponentID, out ComponentHashtableEntry entry))
                 {
                     return false;
                 }
@@ -1905,8 +1899,8 @@ namespace System.Windows.Forms
             {
 
                 int dwLocalComponentID = unchecked((int)(long)dwComponentID);
+
                 // Hold onto old state to allow restore before we exit...
-                //
                 int currentLoopState = currentState;
                 bool continueLoop = true;
 
@@ -1920,14 +1914,13 @@ namespace System.Windows.Forms
                 try
                 {
                     // Execute the message loop until the active component tells us to stop.
-                    //
+
                     NativeMethods.MSG msg = new NativeMethods.MSG();
                     NativeMethods.MSG[] rgmsg = new NativeMethods.MSG[] { msg };
                     bool unicodeWindow = false;
                     UnsafeNativeMethods.IMsoComponent requestingComponent;
 
-                    ComponentHashtableEntry entry = (ComponentHashtableEntry)OleComponents[dwLocalComponentID];
-                    if (entry == null)
+                    if (!OleComponents.TryGetValue(dwLocalComponentID, out ComponentHashtableEntry entry))
                     {
                         return false;
                     }
@@ -3116,23 +3109,12 @@ namespace System.Windows.Forms
                 return (threadState & bit) != 0;
             }
 
-            /// <summary>
-            /// A method of determining whether we are handling messages that does not demand register
-            /// the componentmanager
-            /// </summary>
-            /// <returns></returns>
-            internal bool IsValidComponentId()
-            {
-                return (componentID != INVALID_ID);
-            }
-
-            internal System.Threading.ApartmentState OleRequired()
+            internal ApartmentState OleRequired()
             {
                 Thread current = Thread.CurrentThread;
                 if (!GetState(STATE_OLEINITIALIZED))
                 {
-
-                    int ret = UnsafeNativeMethods.OleInitialize();
+                    int ret = UnsafeNativeMethods.OleInitialize(0);
 
 #if false
                     if (!(ret == NativeMethods.S_OK || ret == NativeMethods.S_FALSE || ret == NativeMethods.RPC_E_CHANGED_MODE)) {
@@ -3150,7 +3132,6 @@ namespace System.Windows.Forms
                         // This currently happens while profiling...
                         SetState(STATE_EXTERNALOLEINIT, true);
                     }
-
                 }
 
                 if (GetState(STATE_EXTERNALOLEINIT))

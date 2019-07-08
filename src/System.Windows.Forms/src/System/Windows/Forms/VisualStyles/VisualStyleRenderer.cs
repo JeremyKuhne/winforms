@@ -2,23 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.MSInternal", "CA905:SystemAndMicrosoftNamespacesRequireApproval", Scope = "namespace", Target = "System.Windows.Forms.VisualStyles")]
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.Win32;
 
 namespace System.Windows.Forms.VisualStyles
 {
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms.Internal;
-    using System.Text;
-    using System.Windows.Forms;
-    using System.Collections;
-    using System.ComponentModel;
-    using System.Globalization;
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using Microsoft.Win32;
-
     /// <summary>
     ///    <para>
     ///       This class provides full feature parity with UxTheme API.
@@ -654,9 +647,8 @@ namespace System.Windows.Forms.VisualStyles
             // From the GDI+ sources it doesn't appear as if they take ownership of the hRegion, so this is safe to do.
             // We need to DeleteObject in order to not leak.
             Region region = Region.FromHrgn(hRegion);
-            SafeNativeMethods.ExternalDeleteObject(new HandleRef(null, hRegion));
+            SafeNativeMethods.DeleteObject(new HandleRef(null, hRegion));
             return region;
-
         }
 
         /// <summary>

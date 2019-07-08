@@ -1918,7 +1918,7 @@ namespace System.Windows.Forms
                 {
                     cp.ExStyle |= NativeMethods.WS_EX_CONTROLPARENT;
                 }
-                cp.ClassStyle = NativeMethods.CS_DBLCLKS;
+                cp.ClassStyle = (int)NativeMethods.ClassStyle.CS_DBLCLKS;
 
                 if ((state & STATE_TOPLEVEL) == 0)
                 {
@@ -5400,76 +5400,6 @@ namespace System.Windows.Forms
             ActiveXInstance.ViewChangedInternal();
         }
 
-#if ACTIVEX_SOURCING
-
-        //
-        // This has been cut from the product.
-        //
-
-        /// <summary>
-        ///     This is called by regasm to register a control as an ActiveX control.
-        /// </summary>
-        [ComRegisterFunction()]
-        protected static void ActiveXRegister(Type type) {
-
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            // If the user is not registering an AX control, then
-            // bail now.
-            //
-            if (!typeof(Control).IsAssignableFrom(type)) {
-                return;
-            }
-
-            // Add the flags that define us as a control to the rest of the
-            // world.
-            //
-            RegistryKey clsidKey = Registry.ClassesRoot.OpenSubKey("CLSID", true).CreateSubKey("{" + type.GUID.ToString() + "}");
-            RegistryKey key = clsidKey.CreateSubKey("Control");
-            key.Close();
-
-            key = clsidKey.CreateSubKey("Implemented Categories");
-            RegistryKey subKey = key.CreateSubKey("{40FC6ED4-2438-11CF-A3DB-080036F12502}"); // CATID_Control
-            subKey.Close();
-            key.Close();
-
-            // Calculate MiscStatus bits.  Note that this is a static version
-            // of GetMiscStatus in ActiveXImpl below.  Keep them in sync!
-            //
-            int miscStatus = NativeMethods.OLEMISC_ACTIVATEWHENVISIBLE |
-                             NativeMethods.OLEMISC_INSIDEOUT |
-                             NativeMethods.OLEMISC_SETCLIENTSITEFIRST |
-                             NativeMethods.OLEMISC_RECOMPOSEONRESIZE;
-            if (typeof(IButtonControl).IsAssignableFrom(type)) {
-                miscStatus |= NativeMethods.OLEMISC_ACTSLIKEBUTTON;
-            }
-
-            key = clsidKey.CreateSubKey("MiscStatus");
-            key.SetValue("", miscStatus.ToString());
-            key.Close();
-
-            // Now add the typelib information.  Many containers don't
-            // host Active X controls without a typelib in the registry
-            // (visual basic won't even show it in the control dialog).
-            //
-            Guid typeLibGuid = Marshal.GetTypeLibGuidForAssembly(type.Assembly);
-            Version assemblyVer = type.Assembly.GetName().Version;
-
-            if (typeLibGuid != Guid.Empty) {
-                key = clsidKey.CreateSubKey("TypeLib");
-                key.SetValue("", "{" + typeLibGuid.ToString() + "}");
-                key.Close();
-                key = clsidKey.CreateSubKey("Version");
-                key.SetValue("", assemblyVer.Major.ToString() + "." + assemblyVer.Minor.ToString());
-                key.Close();
-            }
-
-            clsidKey.Close();
-        }
-#endif
-
         /// <summary>
         ///     Helper method for retrieving an ActiveX property.  We abstract these
         ///     to another method so we do not force JIT the ActiveX codebase.
@@ -5478,65 +5408,6 @@ namespace System.Windows.Forms
         {
             ActiveXInstance.UpdateBounds(ref x, ref y, ref width, ref height, flags);
         }
-
-#if ACTIVEX_SOURCING
-
-        //
-        // This has been cut from the product.
-        //
-
-        /// <summary>
-        ///     This is called by regasm to un-register a control as an ActiveX control.
-        /// </summary>
-        [ComUnregisterFunction()]
-        protected static void ActiveXUnregister(Type type) {
-
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            // If the user is not unregistering an AX control, then
-            // bail now.
-            //
-            if (!typeof(Control).IsAssignableFrom(type)) {
-                return;
-            }
-
-            RegistryKey clsidKey = null;
-
-            // Unregistration should be very robust and unregister what it can.  We eat all exceptions here.
-            //
-            try {
-                clsidKey = Registry.ClassesRoot.OpenSubKey("CLSID", true).CreateSubKey("{" + type.GUID.ToString() + "}");
-
-                try {
-                    clsidKey.DeleteSubKeyTree("Control");
-                }
-                catch {
-                }
-                try {
-                    clsidKey.DeleteSubKeyTree("Implemented Categories");
-                }
-                catch {
-                }
-                try {
-                    clsidKey.DeleteSubKeyTree("MiscStatus");
-                }
-                catch {
-                }
-                try {
-                    clsidKey.DeleteSubKeyTree("TypeLib");
-                }
-                catch {
-                }
-            }
-            finally {
-                if (clsidKey != null) {
-                    clsidKey.Close();
-                }
-            }
-        }
-#endif
 
         /// <summary>
         ///     Assigns a new parent control. Sends out the appropriate property change
@@ -6722,7 +6593,6 @@ namespace System.Windows.Forms
         {
             Graphics graphics = CreateGraphicsInternal();
             IntPtr handle = region.GetHrgn(graphics);
-            Interop.HandleCollector.Add(handle, Interop.CommonHandles.GDI);
             graphics.Dispose();
             return handle;
         }
@@ -12284,117 +12154,106 @@ namespace System.Windows.Forms
 
         protected virtual void SetVisibleCore(bool value)
         {
-            try
+            if (GetVisibleCore() != value)
             {
-                Interop.HandleCollector.SuspendCollect();
-
-                if (GetVisibleCore() != value)
+                if (!value)
                 {
-                    if (!value)
-                    {
-                        SelectNextIfFocused();
-                    }
-
-                    bool fireChange = false;
-
-                    if (GetTopLevel())
-                    {
-
-                        // The processing of WmShowWindow will set the visibility
-                        // bit and call CreateControl()
-                        //
-                        if (IsHandleCreated || value)
-                        {
-                            SafeNativeMethods.ShowWindow(new HandleRef(this, Handle), value ? ShowParams : NativeMethods.SW_HIDE);
-                        }
-                    }
-                    else if (IsHandleCreated || value && parent != null && parent.Created)
-                    {
-
-                        // We want to mark the control as visible so that CreateControl
-                        // knows that we are going to be displayed... however in case
-                        // an exception is thrown, we need to back the change out.
-                        //
-                        SetState(STATE_VISIBLE, value);
-                        fireChange = true;
-                        try
-                        {
-                            if (value)
-                            {
-                                CreateControl();
-                            }
-
-                            SafeNativeMethods.SetWindowPos(new HandleRef(window, Handle),
-                                                           NativeMethods.NullHandleRef,
-                                                           0, 0, 0, 0,
-                                                           NativeMethods.SWP_NOSIZE
-                                                           | NativeMethods.SWP_NOMOVE
-                                                           | NativeMethods.SWP_NOZORDER
-                                                           | NativeMethods.SWP_NOACTIVATE
-                                                           | (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
-                        }
-                        catch
-                        {
-                            SetState(STATE_VISIBLE, !value);
-                            throw;
-                        }
-                    }
-                    if (GetVisibleCore() != value)
-                    {
-                        SetState(STATE_VISIBLE, value);
-                        fireChange = true;
-                    }
-
-                    if (fireChange)
-                    {
-                        // We do not do this in the OnPropertyChanged event for visible
-                        // Lots of things could cause us to become visible, including a
-                        // parent window.  We do not want to indescriminiately layout
-                        // due to this, but we do want to layout if the user changed
-                        // our visibility.
-                        //
-
-                        using (new LayoutTransaction(parent, this, PropertyNames.Visible))
-                        {
-                            OnVisibleChanged(EventArgs.Empty);
-                        }
-                    }
-                    UpdateRoot();
+                    SelectNextIfFocused();
                 }
-                else
-                { // value of Visible property not changed, but raw bit may have
 
-                    if (!GetState(STATE_VISIBLE) && !value && IsHandleCreated)
+                bool fireChange = false;
+
+                if (GetTopLevel())
+                {
+                    // The processing of WmShowWindow will set the visibility
+                    // bit and call CreateControl()
+
+                    if (IsHandleCreated || value)
                     {
-                        // PERF - setting Visible=false twice can get us into this else block
-                        // which makes us process WM_WINDOWPOS* messages - make sure we've already 
-                        // visible=false - if not, make it so.
-                        if (!SafeNativeMethods.IsWindowVisible(new HandleRef(this, Handle)))
-                        {
-                            // we're already invisible - bail.
-                            return;
-                        }
+                        SafeNativeMethods.ShowWindow(new HandleRef(this, Handle), value ? ShowParams : NativeMethods.SW_HIDE);
                     }
+                }
+                else if (IsHandleCreated || value && parent != null && parent.Created)
+                {
+                    // We want to mark the control as visible so that CreateControl
+                    // knows that we are going to be displayed... however in case
+                    // an exception is thrown, we need to back the change out.
 
                     SetState(STATE_VISIBLE, value);
-
-                    // If the handle is already created, we need to update the window style.
-                    // This situation occurs when the parent control is not currently visible,
-                    // but the child control has already been created.
-                    //
-                    if (IsHandleCreated)
+                    fireChange = true;
+                    try
                     {
+                        if (value)
+                        {
+                            CreateControl();
+                        }
 
-                        SafeNativeMethods.SetWindowPos(
-                                                          new HandleRef(window, Handle), NativeMethods.NullHandleRef, 0, 0, 0, 0, NativeMethods.SWP_NOSIZE |
-                                                          NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE |
-                                                          (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
+                        SafeNativeMethods.SetWindowPos(new HandleRef(window, Handle),
+                                                        NativeMethods.NullHandleRef,
+                                                        0, 0, 0, 0,
+                                                        NativeMethods.SWP_NOSIZE
+                                                        | NativeMethods.SWP_NOMOVE
+                                                        | NativeMethods.SWP_NOZORDER
+                                                        | NativeMethods.SWP_NOACTIVATE
+                                                        | (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
+                    }
+                    catch
+                    {
+                        SetState(STATE_VISIBLE, !value);
+                        throw;
                     }
                 }
+                if (GetVisibleCore() != value)
+                {
+                    SetState(STATE_VISIBLE, value);
+                    fireChange = true;
+                }
+
+                if (fireChange)
+                {
+                    // We do not do this in the OnPropertyChanged event for visible
+                    // Lots of things could cause us to become visible, including a
+                    // parent window.  We do not want to indescriminiately layout
+                    // due to this, but we do want to layout if the user changed
+                    // our visibility.
+                    //
+
+                    using (new LayoutTransaction(parent, this, PropertyNames.Visible))
+                    {
+                        OnVisibleChanged(EventArgs.Empty);
+                    }
+                }
+                UpdateRoot();
             }
-            finally
-            {
-                Interop.HandleCollector.ResumeCollect();
+            else
+            { // value of Visible property not changed, but raw bit may have
+
+                if (!GetState(STATE_VISIBLE) && !value && IsHandleCreated)
+                {
+                    // PERF - setting Visible=false twice can get us into this else block
+                    // which makes us process WM_WINDOWPOS* messages - make sure we've already 
+                    // visible=false - if not, make it so.
+                    if (!SafeNativeMethods.IsWindowVisible(new HandleRef(this, Handle)))
+                    {
+                        // we're already invisible - bail.
+                        return;
+                    }
+                }
+
+                SetState(STATE_VISIBLE, value);
+
+                // If the handle is already created, we need to update the window style.
+                // This situation occurs when the parent control is not currently visible,
+                // but the child control has already been created.
+                //
+                if (IsHandleCreated)
+                {
+
+                    SafeNativeMethods.SetWindowPos(
+                                                        new HandleRef(window, Handle), NativeMethods.NullHandleRef, 0, 0, 0, 0, NativeMethods.SWP_NOSIZE |
+                                                        NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE |
+                                                        (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
+                }
             }
         }
 
@@ -19029,8 +18888,8 @@ namespace System.Windows.Forms
                     Region controlRegion = control.Region;
                     if (controlRegion != null)
                     {
-                        IntPtr rgn = control.GetHRgn(controlRegion);
-                        finalClipRegion = MergeRegion(rgn);
+                        // MergeRegion will close the region handle returned from GetHRgn if necessary
+                        finalClipRegion = MergeRegion(control.GetHRgn(controlRegion));
                     }
 
                     UnsafeNativeMethods.SetWindowRgn(new HandleRef(control, control.Handle), new HandleRef(this, finalClipRegion), SafeNativeMethods.IsWindowVisible(new HandleRef(control, control.Handle)));
@@ -19041,35 +18900,6 @@ namespace System.Windows.Forms
                 //
                 control.Invalidate();
             }
-
-#if ACTIVEX_SOURCING
-
-            //
-            // This has been cut from the product.
-            //
-
-            /// <summary>
-            ///      Shows a property page dialog.
-            /// </summary>
-            private void ShowProperties() {
-                if (propPage == null) {
-                    propPage = new ActiveXPropPage(control);
-                }
-
-                if (inPlaceFrame != null) {
-                    inPlaceFrame.EnableModeless(0);
-                }
-                try {
-                    propPage.Edit(control);
-                }
-                finally {
-                    if (inPlaceFrame != null) {
-                        inPlaceFrame.EnableModeless(1);
-                    }
-                }
-            }
-#endif
-
             /// <summary>
             ///      Throws the given hresult.  This is used by ActiveX sourcing.
             /// </summary>
@@ -19708,57 +19538,6 @@ namespace System.Windows.Forms
             }
         }
 
-#if ACTIVEX_SOURCING
-
-        //
-        // This has been cut from the product.
-        //
-
-        /// <summary>
-        ///     The properties window we display.
-        /// </summary>
-        private class ActiveXPropPage {
-            private Form form;
-            private PropertyGrid grid;
-            private ComponentEditor compEditor;
-
-            internal ActiveXPropPage(object component) {
-                compEditor = (ComponentEditor)TypeDescriptor.GetEditor(component, typeof(ComponentEditor));
-
-                if (compEditor == null) {
-                    form = new Form();
-                    grid = new PropertyGrid();
-
-                    form.Text = SR.AXProperties;
-                    form.StartPosition = FormStartPosition.CenterParent;
-                    form.Size = new Size(300, 350);
-                    form.FormBorderStyle = FormBorderStyle.Sizable;
-                    form.MinimizeBox = false;
-                    form.MaximizeBox = false;
-                    form.ControlBox = true;
-                    form.SizeGripStyle = SizeGripStyle.Show;
-                    form.DockPadding.Bottom = 16; // size grip size
-                    form.Icon = new Icon(grid.GetType(), "PropertyGrid");
-
-                    grid.Dock = DockStyle.Fill;
-
-                    form.Controls.Add(grid);
-                }
-            }
-
-            internal void Edit(object editingObject) {
-                if (compEditor != null) {
-                    compEditor.EditComponent(null, editingObject);
-                }
-                else {
-                    grid.SelectedObject = editingObject;
-                    form.ShowDialog();
-                }
-            }
-        }
-
-#endif
-
         /// <summary>
         ///      Contains a single ambient property, including DISPID, name and value.
         /// </summary>
@@ -19904,7 +19683,7 @@ namespace System.Windows.Forms
                     SafeNativeMethods.SelectObject(hBitmapDC, hOriginalBmp);
                     success = SafeNativeMethods.DeleteObject(hBitmap);
                     Debug.Assert(success, "DeleteObject() failed.");
-                    success = UnsafeNativeMethods.DeleteCompatibleDC(hBitmapDC);
+                    success = UnsafeNativeMethods.DeleteDC(hBitmapDC);
                     Debug.Assert(success, "DeleteObject() failed.");
                 }
                 finally
@@ -20645,7 +20424,6 @@ namespace System.Windows.Forms
                 }
 #endif
                 handle = font.ToHfont();
-                Interop.HandleCollector.Add(handle, Interop.CommonHandles.GDI);
             }
 
             internal IntPtr Handle
