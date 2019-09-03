@@ -25,25 +25,6 @@ namespace System.Windows.Forms
         [DllImport(ExternDll.User32)]
         public static extern int GetClassName(HandleRef hwnd, StringBuilder lpClassName, int nMaxCount);
 
-        //SetClassLong won't work correctly for 64-bit: we should use SetClassLongPtr instead.  On
-        //32-bit, SetClassLongPtr is just #defined as SetClassLong.  SetClassLong really should
-        //take/return int instead of IntPtr/HandleRef, but since we're running this only for 32-bit
-        //it'll be OK.
-        public static IntPtr SetClassLong(HandleRef hWnd, int nIndex, IntPtr dwNewLong)
-        {
-            if (IntPtr.Size == 4)
-            {
-                return SetClassLongPtr32(hWnd, nIndex, dwNewLong);
-            }
-            return SetClassLongPtr64(hWnd, nIndex, dwNewLong);
-        }
-
-        [DllImport(ExternDll.User32, CharSet = System.Runtime.InteropServices.CharSet.Auto, EntryPoint = "SetClassLong")]
-        public static extern IntPtr SetClassLongPtr32(HandleRef hwnd, int nIndex, IntPtr dwNewLong);
-
-        [DllImport(ExternDll.User32, CharSet = System.Runtime.InteropServices.CharSet.Auto, EntryPoint = "SetClassLongPtr")]
-        public static extern IntPtr SetClassLongPtr64(HandleRef hwnd, int nIndex, IntPtr dwNewLong);
-
         [DllImport(ExternDll.Ole32, ExactSpelling = true, PreserveSig = false)]
         public static extern IClassFactory2 CoGetClassObject(
             [In]
@@ -608,11 +589,6 @@ namespace System.Windows.Forms
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         public extern static IntPtr SendMessage(HandleRef hWnd, int Msg, IntPtr wParam, NativeMethods.ListViewCompareCallback pfnCompare);
-
-        [DllImport(ExternDll.User32, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, IntPtr lParam, int flags, int timeout, out IntPtr pdwResult);
-
-        public const int SMTO_ABORTIFHUNG = 0x0002;
 
         [DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern IntPtr SetParent(HandleRef hWnd, HandleRef hWndParent);

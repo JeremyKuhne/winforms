@@ -20,83 +20,53 @@ namespace System.Windows.Forms
     /// </summary>
     public class NativeWindow : MarshalByRefObject, IWin32Window, IHandle
     {
-#if DEBUG
+        private static readonly TraceSwitch WndProcChoice
+#if !DEBUG
+            = null;
+#else
+            = new TraceSwitch("WndProcChoice", "Info about choice of WndProc");
         private static readonly BooleanSwitch AlwaysUseNormalWndProc = new BooleanSwitch("AlwaysUseNormalWndProc", "Skips checking for the debugger when choosing the debuggable WndProc handler");
 #endif
 
-        private static readonly TraceSwitch WndProcChoice = new TraceSwitch("WndProcChoice", "Info about choice of WndProc");
-
-        // Table of prime numbers to use as hash table sizes. Each entry is the
-        // smallest prime number larger than twice the previous entry.
-        private readonly static int[] primes = {
-            11,17,23,29,37,47,59,71,89,107,131,163,197,239,293,353,431,521,631,761,919,
-            1103,1327,1597,1931,2333,2801,3371,4049,4861,5839,7013,8419,10103,12143,14591,
-            17519,21023,25229,30293,36353,43627,52361,62851,75431,90523, 108631, 130363,
-            156437, 187751, 225307, 270371, 324449, 389357, 467237, 560689, 672827, 807403,
-            968897, 1162687, 1395263, 1674319, 2009191, 2411033, 2893249, 3471899, 4166287,
-            4999559, 5999471, 7199369
-        };
 
         private const int InitializedFlags = 0x01;
         private const int UseDebuggableWndProc = 0x04;
 
-        // do we have any active HWNDs?
+        // Do we have any active HWNDs?
         [ThreadStatic]
-        private static bool anyHandleCreated;
-        private static bool anyHandleCreatedInApp;
+        private static bool s_anyHandleCreated;
+        private static bool s_anyHandleCreatedInApp;
 
-        private const float hashLoadFactor = .72F;
-
-        private static int handleCount;
-        private static int hashLoadSize;
-        private static HandleBucket[] hashBuckets;
         [ThreadStatic]
-        private static byte wndProcFlags = 0;
+        private static byte t_wndProcFlags = 0;
         [ThreadStatic]
-        private static byte userSetProcFlags = 0;
-        private static byte userSetProcFlagsForApp;
+        private static byte t_userSetProcFlags = 0;
+        private static byte s_userSetProcFlagsForApp;
 
-        //nned to Store Table of Ids and Handles
-        private static short globalID = 1;
-        private static readonly Dictionary<short, IntPtr> hashForIdHandle;
-        private static readonly Dictionary<IntPtr, short> hashForHandleId;
-        private static readonly object internalSyncObject = new object();
-        private static readonly object createWindowSyncObject = new object();
+        // Need to Store Table of Ids and Handles
+        private static short s_globalID = 1;
+        private static readonly Dictionary<IntPtr, GCHandle> s_windowHandles = new Dictionary<IntPtr, GCHandle>();
+        private static readonly Dictionary<short, IntPtr> s_windowIds = new Dictionary<short, IntPtr>();
+        private static readonly object s_internalSyncObject = new object();
+        private static readonly object s_createWindowSyncObject = new object();
 
-        private NativeMethods.WndProc windowProc;
-        private static IntPtr _defaultWindowProc;
-        private IntPtr windowProcPtr;
-        private IntPtr defWindowProc;
-        private bool suppressedGC;
-        private bool ownHandle;
-        private NativeWindow nextWindow;
-        private readonly WeakReference weakThisPtr;
+        private User32.WNDPROC _windowProc;
+        private static IntPtr s_defaultWindowProc;
+        private IntPtr _windowProcPtr;
+        private IntPtr _defWindowProc;
+        private bool _suppressedGC;
+        private bool _ownHandle;
+        private NativeWindow _nextWindow;
+        private readonly WeakReference _weakThisPtr;
 
         static NativeWindow()
         {
-            EventHandler shutdownHandler = new EventHandler(OnShutdown);
-            AppDomain.CurrentDomain.ProcessExit += shutdownHandler;
-
-            // Initialize our static hash of handles.  I have chosen
-            // a prime bucket based on a typical number of window handles
-            // needed to start up a decent sized app.
-            int hashSize = primes[4];
-            hashBuckets = new HandleBucket[hashSize];
-
-            hashLoadSize = (int)(hashLoadFactor * hashSize);
-            if (hashLoadSize >= hashSize)
-            {
-                hashLoadSize = hashSize - 1;
-            }
-
-            //Intilialize the Hashtable for Id...
-            hashForIdHandle = new Dictionary<short, IntPtr>();
-            hashForHandleId = new Dictionary<IntPtr, short>();
+            AppDomain.CurrentDomain.ProcessExit += OnShutdown;
         }
 
         public NativeWindow()
         {
-            weakThisPtr = new WeakReference(this);
+            _weakThisPtr = new WeakReference(this);
         }
 
         /// <summary>
@@ -121,67 +91,59 @@ namespace System.Windows.Forms
         /// </summary>
         internal void ForceExitMessageLoop()
         {
-            IntPtr h;
-            bool ownedHandle;
+            IntPtr handle = Handle;
+            bool ownedHandle = _ownHandle;
 
-            lock (this)
+            if (handle != IntPtr.Zero)
             {
-                h = Handle;
-                ownedHandle = ownHandle;
-            }
-
-            if (Handle != IntPtr.Zero)
-            {
-                //now, before we set handle to zero and finish the finalizer, let's send
-                // a WM_NULL to the window.  Why?  Because if the main ui thread is INSIDE
+                // Before we set handle to zero and finish the finalizer, let's send
+                // a WM_NULL to the window. Why? Because if the main ui thread is INSIDE
                 // the wndproc for this control during our unsubclass, then we could AV
                 // when control finally reaches us.
-                if (UnsafeNativeMethods.IsWindow(new HandleRef(null, Handle)))
+                if (User32.IsWindow(handle).IsTrue())
                 {
-                    int id = SafeNativeMethods.GetWindowThreadProcessId(new HandleRef(null, Handle), out int lpdwProcessId);
-                    Application.ThreadContext ctx = Application.ThreadContext.FromId(id);
-                    IntPtr threadHandle = (ctx == null ? IntPtr.Zero : ctx.GetHandle());
+                    int id = User32.GetWindowThreadProcessId(handle, out int _);
+                    Application.ThreadContext context = Application.ThreadContext.FromId(id);
+                    IntPtr threadHandle = context == null ? IntPtr.Zero : context.GetHandle();
 
                     if (threadHandle != IntPtr.Zero)
                     {
-                        SafeNativeMethods.GetExitCodeThread(new HandleRef(null, threadHandle), out int exitCode);
-                        if (!AppDomain.CurrentDomain.IsFinalizingForUnload() && exitCode == NativeMethods.STATUS_PENDING)
+                        Kernel32.GetExitCodeThread(threadHandle, out int exitCode);
+                        if (exitCode == NativeMethods.STATUS_PENDING)
                         {
-                            if (UnsafeNativeMethods.SendMessageTimeout(new HandleRef(null, Handle),
-                                NativeMethods.WM_UIUNSUBCLASS, IntPtr.Zero, IntPtr.Zero,
-                                UnsafeNativeMethods.SMTO_ABORTIFHUNG, 100, out IntPtr result) == IntPtr.Zero)
+                            if (User32.SendMessageTimeoutW(
+                                handle,
+                                User32.RegisteredMessage.WM_UIUNSUBCLASS,
+                                IntPtr.Zero,
+                                IntPtr.Zero,
+                                User32.SMTO.ABORTIFHUNG,
+                                100,
+                                out _) == IntPtr.Zero)
                             {
-
-                                //Debug.Fail("unable to ping HWND:" + handle.ToString() + " during finalization");
+                                // Debug.Fail("unable to ping HWND:" + handle.ToString() + " during finalization");
                             }
                         }
                     }
                 }
 
-                if (Handle != IntPtr.Zero)
+                if (handle != IntPtr.Zero)
                 {
-                    // If the dest thread is gone, it should be safe to unsubclass here.
+                    // If the destination thread is gone, it should be safe to unsubclass here.
                     ReleaseHandle(true);
                 }
             }
 
-            if (h != IntPtr.Zero && ownedHandle)
+            if (handle != IntPtr.Zero && ownedHandle)
             {
                 // If we owned the handle, post a WM_CLOSE to get rid of it.
-                UnsafeNativeMethods.PostMessage(new HandleRef(this, h), WindowMessages.WM_CLOSE, 0, 0);
+                User32.PostMessageW(handle, User32.WindowMessage.WM_CLOSE);
             }
         }
 
         /// <summary>
         ///  Indicates whether a window handle was created & is being tracked.
         /// </summary>
-        internal static bool AnyHandleCreated
-        {
-            get
-            {
-                return anyHandleCreated;
-            }
-        }
+        internal static bool AnyHandleCreated => s_anyHandleCreated;
 
         /// <summary>
         ///  Gets the handle for this window.
@@ -205,19 +167,20 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (_defaultWindowProc == IntPtr.Zero)
+                if (s_defaultWindowProc == IntPtr.Zero)
                 {
                     // Cache the default windows procedure address
-                    _defaultWindowProc = Kernel32.GetProcAddress(
+                    s_defaultWindowProc = Kernel32.GetProcAddress(
                         Kernel32.GetModuleHandleW(Libraries.User32),
                         "DefWindowProcW");
-                    if (_defaultWindowProc == IntPtr.Zero)
+
+                    if (s_defaultWindowProc == IntPtr.Zero)
                     {
                         throw new Win32Exception();
                     }
                 }
 
-                return _defaultWindowProc;
+                return s_defaultWindowProc;
             }
         }
 
@@ -226,7 +189,7 @@ namespace System.Windows.Forms
             get
             {
                 // Upcast for easy bit masking...
-                int intWndProcFlags = wndProcFlags;
+                int intWndProcFlags = t_wndProcFlags;
 
                 // Check to see if a debugger is installed.  If there is, then use
                 // DebuggableCallback instead; this callback has no try/catch around it
@@ -237,13 +200,13 @@ namespace System.Windows.Forms
                     Debug.WriteLineIf(WndProcChoice.TraceVerbose, "Init wndProcFlags");
                     Debug.Indent();
 
-                    if (userSetProcFlags != 0)
+                    if (t_userSetProcFlags != 0)
                     {
-                        intWndProcFlags = userSetProcFlags;
+                        intWndProcFlags = t_userSetProcFlags;
                     }
-                    else if (userSetProcFlagsForApp != 0)
+                    else if (s_userSetProcFlagsForApp != 0)
                     {
-                        intWndProcFlags = userSetProcFlagsForApp;
+                        intWndProcFlags = s_userSetProcFlagsForApp;
                     }
                     else if (!Application.CustomThreadExceptionHandlerAttached)
                     {
@@ -272,7 +235,7 @@ namespace System.Windows.Forms
 #endif
                     intWndProcFlags |= InitializedFlags;
                     Debug.WriteLineIf(WndProcChoice.TraceVerbose, "Final 0x" + intWndProcFlags.ToString("X", CultureInfo.InvariantCulture));
-                    wndProcFlags = (byte)intWndProcFlags;
+                    t_wndProcFlags = (byte)intWndProcFlags;
                     Debug.Unindent();
                 }
 
@@ -280,13 +243,7 @@ namespace System.Windows.Forms
             }
         }
 
-        internal static bool WndProcShouldBeDebuggable
-        {
-            get
-            {
-                return (WndProcFlags & UseDebuggableWndProc) != 0;
-            }
-        }
+        internal static bool WndProcShouldBeDebuggable => (WndProcFlags & UseDebuggableWndProc) != 0;
 
         /// <summary>
         ///  Inserts an entry into this hashtable.
@@ -295,135 +252,57 @@ namespace System.Windows.Forms
         {
             Debug.Assert(handle != IntPtr.Zero, "Should never insert a zero handle into the hash");
 
-            lock (internalSyncObject)
+            lock (s_internalSyncObject)
             {
-
-                if (handleCount >= hashLoadSize)
-                {
-                    ExpandTable();
-                }
-
-                // set a flag that this thread is tracking an HWND
-                anyHandleCreated = true;
-                // ...same for the application
-                anyHandleCreatedInApp = true;
-
-                // Assume we only have one thread writing concurrently.  Modify
-                // buckets to contain new data, as long as we insert in the right order.
-                uint hashcode = InitHash(handle, hashBuckets.Length, out uint seed, out uint incr);
-
-                int ntry = 0;
-                int emptySlotNumber = -1; // We use the empty slot number to cache the first empty slot. We chose to reuse slots
-                // create by remove that have the collision bit set over using up new slots.
+                s_anyHandleCreated = true;
+                s_anyHandleCreatedInApp = true;
 
                 GCHandle root = GCHandle.Alloc(window, GCHandleType.Weak);
 
-                do
+                if (s_windowHandles.TryGetValue(handle, out GCHandle oldRoot))
                 {
-                    int bucketNumber = (int)(seed % (uint)hashBuckets.Length);
+                    // This handle exists with another NativeWindow, replace it and
+                    // hook up the previous and next window pointers so we can get
+                    // back to the right window.
 
-                    if (emptySlotNumber == -1 && (hashBuckets[bucketNumber].handle == new IntPtr(-1)) && (hashBuckets[bucketNumber].hash_coll < 0))
+                    if (oldRoot.IsAllocated)
                     {
-                        emptySlotNumber = bucketNumber;
-                    }
-
-                    // We need to check if the collision bit is set because we have the possibility where the first
-                    // item in the hash-chain has been deleted.
-                    if ((hashBuckets[bucketNumber].handle == IntPtr.Zero) ||
-                        (hashBuckets[bucketNumber].handle == new IntPtr(-1) && ((hashBuckets[bucketNumber].hash_coll & unchecked(0x80000000)) == 0)))
-                    {
-
-                        if (emptySlotNumber != -1)
+                        if (oldRoot.Target != null)
                         {
-                            // Reuse slot
-                            bucketNumber = emptySlotNumber;
+                            window.PreviousWindow = ((NativeWindow)oldRoot.Target);
+                            Debug.Assert(window.PreviousWindow._nextWindow == null, "Last window in chain should have null next ptr");
+                            window.PreviousWindow._nextWindow = window;
                         }
-
-                        // Always set the hash_coll last because there may be readers
-                        // reading the table right now on other threads.
-                        hashBuckets[bucketNumber].window = root;
-                        hashBuckets[bucketNumber].handle = handle;
-#if DEBUG
-                        hashBuckets[bucketNumber].owner = window.ToString();
-#endif
-                        hashBuckets[bucketNumber].hash_coll |= (int)hashcode;
-                        handleCount++;
-                        return;
+                        oldRoot.Free();
                     }
-
-                    // If there is an existing window in this slot, reuse it.  Be sure to hook up the previous and next
-                    // window pointers so we can get back to the right window.
-                    if (((hashBuckets[bucketNumber].hash_coll & 0x7FFFFFFF) == hashcode) && handle == hashBuckets[bucketNumber].handle)
-                    {
-                        GCHandle prevWindow = hashBuckets[bucketNumber].window;
-                        if (prevWindow.IsAllocated)
-                        {
-                            if (prevWindow.Target != null)
-                            {
-                                window.PreviousWindow = ((NativeWindow)prevWindow.Target);
-                                Debug.Assert(window.PreviousWindow.nextWindow == null, "Last window in chain should have null next ptr");
-                                window.PreviousWindow.nextWindow = window;
-                            }
-                            prevWindow.Free();
-                        }
-                        hashBuckets[bucketNumber].window = root;
-#if DEBUG
-                        string ownerString = string.Empty;
-                        NativeWindow w = window;
-                        while (w != null)
-                        {
-                            ownerString += ("->" + w.ToString());
-                            w = w.PreviousWindow;
-                        }
-                        hashBuckets[bucketNumber].owner = ownerString;
-#endif
-                        return;
-                    }
-
-                    if (emptySlotNumber == -1)
-                    {// We don't need to set the collision bit here since we already have an empty slot
-                        hashBuckets[bucketNumber].hash_coll |= unchecked((int)0x80000000);
-                    }
-
-                    seed += incr;
-
-                } while (++ntry < hashBuckets.Length);
-
-                if (emptySlotNumber != -1)
-                {
-                    // Always set the hash_coll last because there may be readers
-                    // reading the table right now on other threads.
-                    hashBuckets[emptySlotNumber].window = root;
-                    hashBuckets[emptySlotNumber].handle = handle;
-#if DEBUG
-                    hashBuckets[emptySlotNumber].owner = window.ToString();
-#endif
-                    hashBuckets[emptySlotNumber].hash_coll |= (int)hashcode;
-                    handleCount++;
-                    return;
                 }
+
+                s_windowHandles[handle] = root;
             }
-
-            // If you see this assert, make sure load factor & count are reasonable.
-            // Then verify that our double hash function (h2, described at top of file)
-            // meets the requirements described above. You should never see this assert.
-            Debug.Fail("native window hash table insert failed!  Load factor too high, or our double hashing function is incorrect.");
         }
 
         /// <summary>
-        ///  Inserts an entry into this ID hashtable.
+        ///  Creates and applies a unique identifier to the given window <paramref name="handle"/>.
         /// </summary>
-        internal static void AddWindowToIDTable(object wrapper, IntPtr handle)
+        /// <returns>
+        ///  The identifier given to the window.
+        /// </returns>
+        internal static short CreateWindowId(IHandle handle)
         {
-            NativeWindow.hashForIdHandle[NativeWindow.globalID] = handle;
-            NativeWindow.hashForHandleId[handle] = NativeWindow.globalID;
-            UnsafeNativeMethods.SetWindowLong(new HandleRef(wrapper, handle), NativeMethods.GWL_ID, new HandleRef(wrapper, (IntPtr)globalID));
-            globalID++;
+            short id = s_globalID++;
+            s_windowIds[id] = handle.Handle;
+
+            // Set the Window ID
+            User32.SetWindowLong(
+                handle,
+                User32.GWL.ID,
+                (IntPtr)id);
+
+            return id;
         }
 
         /// <summary>
-        ///  Assigns a handle to this
-        ///  window.
+        ///  Assigns a handle to this window.
         /// </summary>
         public void AssignHandle(IntPtr handle)
         {
@@ -437,38 +316,38 @@ namespace System.Windows.Forms
                 CheckReleased();
                 Debug.Assert(handle != IntPtr.Zero, "handle is 0");
 
-                this.Handle = handle;
+                Handle = handle;
 
-                defWindowProc = UnsafeNativeMethods.GetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_WNDPROC);
-                Debug.Assert(defWindowProc != IntPtr.Zero, "defWindowProc is 0");
+                _defWindowProc = User32.GetWindowLong(this, User32.GWL.WNDPROC);
+                Debug.Assert(_defWindowProc != IntPtr.Zero, "defWindowProc is 0");
 
                 if (WndProcShouldBeDebuggable)
                 {
                     Debug.WriteLineIf(WndProcChoice.TraceVerbose, "Using debuggable wndproc");
-                    windowProc = new NativeMethods.WndProc(DebuggableCallback);
+                    _windowProc = new User32.WNDPROC(DebuggableCallback);
                 }
                 else
                 {
                     Debug.WriteLineIf(WndProcChoice.TraceVerbose, "Using normal wndproc");
-                    windowProc = new NativeMethods.WndProc(Callback);
+                    _windowProc = new User32.WNDPROC(Callback);
                 }
 
                 AddWindowToTable(handle, this);
 
-                UnsafeNativeMethods.SetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_WNDPROC, windowProc);
-                windowProcPtr = UnsafeNativeMethods.GetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_WNDPROC);
-                Debug.Assert(defWindowProc != windowProcPtr, "Uh oh! Subclassed ourselves!!!");
+                User32.SetWindowLong(this, User32.GWL.WNDPROC, _windowProc);
+                _windowProcPtr = User32.GetWindowLong(this, User32.GWL.WNDPROC);
+                Debug.Assert(_defWindowProc != _windowProcPtr, "Uh oh! Subclassed ourselves!!!");
                 if (assignUniqueID &&
-                    (unchecked((int)((long)UnsafeNativeMethods.GetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_STYLE))) & NativeMethods.WS_CHILD) != 0 &&
-                     unchecked((int)((long)UnsafeNativeMethods.GetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_ID))) == 0)
+                    (unchecked((int)((long)User32.GetWindowLong(this, User32.GWL.STYLE))) & NativeMethods.WS_CHILD) != 0 &&
+                     unchecked((int)((long)User32.GetWindowLong(this, User32.GWL.ID))) == 0)
                 {
-                    UnsafeNativeMethods.SetWindowLong(new HandleRef(this, handle), NativeMethods.GWL_ID, new HandleRef(this, handle));
+                    User32.SetWindowLong(this, User32.GWL.ID, handle);
                 }
 
-                if (suppressedGC)
+                if (_suppressedGC)
                 {
                     GC.ReRegisterForFinalize(this);
-                    suppressedGC = false;
+                    _suppressedGC = false;
                 }
 
                 OnHandleChange();
@@ -481,7 +360,7 @@ namespace System.Windows.Forms
         ///  in a Message object and invokes the wndProc() method. A WM_NCDESTROY
         ///  message automatically causes the releaseHandle() method to be called.
         /// </summary>
-        private IntPtr Callback(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
+        private IntPtr Callback(IntPtr hWnd, User32.WindowMessage msg, IntPtr wparam, IntPtr lparam)
         {
             // Note: if you change this code be sure to change the
             // corresponding code in DebuggableCallback below!
@@ -490,7 +369,7 @@ namespace System.Windows.Forms
 
             try
             {
-                if (weakThisPtr.IsAlive && weakThisPtr.Target != null)
+                if (_weakThisPtr.IsAlive && _weakThisPtr.Target != null)
                 {
                     WndProc(ref m);
                 }
@@ -505,12 +384,12 @@ namespace System.Windows.Forms
             }
             finally
             {
-                if (msg == WindowMessages.WM_NCDESTROY)
+                if (msg == User32.WindowMessage.WM_NCDESTROY)
                 {
                     ReleaseHandle(false);
                 }
 
-                if (msg == NativeMethods.WM_UIUNSUBCLASS)
+                if (msg == User32.RegisteredMessage.WM_UIUNSUBCLASS)
                 {
                     ReleaseHandle(true);
                 }
@@ -531,8 +410,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Creates a window handle for this
-        ///  window.
+        ///  Creates a window handle for this window.
         /// </summary>
         public virtual void CreateHandle(CreateParams cp)
         {
@@ -540,7 +418,7 @@ namespace System.Windows.Forms
             {
                 CheckReleased();
                 WindowClass windowClass = WindowClass.Create(cp.ClassName, (NativeMethods.ClassStyle)cp.ClassStyle);
-                lock (createWindowSyncObject)
+                lock (s_createWindowSyncObject)
                 {
                     // The CLR will sometimes pump messages while we're waiting on the lock.
                     // If a message comes through (say a WM_ACTIVATE for the parent) which
@@ -601,7 +479,7 @@ namespace System.Windows.Forms
                     {
                         throw new Win32Exception(lastWin32Error, SR.ErrorCreatingHandle);
                     }
-                    ownHandle = true;
+                    _ownHandle = true;
                 }
             }
         }
@@ -612,7 +490,7 @@ namespace System.Windows.Forms
         ///  in a Message object and invokes the wndProc() method. A WM_NCDESTROY
         ///  message automatically causes the releaseHandle() method to be called.
         /// </summary>
-        private IntPtr DebuggableCallback(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
+        private IntPtr DebuggableCallback(IntPtr hWnd, User32.WindowMessage msg, IntPtr wparam, IntPtr lparam)
         {
             // Note: if you change this code be sure to change the
             // corresponding code in Callback above!
@@ -621,7 +499,7 @@ namespace System.Windows.Forms
 
             try
             {
-                if (weakThisPtr.IsAlive && weakThisPtr.Target != null)
+                if (_weakThisPtr.IsAlive && _weakThisPtr.Target != null)
                 {
                     WndProc(ref m);
                 }
@@ -632,12 +510,12 @@ namespace System.Windows.Forms
             }
             finally
             {
-                if (msg == WindowMessages.WM_NCDESTROY)
+                if (msg == User32.WindowMessage.WM_NCDESTROY)
                 {
                     ReleaseHandle(false);
                 }
 
-                if (msg == NativeMethods.WM_UIUNSUBCLASS)
+                if (msg == User32.RegisteredMessage.WM_UIUNSUBCLASS)
                 {
                     ReleaseHandle(true);
                 }
@@ -654,7 +532,7 @@ namespace System.Windows.Forms
         {
             if (PreviousWindow == null)
             {
-                if (defWindowProc == IntPtr.Zero)
+                if (_defWindowProc == IntPtr.Zero)
                 {
                     Debug.Fail($"Can't find a default window procedure for message {m} on class {GetType().Name}");
 
@@ -664,22 +542,20 @@ namespace System.Windows.Forms
                     m.Result = UnsafeNativeMethods.DefWindowProc(m.HWnd, m.Msg, m.WParam, m.LParam);
                     return;
                 }
-                m.Result = UnsafeNativeMethods.CallWindowProc(defWindowProc, m.HWnd, m.Msg, m.WParam, m.LParam);
+                m.Result = UnsafeNativeMethods.CallWindowProc(_defWindowProc, m.HWnd, m.Msg, m.WParam, m.LParam);
             }
             else
             {
                 Debug.Assert(PreviousWindow != this, "Looping in our linked list");
-                m.Result = PreviousWindow.Callback(m.HWnd, m.Msg, m.WParam, m.LParam);
+                m.Result = PreviousWindow.Callback(m.HWnd, (User32.WindowMessage)m.Msg, m.WParam, m.LParam);
             }
         }
 
         /// <summary>
-        ///  Destroys the
-        ///  handle associated with this window.
+        ///  Destroys the handle associated with this window.
         /// </summary>
         public virtual void DestroyHandle()
         {
-            //
             lock (this)
             {
                 if (Handle != IntPtr.Zero)
@@ -687,147 +563,25 @@ namespace System.Windows.Forms
                     if (!UnsafeNativeMethods.DestroyWindow(new HandleRef(this, Handle)))
                     {
                         UnSubclass();
-                        //then post a close and let it do whatever it needs to do on its own.
-                        UnsafeNativeMethods.PostMessage(new HandleRef(this, Handle), WindowMessages.WM_CLOSE, 0, 0);
+
+                        // Post a close and let it do whatever it needs to do on its own.
+                        User32.PostMessageW(this, User32.WindowMessage.WM_CLOSE);
                     }
                     Handle = IntPtr.Zero;
-                    ownHandle = false;
+                    _ownHandle = false;
                 }
 
-                // Now that we have disposed, there is no need to finalize us any more.  So
-                // Mark to the garbage collector that we no longer need finalization.
-                //
+                // Now that we have disposed, there is no need to finalize us any more.
                 GC.SuppressFinalize(this);
-                suppressedGC = true;
+                _suppressedGC = true;
             }
         }
 
         /// <summary>
-        ///  Increases the bucket count of this hashtable. This method is called from
-        ///  the Insert method when the actual load factor of the hashtable reaches
-        ///  the upper limit specified when the hashtable was constructed. The number
-        ///  of buckets in the hashtable is increased to the smallest prime number
-        ///  that is larger than twice the current number of buckets, and the entries
-        ///  in the hashtable are redistributed into the new buckets using the cached
-        ///  hashcodes.
-        /// </summary>
-        private static void ExpandTable()
-        {
-            // Allocate new Array
-            int oldhashsize = hashBuckets.Length;
-
-            int hashsize = GetPrime(1 + oldhashsize * 2);
-
-            // Don't replace any internal state until we've finished adding to the
-            // new bucket[].  This serves two purposes: 1) Allow concurrent readers
-            // to see valid hashtable contents at all times and 2) Protect against
-            // an OutOfMemoryException while allocating this new bucket[].
-            HandleBucket[] newBuckets = new HandleBucket[hashsize];
-
-            // rehash table into new buckets
-            int nb;
-            for (nb = 0; nb < oldhashsize; nb++)
-            {
-                HandleBucket oldb = hashBuckets[nb];
-                if ((oldb.handle != IntPtr.Zero) && (oldb.handle != new IntPtr(-1)))
-                {
-
-                    // Now re-fit this entry into the table
-                    //
-                    uint seed = (uint)oldb.hash_coll & 0x7FFFFFFF;
-                    uint incr = (uint)(1 + (((seed >> 5) + 1) % ((uint)newBuckets.Length - 1)));
-
-                    do
-                    {
-                        int bucketNumber = (int)(seed % (uint)newBuckets.Length);
-
-                        if ((newBuckets[bucketNumber].handle == IntPtr.Zero) || (newBuckets[bucketNumber].handle == new IntPtr(-1)))
-                        {
-                            newBuckets[bucketNumber].window = oldb.window;
-                            newBuckets[bucketNumber].handle = oldb.handle;
-                            newBuckets[bucketNumber].hash_coll |= oldb.hash_coll & 0x7FFFFFFF;
-                            break;
-                        }
-                        newBuckets[bucketNumber].hash_coll |= unchecked((int)0x80000000);
-                        seed += incr;
-                    } while (true);
-                }
-            }
-
-            // New bucket[] is good to go - replace buckets and other internal state.
-            hashBuckets = newBuckets;
-
-            hashLoadSize = (int)(hashLoadFactor * hashsize);
-            if (hashLoadSize >= hashsize)
-            {
-                hashLoadSize = hashsize - 1;
-            }
-        }
-
-        /// <summary>
-        ///  Retrieves the window associated with the specified
-        ///  <paramref name="handle"/>.
+        ///  Retrieves the window associated with the specified <paramref name="handle"/>.
         /// </summary>
         public static NativeWindow FromHandle(IntPtr handle)
-        {
-            if (handle != IntPtr.Zero && handleCount > 0)
-            {
-                return GetWindowFromTable(handle);
-            }
-            return null;
-        }
-
-        /// <summary>
-        ///  Calculates a prime number of at least minSize using a static table, and
-        ///  if we overflow it, we calculate directly.
-        /// </summary>
-        private static int GetPrime(int minSize)
-        {
-            if (minSize < 0)
-            {
-                Debug.Fail("NativeWindow hashtable capacity overflow");
-                throw new OutOfMemoryException();
-            }
-            for (int i = 0; i < primes.Length; i++)
-            {
-                int size = primes[i];
-                if (size >= minSize)
-                {
-                    return size;
-                }
-            }
-            //outside of our predefined table.
-            //compute the hard way.
-            for (int j = ((minSize - 2) | 1); j < int.MaxValue; j += 2)
-            {
-                bool prime = true;
-
-                if ((j & 1) != 0)
-                {
-                    int target = (int)Math.Sqrt(j);
-                    for (int divisor = 3; divisor < target; divisor += 2)
-                    {
-                        if ((j % divisor) == 0)
-                        {
-                            prime = false;
-                            break;
-                        }
-                    }
-                    if (prime)
-                    {
-                        return j;
-                    }
-                }
-                else
-                {
-                    if (j == 2)
-                    {
-                        return j;
-                    }
-                }
-            }
-            return minSize;
-        }
+            => handle != IntPtr.Zero ? GetWindowFromTable(handle) : null;
 
         /// <summary>
         ///  Returns the native window for the given handle, or null if
@@ -835,64 +589,25 @@ namespace System.Windows.Forms
         /// </summary>
         private static NativeWindow GetWindowFromTable(IntPtr handle)
         {
-            Debug.Assert(handle != IntPtr.Zero, "Zero handles cannot be stored in the table");
-
-            // Take a snapshot of buckets, in case another thread does a resize
-            HandleBucket[] buckets = hashBuckets;
-            int ntry = 0;
-            uint hashcode = InitHash(handle, buckets.Length, out uint seed, out uint incr);
-
-            HandleBucket b;
-            do
+            if (s_windowHandles.TryGetValue(handle, out GCHandle value) && value.IsAllocated)
             {
-                int bucketNumber = (int)(seed % (uint)buckets.Length);
-                b = buckets[bucketNumber];
-                if (b.handle == IntPtr.Zero)
-                {
-                    return null;
-                }
-                if (((b.hash_coll & 0x7FFFFFFF) == hashcode) && handle == b.handle)
-                {
-                    if (b.window.IsAllocated)
-                    {
-                        return (NativeWindow)b.window.Target;
-                    }
-                }
-                seed += incr;
+                return (NativeWindow)value.Target;
             }
-            while (b.hash_coll < 0 && ++ntry < buckets.Length);
             return null;
         }
 
-        internal IntPtr GetHandleFromID(short id)
+        /// <summary>
+        ///  Returns the handle from the given <paramref name="id"/> if found, otherwise returns
+        ///  <see cref="IntPtr.Zero"/>.
+        /// </summary>
+        internal IntPtr GetHandleFromWindowId(short id)
         {
-            if (NativeWindow.hashForIdHandle == null || !NativeWindow.hashForIdHandle.TryGetValue(id, out IntPtr handle))
+            if (s_windowIds == null || !s_windowIds.TryGetValue(id, out IntPtr handle))
             {
                 handle = IntPtr.Zero;
             }
 
             return handle;
-        }
-
-        /// <summary>
-        ///  Computes the hash function:  H(key, i) = h1(key) + i*h2(key, hashSize).
-        ///  The out parameter 'seed' is h1(key), while the out parameter
-        ///  'incr' is h2(key, hashSize).  Callers of this function should
-        ///  add 'incr' each time through a loop.
-        /// </summary>
-        private static uint InitHash(IntPtr handle, int hashsize, out uint seed, out uint incr)
-        {
-            // Hashcode must be positive.  Also, we must not use the sign bit, since
-            // that is used for the collision bit.
-            uint hashcode = ((uint)handle.GetHashCode()) & 0x7FFFFFFF;
-            seed = (uint)hashcode;
-            // Restriction: incr MUST be between 1 and hashsize - 1, inclusive for
-            // the modular arithmetic to work correctly.  This guarantees you'll
-            // visit every bucket in the table exactly once within hashsize
-            // iterations.  Violate this and it'll cause obscure bugs forever.
-            // If you change this calculation for h2(key), update putEntry too!
-            incr = (uint)(1 + (((seed >> 5) + 1) % ((uint)hashsize - 1)));
-            return hashcode;
         }
 
         /// <summary>
@@ -921,44 +636,35 @@ namespace System.Windows.Forms
             // we cannot call DestroyWindow because this API will fail if called from
             // an incorrect thread.
 
-            if (handleCount > 0)
+            if (s_windowHandles.Count > 0)
             {
                 Debug.Assert(DefaultWindowProc != IntPtr.Zero, "We have active windows but no user window proc?");
 
-                lock (internalSyncObject)
+                lock (s_internalSyncObject)
                 {
-                    for (int i = 0; i < hashBuckets.Length; i++)
+                    foreach (KeyValuePair<IntPtr, GCHandle> entry in s_windowHandles)
                     {
-                        HandleBucket b = hashBuckets[i];
-                        if (b.handle != IntPtr.Zero && b.handle != new IntPtr(-1))
+                        IntPtr handle = entry.Key;
+                        if (handle != IntPtr.Zero && handle != new IntPtr(-1))
                         {
-                            HandleRef href = new HandleRef(b, b.handle);
-                            UnsafeNativeMethods.SetWindowLong(href, NativeMethods.GWL_WNDPROC, new HandleRef(null, DefaultWindowProc));
-                            UnsafeNativeMethods.SetClassLong(href, NativeMethods.GCL_WNDPROC, DefaultWindowProc);
-                            UnsafeNativeMethods.PostMessage(href, WindowMessages.WM_CLOSE, 0, 0);
+                            User32.SetWindowLong(handle, User32.GWL.WNDPROC, DefaultWindowProc);
+                            User32.SetClassLong(handle, User32.GCL.WNDPROC, DefaultWindowProc);
+                            User32.PostMessageW(handle, User32.WindowMessage.WM_CLOSE);
 
                             // Fish out the Window object, if it is valid, and NULL the handle pointer.  This
                             // way the rest of WinForms won't think the handle is still valid here.
-                            if (b.window.IsAllocated)
+                            if (entry.Value.IsAllocated)
                             {
-                                NativeWindow w = (NativeWindow)b.window.Target;
+                                NativeWindow w = (NativeWindow)entry.Value.Target;
                                 if (w != null)
                                 {
                                     w.Handle = IntPtr.Zero;
                                 }
                             }
-
-#if DEBUG && FINALIZATION_WATCH
-                            Debug.Fail("Window did not clean itself up: " + b.owner);
-#endif
-
-                            b.window.Free();
                         }
-                        hashBuckets[i].handle = IntPtr.Zero;
-                        hashBuckets[i].hash_coll = 0;
                     }
 
-                    handleCount = 0;
+                    s_windowHandles.Clear();
                 }
             }
         }
@@ -989,37 +695,32 @@ namespace System.Windows.Forms
         /// </summary>
         private void ReleaseHandle(bool handleValid)
         {
-            if (Handle != IntPtr.Zero)
+            if (Handle == IntPtr.Zero)
+                return;
+
+            lock (this)
             {
-                lock (this)
+                if (Handle == IntPtr.Zero)
+                    return;
+
+                if (handleValid)
                 {
-                    if (Handle != IntPtr.Zero)
-                    {
-                        if (handleValid)
-                        {
-                            UnSubclass();
-                        }
+                    UnSubclass();
+                }
 
-                        RemoveWindowFromTable(Handle, this);
+                RemoveWindowFromTable(Handle, this);
+                _ownHandle = false;
+                Handle = IntPtr.Zero;
 
-                        if (ownHandle)
-                        {
-                            ownHandle = false;
-                        }
+                // If not finalizing already.
+                if (_weakThisPtr.IsAlive && _weakThisPtr.Target != null)
+                {
+                    OnHandleChange();
 
-                        Handle = IntPtr.Zero;
-                        //if not finalizing already.
-                        if (weakThisPtr.IsAlive && weakThisPtr.Target != null)
-                        {
-                            OnHandleChange();
-
-                            // Now that we have disposed, there is no need to finalize us any more.  So
-                            // Mark to the garbage collector that we no longer need finalization.
-                            //
-                            GC.SuppressFinalize(this);
-                            suppressedGC = true;
-                        }
-                    }
+                    // Now that we have disposed, there is no need to finalize us any more.  So
+                    // Mark to the garbage collector that we no longer need finalization.
+                    GC.SuppressFinalize(this);
+                    _suppressedGC = true;
                 }
             }
         }
@@ -1032,77 +733,47 @@ namespace System.Windows.Forms
         {
             Debug.Assert(handle != IntPtr.Zero, "Incorrect handle");
 
-            lock (internalSyncObject)
+            lock (s_internalSyncObject)
             {
-
-                // Assuming only one concurrent writer, write directly into buckets.
-                uint hashcode = InitHash(handle, hashBuckets.Length, out uint seed, out uint incr);
-                int ntry = 0;
-                NativeWindow prevWindow = window.PreviousWindow;
-                HandleBucket b;
-
-                int bn; // bucketNumber
-                do
+                if (!s_windowHandles.TryGetValue(handle, out GCHandle root))
                 {
-                    bn = (int)(seed % (uint)hashBuckets.Length);  // bucketNumber
-                    b = hashBuckets[bn];
-                    if (((b.hash_coll & 0x7FFFFFFF) == hashcode) && handle == b.handle)
+                    return;
+                }
+
+                bool shouldRemoveBucket = (window._nextWindow == null);
+                bool shouldReplaceBucket = IsRootWindowInListWithChildren(window);
+
+                // We need to fixup the link pointers of window here.
+                if (window.PreviousWindow != null)
+                {
+                    window.PreviousWindow._nextWindow = window._nextWindow;
+                }
+                if (window._nextWindow != null)
+                {
+                    window._nextWindow._defWindowProc = window._defWindowProc;
+                    window._nextWindow.PreviousWindow = window.PreviousWindow;
+                }
+
+                window._nextWindow = null;
+                NativeWindow previousWindow = window.PreviousWindow;
+                window.PreviousWindow = null;
+
+                if (shouldReplaceBucket)
+                {
+                    if (root.IsAllocated)
                     {
-
-                        bool shouldRemoveBucket = (window.nextWindow == null);
-                        bool shouldReplaceBucket = IsRootWindowInListWithChildren(window);
-
-                        // We need to fixup the link pointers of window here.
-                        //
-                        if (window.PreviousWindow != null)
-                        {
-                            window.PreviousWindow.nextWindow = window.nextWindow;
-                        }
-                        if (window.nextWindow != null)
-                        {
-                            window.nextWindow.defWindowProc = window.defWindowProc;
-                            window.nextWindow.PreviousWindow = window.PreviousWindow;
-                        }
-
-                        window.nextWindow = null;
-                        window.PreviousWindow = null;
-
-                        if (shouldReplaceBucket)
-                        {
-                            // Free the existing GC handle
-                            if (hashBuckets[bn].window.IsAllocated)
-                            {
-                                hashBuckets[bn].window.Free();
-                            }
-
-                            hashBuckets[bn].window = GCHandle.Alloc(prevWindow, GCHandleType.Weak);
-                        }
-                        else if (shouldRemoveBucket)
-                        {
-
-                            // Clear hash_coll field, then key, then value
-                            hashBuckets[bn].hash_coll &= unchecked((int)0x80000000);
-                            if (hashBuckets[bn].hash_coll != 0)
-                            {
-                                hashBuckets[bn].handle = new IntPtr(-1);
-                            }
-                            else
-                            {
-                                hashBuckets[bn].handle = IntPtr.Zero;
-                            }
-
-                            if (hashBuckets[bn].window.IsAllocated)
-                            {
-                                hashBuckets[bn].window.Free();
-                            }
-
-                            Debug.Assert(handleCount > 0, "Underflow on handle count");
-                            handleCount--;
-                        }
-                        return;
+                        root.Free();
                     }
-                    seed += incr;
-                } while (hashBuckets[bn].hash_coll < 0 && ++ntry < hashBuckets.Length);
+                    s_windowHandles[handle] = GCHandle.Alloc(previousWindow, GCHandleType.Weak);
+                }
+                else if (shouldRemoveBucket)
+                {
+                    s_windowHandles.Remove(handle);
+                    if (root.IsAllocated)
+                    {
+                        root.Free();
+                    }
+                }
             }
         }
 
@@ -1115,17 +786,15 @@ namespace System.Windows.Forms
             // it's previousWindow field is set to the previous subclass.  Therefore,
             // the top of the subclass chain has nextWindow == null and previousWindow
             // == the first child subclass.
-            return ((window.PreviousWindow != null) && (window.nextWindow == null));
+            return ((window.PreviousWindow != null) && (window._nextWindow == null));
         }
 
         /// <summary>
-        ///  Inserts an entry into this ID hashtable.
+        ///  Removes the given Window from the lookup table.
         /// </summary>
-        internal static void RemoveWindowFromIDTable(IntPtr handle)
+        internal static void RemoveWindowFromIDTable(short id)
         {
-            short id = (short)NativeWindow.hashForHandleId[handle];
-            NativeWindow.hashForHandleId.Remove(handle);
-            NativeWindow.hashForIdHandle.Remove(id);
+            s_windowIds.Remove(id);
         }
 
         /// <summary>
@@ -1151,11 +820,11 @@ namespace System.Windows.Forms
         /// </summary>
         internal static void SetUnhandledExceptionModeInternal(UnhandledExceptionMode mode, bool threadScope)
         {
-            if (!threadScope && anyHandleCreatedInApp)
+            if (!threadScope && s_anyHandleCreatedInApp)
             {
                 throw new InvalidOperationException(SR.ApplicationCannotChangeApplicationExceptionMode);
             }
-            if (threadScope && anyHandleCreated)
+            if (threadScope && s_anyHandleCreated)
             {
                 throw new InvalidOperationException(SR.ApplicationCannotChangeThreadExceptionMode);
             }
@@ -1165,31 +834,31 @@ namespace System.Windows.Forms
                 case UnhandledExceptionMode.Automatic:
                     if (threadScope)
                     {
-                        userSetProcFlags = 0;
+                        t_userSetProcFlags = 0;
                     }
                     else
                     {
-                        userSetProcFlagsForApp = 0;
+                        s_userSetProcFlagsForApp = 0;
                     }
                     break;
                 case UnhandledExceptionMode.ThrowException:
                     if (threadScope)
                     {
-                        userSetProcFlags = UseDebuggableWndProc | InitializedFlags;
+                        t_userSetProcFlags = UseDebuggableWndProc | InitializedFlags;
                     }
                     else
                     {
-                        userSetProcFlagsForApp = UseDebuggableWndProc | InitializedFlags;
+                        s_userSetProcFlagsForApp = UseDebuggableWndProc | InitializedFlags;
                     }
                     break;
                 case UnhandledExceptionMode.CatchException:
                     if (threadScope)
                     {
-                        userSetProcFlags = InitializedFlags;
+                        t_userSetProcFlags = InitializedFlags;
                     }
                     else
                     {
-                        userSetProcFlagsForApp = InitializedFlags;
+                        s_userSetProcFlagsForApp = InitializedFlags;
                     }
                     break;
                 default:
@@ -1203,26 +872,25 @@ namespace System.Windows.Forms
         ///
         ///  1) User has done multiple subclasses but has un-subclassed out of order.
         ///  2) User has done multiple subclasses but now our defWindowProc points to
-        ///  a NativeWindow that has GC'd
+        ///     a NativeWindow that has GC'd
         ///  3) User releasing this handle but this NativeWindow is not the current
         ///  window proc.
         /// </summary>
         private void UnSubclass()
         {
-            bool finalizing = (!weakThisPtr.IsAlive || weakThisPtr.Target == null);
-            HandleRef href = new HandleRef(this, Handle);
+            bool finalizing = (!_weakThisPtr.IsAlive || _weakThisPtr.Target == null);
 
             // Don't touch if the current window proc is not ours.
 
-            IntPtr currentWinPrc = UnsafeNativeMethods.GetWindowLong(new HandleRef(this, Handle), NativeMethods.GWL_WNDPROC);
-            if (windowProcPtr == currentWinPrc)
+            IntPtr currentWinPrc = User32.GetWindowLong(this, User32.GWL.WNDPROC);
+            if (_windowProcPtr == currentWinPrc)
             {
                 if (PreviousWindow == null)
                 {
                     // If the defWindowProc points to a native window proc, previousWindow will
                     // be null.  In this case, it is completely safe to assign defWindowProc
                     // to the current wndproc.
-                    UnsafeNativeMethods.SetWindowLong(href, NativeMethods.GWL_WNDPROC, new HandleRef(this, defWindowProc));
+                    User32.SetWindowLong(this, User32.GWL.WNDPROC, _defWindowProc);
                 }
                 else
                 {
@@ -1233,14 +901,14 @@ namespace System.Windows.Forms
                         // holding a ref to it, and it is holding a ref to us.  The only way this cycle will
                         // finalize is if no one else is hanging onto it.  So, we re-assign the window proc to
                         // userDefWindowProc.
-                        UnsafeNativeMethods.SetWindowLong(href, NativeMethods.GWL_WNDPROC, new HandleRef(this, DefaultWindowProc));
+                        User32.SetWindowLong(this, User32.GWL.WNDPROC, DefaultWindowProc);
                     }
                     else
                     {
                         // Here we are not finalizing so we use the windowProc for our previous window.  This may
                         // DIFFER from the value we are currently storing in defWindowProc because someone may
                         // have re-subclassed.
-                        UnsafeNativeMethods.SetWindowLong(href, NativeMethods.GWL_WNDPROC, PreviousWindow.windowProc);
+                        User32.SetWindowLong(this, User32.GWL.WNDPROC, PreviousWindow._windowProc);
                     }
                 }
             }
@@ -1250,21 +918,20 @@ namespace System.Windows.Forms
                 // if the whole chain is all managed NativeWindow it doesnt matter,
                 // if the chain is not, then someone has been dirty and didn't clean up properly, too bad for them...
 
-                //We will cut off the chain if we cannot unsubclass.
-                //If we find previouswindow pointing to us, then we can let RemoveWindowFromTable reassign the
-                //defwndproc pointers properly when this guy gets removed (thereby unsubclassing ourselves)
+                // We will cut off the chain if we cannot unsubclass.
+                // If we find previouswindow pointing to us, then we can let RemoveWindowFromTable reassign the
+                // defwndproc pointers properly when this guy gets removed (thereby unsubclassing ourselves)
 
-                if (nextWindow == null || nextWindow.defWindowProc != windowProcPtr)
+                if (_nextWindow == null || _nextWindow._defWindowProc != _windowProcPtr)
                 {
-                    // we didn't find it... let's unhook anyway and cut the chain... this prevents crashes
-                    UnsafeNativeMethods.SetWindowLong(href, NativeMethods.GWL_WNDPROC, new HandleRef(this, DefaultWindowProc));
+                    // We didn't find it... let's unhook anyway and cut the chain... this prevents crashes
+                    User32.SetWindowLong(this, User32.GWL.WNDPROC, DefaultWindowProc);
                 }
             }
         }
 
         /// <summary>
-        ///  Invokes the default window procedure associated with
-        ///  this window.
+        ///  Invokes the default window procedure associated with this window.
         /// </summary>
         protected virtual void WndProc(ref Message m)
         {
@@ -1272,31 +939,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  A struct that contains a single bucket for our handle / GCHandle hash table.
-        ///  The hash table algorithm we use here was stolen selfishly from the framework's
-        ///  Hashtable class.  We don't use Hashtable directly, however, because of boxing
-        ///  concerns.  It's algorithm is perfect for our needs, however:  Multiple
-        ///  reader, single writer without the need for locks and constant lookup time.
-        ///
-        ///  Differences between this implementation and Hashtable:
-        ///
-        ///  Keys are IntPtrs; their hash code is their value.  Collision is still
-        ///  marked with the high bit.
-        ///
-        ///  Reclaimed buckets store -1 in their handle, not the hash table reference.
-        /// </summary>
-        private struct HandleBucket
-        {
-            public IntPtr handle;   // Win32 window handle
-            public GCHandle window; // a weak GC handle to the NativeWindow class
-            public int hash_coll;   // Store hash code; sign bit means there was a collision.
-#if DEBUG
-            public string owner;    // owner of this handle
-#endif
-        }
-
-        /// <summary>
-        ///  WindowClass encapsulates a window class.
+        ///  WindowClass encapsulates a WNDCLASS.
         /// </summary>
         private class WindowClass
         {
@@ -1308,11 +951,11 @@ namespace System.Windows.Forms
             internal string _windowClassName;
             internal int _hashCode;
             internal IntPtr _defaultWindowProc;
-            internal NativeMethods.WndProc _windowProc;
+            internal User32.WNDPROC _windowProc;
             internal NativeWindow _targetWindow;
 
             // There is only ever one AppDomain
-            private static string s_currentAppDomainHash = Convert.ToString(AppDomain.CurrentDomain.GetHashCode(), 16);
+            private static readonly string s_currentAppDomainHash = Convert.ToString(AppDomain.CurrentDomain.GetHashCode(), 16);
 
             private static readonly object s_wcInternalSyncObject = new object();
 
@@ -1323,12 +966,12 @@ namespace System.Windows.Forms
                 RegisterClass();
             }
 
-            public IntPtr Callback(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
+            public IntPtr Callback(IntPtr hWnd, User32.WindowMessage msg, IntPtr wparam, IntPtr lparam)
             {
                 Debug.Assert(hWnd != IntPtr.Zero, "Windows called us with an HWND of 0");
 
                 // Set the window procedure to the default window procedure
-                UnsafeNativeMethods.SetWindowLong(new HandleRef(null, hWnd), NativeMethods.GWL_WNDPROC, new HandleRef(this, _defaultWindowProc));
+                User32.SetWindowLong(hWnd, User32.GWL.WNDPROC, _defaultWindowProc);
                 _targetWindow.AssignHandle(hWnd);
                 return _targetWindow.Callback(hWnd, msg, wparam, lparam);
             }
@@ -1406,7 +1049,7 @@ namespace System.Windows.Forms
             }
 
             /// <summary>
-            ///  Once the classname and style bits have been set, this can be called to register the class.
+            /// Once the classname and style bits have been set, this can be called to register the class.
             /// </summary>
             private unsafe void RegisterClass()
             {
@@ -1442,7 +1085,7 @@ namespace System.Windows.Forms
                 }
 
                 _windowClassName = GetFullClassName(localClassName);
-                _windowProc = new NativeMethods.WndProc(Callback);
+                _windowProc = new User32.WNDPROC(Callback);
                 windowClass.lpfnWndProc = Marshal.GetFunctionPointerForDelegate(_windowProc);
                 windowClass.hInstance = Kernel32.GetModuleHandleW(null);
 

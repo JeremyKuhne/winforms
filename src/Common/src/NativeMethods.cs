@@ -391,7 +391,6 @@ namespace System.Windows.Forms
         GMEM_INVALID_HANDLE = 0x8000,
         GHND = (GMEM_MOVEABLE | GMEM_ZEROINIT),
         GPTR = (GMEM_FIXED | GMEM_ZEROINIT),
-        GCL_WNDPROC = (-24),
         GWL_WNDPROC = (-4),
         GWL_HWNDPARENT = (-8),
         GWL_STYLE = (-16),
@@ -1551,19 +1550,6 @@ namespace System.Windows.Forms
                     wmMouseEnterMessage = SafeNativeMethods.RegisterWindowMessage("WinFormsMouseEnter");
                 }
                 return wmMouseEnterMessage;
-            }
-        }
-
-        private static int wmUnSubclass = -1;
-        public static int WM_UIUNSUBCLASS
-        {
-            get
-            {
-                if (wmUnSubclass == -1)
-                {
-                    wmUnSubclass = SafeNativeMethods.RegisterWindowMessage("WinFormsUnSubclass");
-                }
-                return wmUnSubclass;
             }
         }
 
