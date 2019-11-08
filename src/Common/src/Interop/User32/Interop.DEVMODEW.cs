@@ -4,7 +4,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 internal static partial class Interop
 {
@@ -25,7 +24,7 @@ internal static partial class Interop
             public DM dmFields;
             public int dmPositionX;
             public int dmPositionY;
-            public ScreenOrientation dmDisplayOrientation;
+            public DMDO dmDisplayOrientation;
             public int dmDisplayFixedOutput;
             public short dmColor;
             public short dmDuplex;

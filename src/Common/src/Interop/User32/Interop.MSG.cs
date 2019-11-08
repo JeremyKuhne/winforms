@@ -5,7 +5,6 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 internal static partial class Interop
 {
@@ -20,12 +19,6 @@ internal static partial class Interop
             public IntPtr lParam;
             public uint time;
             public Point pt;
-
-            public static implicit operator Message(MSG msg)
-                => new Message { HWnd = msg.hwnd, Msg = (int)msg.message, WParam = msg.wParam, LParam = msg.lParam };
-
-            public static implicit operator MSG(Message message)
-                => new MSG { hwnd = message.HWnd, message = (WindowMessage)message.Msg, wParam = message.WParam, lParam = message.LParam };
         }
     }
 }

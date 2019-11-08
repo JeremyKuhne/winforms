@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using static Interop;
+
 namespace System.Windows.Forms.Automation
 {
     /// <summary>
@@ -16,26 +18,26 @@ namespace System.Windows.Forms.Automation
         ///  Use this in a limited capacity as this style of message could cause a flooding
         ///  for information to the end user due to the nature of the request to deliver all of the notifications.
         /// </summary>
-        ImportantAll = 0,
+        ImportantAll = UiaCore.NotificationProcessing.ImportantAll,
 
         /// <summary>
         ///  These notifications should be presented to the user as soon as possible.
         ///  The most recent notifications from this source should be delivered to the user
         ///  because the most recent notification supersedes all of the other notifications.
         /// </summary>
-        ImportantMostRecent = 1,
+        ImportantMostRecent = UiaCore.NotificationProcessing.ImportantMostRecent,
 
         /// <summary>
         ///  These notifications should be presented to the user when possible.
         ///  All of the notifications from this source should be delivered to the user.
         /// </summary>
-        All = 2,
+        All = UiaCore.NotificationProcessing.All,
 
         /// <summary>
         ///  These notifications should be presented to the user when possible.
         ///  Interrupt the current notification for this one.
         /// </summary>
-        MostRecent = 3,
+        MostRecent = UiaCore.NotificationProcessing.MostRecent,
 
         /// <summary>
         ///  These notifications should be presented to the user when possible.
@@ -44,6 +46,6 @@ namespace System.Windows.Forms.Automation
         ///  then keep the most recent and ignore the rest until the current processing is completed.
         ///  Then use the most recent message as the current message.
         /// </summary>
-        CurrentThenMostRecent = 4
+        CurrentThenMostRecent = UiaCore.NotificationProcessing.CurrentThenMostRecent
     }
 }

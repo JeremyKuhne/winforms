@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+  <PropertyGroup>
+    <AssemblyName>System.Windows.Forms.Interop</AssemblyName>
+    <CLSCompliant>true</CLSCompliant>
+    <Deterministic>true</Deterministic>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- ComInterfaceType is obsolete -->
+    <NoWarn>$(NoWarn);618</NoWarn>
+    <ProjectGuid>{5F62C060-75DE-4CE7-AF4F-0A440B2387C9}</ProjectGuid>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Common\src\Interop\**\*.cs">
+      <Link>Interop\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\..\Common\src\OsVersion.cs" Link="Common\OsVersion.cs" />
+    <Compile Include="..\..\Common\src\SpanHelpers.cs" Link="Common\SpanHelpers.cs" />
+    <Compile Include="..\..\Common\src\Microsoft\Win32\SafeHandles\CoTaskMemSafeHandle.cs" Link="Microsoft\Win32\SafeHandles\CoTaskMemSafeHandle.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Accessibility\src\Accessibility.ilproj" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="$(MicrosoftWin32RegistryPackageVersion)" />
+    <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommonPackageVersion)" />
+    <PackageReference Include="System.Resources.Extensions" Version="$(SystemResourcesExtensionsPackageVersion)" />
+    <PackageReference Include="System.Windows.Extensions" Version="$(SystemWindowsExtensionsPackageVersion)" />
+    <!--<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.1" />-->
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SR.resx">
+      <GenerateSource>true</GenerateSource>
+      <Namespace>System</Namespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\xlf\SR.cs.xlf" />
+    <None Include="Resources\xlf\SR.de.xlf" />
+    <None Include="Resources\xlf\SR.es.xlf" />
+    <None Include="Resources\xlf\SR.fr.xlf" />
+    <None Include="Resources\xlf\SR.it.xlf" />
+    <None Include="Resources\xlf\SR.ja.xlf" />
+    <None Include="Resources\xlf\SR.ko.xlf" />
+    <None Include="Resources\xlf\SR.pl.xlf" />
+    <None Include="Resources\xlf\SR.pt-BR.xlf" />
+    <None Include="Resources\xlf\SR.ru.xlf" />
+    <None Include="Resources\xlf\SR.tr.xlf" />
+    <None Include="Resources\xlf\SR.zh-Hans.xlf" />
+    <None Include="Resources\xlf\SR.zh-Hant.xlf" />
+  </ItemGroup>
+</Project>

@@ -4,7 +4,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 internal static partial class Interop
 {
@@ -70,9 +69,17 @@ internal static partial class Interop
                 _handle = handle;
             }
 
+            // System.Windows.Forms.Primitives IWin32Window/WindowMessage/
+            // System.Windows.Forms.Interop <- 
+            // System.Windows.Forms
+            // System.Windows.Forms.Design
+
+            // 
+
             private static IntPtr GetHWND(object handle)
                 => handle switch
                 {
+                    // UGH Add IHandle to IWin32Window, just validate IsWindow()
                     IHandle iHandle => iHandle.Handle,
                     IWin32Window window => Control.GetSafeHandle(window),
                     _ => throw new InvalidOperationException("Unexpected handle type.")

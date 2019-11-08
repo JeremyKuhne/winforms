@@ -4,7 +4,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms.Automation;
 
 internal partial class Interop
 {
@@ -13,8 +12,8 @@ internal partial class Interop
         [DllImport(Libraries.UiaCore, ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern HRESULT UiaRaiseNotificationEvent(
             IRawElementProviderSimple provider,
-            AutomationNotificationKind notificationKind,
-            AutomationNotificationProcessing notificationProcessing,
+            NotificationKind notificationKind,
+            NotificationProcessing notificationProcessing,
             [MarshalAs(UnmanagedType.BStr)] string displayString,
             [MarshalAs(UnmanagedType.BStr)] string activityId);
     }

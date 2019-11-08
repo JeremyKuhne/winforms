@@ -9874,117 +9874,121 @@ namespace System.Windows.Forms
 
         internal virtual void RecreateHandleCore()
         {
-            //
             lock (this)
             {
-                if (IsHandleCreated)
+                if (!IsHandleCreated)
                 {
+                    return;
+                }
 
-                    bool focused = ContainsFocus;
+                bool focused = ContainsFocus;
 
 #if DEBUG
-                    if (CoreSwitches.PerfTrack.Enabled)
-                    {
-                        Debug.Write("RecreateHandle: ");
-                        Debug.Write(GetType().FullName);
-                        Debug.Write(" [Text=");
-                        Debug.Write(Text);
-                        Debug.Write("]");
-                        Debug.WriteLine("");
-                    }
+                if (CoreSwitches.PerfTrack.Enabled)
+                {
+                    Debug.WriteLine($"RecreateHandle: {GetType().FullName} [Text={Text}]");
+                }
 #endif
-                    bool created = (_state & States.Created) != 0;
-                    if (GetState(States.TrackingMouseEvent))
+                bool created = (_state & States.Created) != 0;
+                if (GetState(States.TrackingMouseEvent))
+                {
+                    SetState(States.MouseEnterPending, true);
+                    UnhookMouseEvent();
+                }
+
+                HandleRef parentHandle = new HandleRef(this, User32.GetParent(this));
+
+                Control[] controlSnapshot = null;
+                _state |= States.Recreate;
+
+                try
+                {
+                    // Inform child controls that their parent is recreating handle.
+
+                    // The default behavior is to now SetParent to parking window, then
+                    // SetParent back after the parent's handle has been recreated.
+                    // This behavior can be overridden in OnParentHandleRecreat* and is in ListView.
+
+                    // fish out control collection w/o demand creating one.
+                    ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(s_controlsCollectionProperty);
+                    if (controlsCollection != null && controlsCollection.Count > 0)
                     {
-                        SetState(States.MouseEnterPending, true);
-                        UnhookMouseEvent();
+                        controlSnapshot = new Control[controlsCollection.Count];
+                        for (int i = 0; i < controlsCollection.Count; i++)
+                        {
+                            Control childControl = controlsCollection[i];
+                            if (childControl != null && childControl.IsHandleCreated)
+                            {
+                                // SetParent to parking window
+                                childControl.OnParentHandleRecreating();
+
+                                // If we were successful, remember this control
+                                // so we can raise OnParentHandleRecreated
+                                controlSnapshot[i] = childControl;
+                            }
+                            else
+                            {
+                                // Put in a null slot which we'll skip over later.
+                                controlSnapshot[i] = null;
+                            }
+                        }
                     }
 
-                    HandleRef parentHandle = new HandleRef(this, User32.GetParent(this));
+                    // Do the main work of recreating the handle
+                    DestroyHandle();
+                    CreateHandle();
+                    SetState(States.Recreate, false);
 
                     try
                     {
-                        Control[] controlSnapshot = null;
-                        _state |= States.Recreate;
-
-                        try
+                        // Inform children that their parent's handle has recreated.
+                        if (controlSnapshot != null)
                         {
-                            // Inform child controls that their parent is recreating handle.
-
-                            // The default behavior is to now SetParent to parking window, then
-                            // SetParent back after the parent's handle has been recreated.
-                            // This behavior can be overridden in OnParentHandleRecreat* and is in ListView.
-
-                            //fish out control collection w/o demand creating one.
-                            ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(s_controlsCollectionProperty);
-                            if (controlsCollection != null && controlsCollection.Count > 0)
+                            for (int i = 0; i < controlSnapshot.Length; i++)
                             {
-                                controlSnapshot = new Control[controlsCollection.Count];
-                                for (int i = 0; i < controlsCollection.Count; i++)
+                                Control childControl = controlSnapshot[i];
+                                if (childControl != null && childControl.IsHandleCreated)
                                 {
-                                    Control childControl = controlsCollection[i];
-                                    if (childControl != null && childControl.IsHandleCreated)
-                                    {
-                                        // SetParent to parking window
-                                        childControl.OnParentHandleRecreating();
-
-                                        // if we were successful, remember this control
-                                        // so we can raise OnParentHandleRecreated
-                                        controlSnapshot[i] = childControl;
-                                    }
-                                    else
-                                    {
-                                        // put in a null slot which we'll skip over later.
-                                        controlSnapshot[i] = null;
-                                    }
-                                }
-                            }
-
-                            // do the main work of recreating the handle
-                            DestroyHandle();
-                            CreateHandle();
-                        }
-                        finally
-                        {
-                            _state &= ~States.Recreate;
-
-                            // inform children that their parent's handle has recreated
-                            if (controlSnapshot != null)
-                            {
-                                for (int i = 0; i < controlSnapshot.Length; i++)
-                                {
-                                    Control childControl = controlSnapshot[i];
-                                    if (childControl != null && childControl.IsHandleCreated)
-                                    {
-                                        // SetParent back to the new Parent handle
-                                        childControl.OnParentHandleRecreated();
-                                    }
+                                    // SetParent back to the new Parent handle
+                                    childControl.OnParentHandleRecreated();
                                 }
                             }
                         }
-                        if (created)
-                        {
-                            CreateControl();
-                        }
+
+                        CreateControl();
                     }
                     finally
                     {
-                        if (parentHandle.Handle != IntPtr.Zero                               // the parent was not null
-                            && (FromHandle(parentHandle.Handle) == null || _parent == null) // but wasnt a windows forms window
+                        // If there is a parent window that isn't a WinForms window we need to reparent manually.
+                        // If the parent was a WinForms Control, CreateControl will have taken care of this.
+                        if (parentHandle.Handle != IntPtr.Zero
+                            && (_parent == null || FromHandle(parentHandle.Handle) == null)
                             && UnsafeNativeMethods.IsWindow(parentHandle))
-                        {                 // and still is a window
-                            // correctly parent back up to where we were before.
-                            // if we were parented to a proper windows forms control, CreateControl would have properly parented
-                            // us back.
+                        {
                             User32.SetParent(new HandleRef(this, Handle), parentHandle);
                         }
                     }
-
-                    // Restore control focus
-                    if (focused)
+                }
+                catch
+                {
+                    if (_window.Handle == IntPtr.Zero)
                     {
-                        Focus();
+                        // this.DestroyHandle succeeded, but CreateHandle failed.
+                        created = false;
+                        SetState(States.Created, false);
                     }
+
+                    throw;
+                }
+                finally
+                {
+                    SetState(States.Recreate, false);
+                }
+
+                // Restore control focus
+                if (focused)
+                {
+                    Focus();
                 }
             }
         }
