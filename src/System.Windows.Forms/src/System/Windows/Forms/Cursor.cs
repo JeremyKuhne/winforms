@@ -30,8 +30,8 @@ namespace System.Windows.Forms
         private readonly int _resourceId;
 
         /// <summary>
-        ///  Private constructor. If you want a standard system cursor, use one of the
-        ///  definitions in the Cursors class.
+        ///  Private constructor. If you want a standard system cursor, use one of the definitions in the
+        ///  Cursors class.
         /// </summary>
         internal Cursor(int nResourceId)
         {
@@ -56,8 +56,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Initializes a new instance of the <see cref='Cursor'/>
-        ///  class with the specified filename.
+        ///  Initializes a new instance of the <see cref='Cursor'/> class with the specified filename.
         /// </summary>
         public Cursor(string fileName)
         {
@@ -76,15 +75,12 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Initializes a new instance of the <see cref='Cursor'/> class from the
-        ///  specified data stream.
+        ///  Initializes a new instance of the <see cref='Cursor'/> class from the specified data stream.
         /// </summary>
         public Cursor(Stream stream)
         {
-            if (stream == null)
-            {
+            if (stream is null)
                 throw new ArgumentNullException(nameof(stream));
-            }
 
             int length = checked((int)stream.Length);
             _cursorData = new byte[length];
@@ -95,8 +91,8 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Gets or sets a <see cref='Rectangle'/> that represents the current clipping
-        ///  rectangle for this <see cref='Cursor'/> in screen coordinates.
+        ///  Gets or sets a <see cref='Rectangle'/> that represents the current clipping rectangle for this
+        ///  <see cref='Cursor'/> in screen coordinates.
         /// </summary>
         public unsafe static Rectangle Clip
         {

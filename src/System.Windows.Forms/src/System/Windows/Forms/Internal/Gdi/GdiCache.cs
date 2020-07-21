@@ -56,7 +56,7 @@ namespace System.Windows.Forms
         ///  another method it must be passed by reference or you risk double disposal and accidentally returning extra
         ///  copies to the cache.
         /// </remarks>
-        public static FontCache.FontScope GetHFONT(Font? font, Gdi32.QUALITY quality = Gdi32.QUALITY.DEFAULT)
-            => font is null ? default : s_fontCache.GetHFONT(font, quality);
+        public static FontCache.Scope GetHFONT(Font? font, Gdi32.QUALITY quality = Gdi32.QUALITY.DEFAULT)
+            => font is null ? default : s_fontCache.GetEntry(font, quality);
     }
 }

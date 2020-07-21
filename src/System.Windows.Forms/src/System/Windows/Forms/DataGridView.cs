@@ -8,7 +8,6 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows.Forms.Layout;
 using static Interop;
 
@@ -245,9 +244,9 @@ namespace System.Windows.Forms
 
         private const int FOCUS_RECT_OFFSET = 2;
 
-        private Collections.Specialized.BitVector32 dataGridViewState1;  // see DATAGRIDVIEWSTATE1_ consts above
-        private Collections.Specialized.BitVector32 dataGridViewState2;  // see DATAGRIDVIEWSTATE2_ consts above
-        private Collections.Specialized.BitVector32 dataGridViewOper;   // see DATAGRIDVIEWOPER_ consts above
+        private Collections.Specialized.BitVector32 dataGridViewState1;     // see DATAGRIDVIEWSTATE1_ consts above
+        private Collections.Specialized.BitVector32 dataGridViewState2;     // see DATAGRIDVIEWSTATE2_ consts above
+        private Collections.Specialized.BitVector32 dataGridViewOper;       // see DATAGRIDVIEWOPER_ consts above
 
         private const BorderStyle defaultBorderStyle = BorderStyle.FixedSingle;
         private const DataGridViewAdvancedCellBorderStyle defaultAdvancedCellBorderStyle = DataGridViewAdvancedCellBorderStyle.Single;
@@ -258,10 +257,7 @@ namespace System.Windows.Forms
         private const DataGridViewEditMode defaultEditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
 
         private const DataGridViewAutoSizeRowCriteriaInternal invalidDataGridViewAutoSizeRowCriteriaInternalMask = ~(DataGridViewAutoSizeRowCriteriaInternal.Header | DataGridViewAutoSizeRowCriteriaInternal.AllColumns);
-
-        private SolidBrush backgroundBrush = DefaultBackgroundBrush;
-        private Pen gridPen;
-        private Cursor oldCursor;
+        private Cursor _oldCursor;
 
         private HScrollBar horizScrollBar = new HScrollBar();
         private VScrollBar vertScrollBar = new VScrollBar();
@@ -370,9 +366,7 @@ namespace System.Windows.Forms
 
         private Timer vertScrollTimer, horizScrollTimer;
 
-        private readonly Hashtable converters;
-        private Hashtable pens;
-        private Hashtable brushes;
+        private readonly Hashtable _converters;
 
         private RECT[] cachedScrollableRegion;
 
@@ -436,10 +430,8 @@ namespace System.Windows.Forms
             displayedBandsInfo = new DisplayedBandsData();
             lstRows = new ArrayList();
 
-            converters = new Hashtable(8);
-            pens = new Hashtable(8);
-            brushes = new Hashtable(10);
-            gridPen = new Pen(DefaultGridColor);
+            _converters = new Hashtable(8);
+            GridPenColor = DefaultGridColor;
 
             selectedBandIndexes = new DataGridViewIntLinkedList();
             individualSelectedCells = new DataGridViewCellLinkedList();
@@ -1098,13 +1090,7 @@ namespace System.Windows.Forms
             remove => base.BackColorChanged -= value;
         }
 
-        internal SolidBrush BackgroundBrush
-        {
-            get
-            {
-                return backgroundBrush;
-            }
-        }
+        internal SolidBrush BackgroundBrush { get; private set; } = DefaultBackgroundBrush;
 
         /// <summary>
         ///  Gets or sets the background color of the dataGridView.
@@ -1115,7 +1101,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                return backgroundBrush.Color;
+                return BackgroundBrush.Color;
             }
             set
             {
@@ -1127,9 +1113,9 @@ namespace System.Windows.Forms
                 {
                     throw new ArgumentException(string.Format(SR.DataGridView_TransparentColor, "BackgroundColor"));
                 }
-                if (!value.Equals(backgroundBrush.Color))
+                if (!value.Equals(BackgroundBrush.Color))
                 {
-                    backgroundBrush = new SolidBrush(value);
+                    BackgroundBrush = new SolidBrush(value);
                     OnBackgroundColorChanged(EventArgs.Empty);
                 }
             }
@@ -2122,21 +2108,9 @@ namespace System.Windows.Forms
             remove => Events.RemoveHandler(EVENT_DATAGRIDVIEWDATASOURCECHANGED, value);
         }
 
-        private static SolidBrush DefaultBackBrush
-        {
-            get
-            {
-                return (SolidBrush)SystemBrushes.Window;
-            }
-        }
+        private static SolidBrush DefaultBackBrush => (SolidBrush)SystemBrushes.Window;
 
-        private static SolidBrush DefaultBackgroundBrush
-        {
-            get
-            {
-                return (SolidBrush)SystemBrushes.ControlDark;
-            }
-        }
+        private static SolidBrush DefaultBackgroundBrush => (SolidBrush)SystemBrushes.ControlDark;
 
         [SRCategory(nameof(SR.CatAppearance))]
         [SRDescription(nameof(SR.DataGridView_DefaultCellStyleDescr))]
@@ -2864,28 +2838,16 @@ namespace System.Windows.Forms
         [SRDescription(nameof(SR.DataGridViewGridColorDescr))]
         public Color GridColor
         {
-            get
-            {
-                return gridPen.Color;
-            }
+            get => GridPenColor;
             set
             {
                 if (value.IsEmpty)
-                {
-                    throw new ArgumentException(string.Format(SR.DataGridView_EmptyColor, "GridColor"));
-                }
+                    throw new ArgumentException(string.Format(SR.DataGridView_EmptyColor, nameof(GridColor)));
                 if (value.A < 255)
-                {
-                    throw new ArgumentException(string.Format(SR.DataGridView_TransparentColor, "GridColor"));
-                }
-                if (!value.Equals(gridPen.Color))
-                {
-                    if (gridPen != null)
-                    {
-                        gridPen.Dispose();
-                    }
+                    throw new ArgumentException(string.Format(SR.DataGridView_TransparentColor, nameof(GridColor)));
 
-                    gridPen = new Pen(value);
+                if (!value.Equals(GridPenColor))
+                {
                     OnGridColorChanged(EventArgs.Empty);
                 }
             }
@@ -2901,16 +2863,10 @@ namespace System.Windows.Forms
 
         private bool ShouldSerializeGridColor()
         {
-            return !GridPen.Color.Equals(DefaultGridColor);
+            return !GridPenColor.Equals(DefaultGridColor);
         }
 
-        internal Pen GridPen
-        {
-            get
-            {
-                return gridPen;
-            }
-        }
+        internal Color GridPenColor { get; private set; }
 
         internal int HorizontalOffset
         {
@@ -4512,7 +4468,7 @@ namespace System.Windows.Forms
             {
                 if (dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
                 {
-                    return oldCursor;
+                    return _oldCursor;
                 }
                 else
                 {

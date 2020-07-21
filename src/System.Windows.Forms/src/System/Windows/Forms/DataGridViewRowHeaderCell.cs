@@ -140,9 +140,9 @@ namespace System.Windows.Forms
             {
                 //
 
-                dataGridViewCell = (DataGridViewRowHeaderCell)System.Activator.CreateInstance(thisType);
+                dataGridViewCell = (DataGridViewRowHeaderCell)Activator.CreateInstance(thisType);
             }
-            base.CloneInternal(dataGridViewCell);
+            CloneInternal(dataGridViewCell);
             dataGridViewCell.Value = Value;
             return dataGridViewCell;
         }
@@ -154,12 +154,12 @@ namespace System.Windows.Forms
 
         private static Bitmap GetArrowBitmap(bool rightToLeft)
         {
-            return rightToLeft ? DataGridViewRowHeaderCell.LeftArrowBitmap : DataGridViewRowHeaderCell.RightArrowBitmap;
+            return rightToLeft ? LeftArrowBitmap : RightArrowBitmap;
         }
 
         private static Bitmap GetArrowStarBitmap(bool rightToLeft)
         {
-            return rightToLeft ? DataGridViewRowHeaderCell.LeftArrowStarBitmap : DataGridViewRowHeaderCell.RightArrowStarBitmap;
+            return rightToLeft ? LeftArrowStarBitmap : RightArrowStarBitmap;
         }
 
         private static Bitmap GetBitmapFromIcon(string iconName)
@@ -599,7 +599,7 @@ namespace System.Windows.Forms
 
         private static Bitmap GetPencilBitmap(bool rightToLeft)
         {
-            return rightToLeft ? DataGridViewRowHeaderCell.PencilRTLBitmap : DataGridViewRowHeaderCell.PencilLTRBitmap;
+            return rightToLeft ? PencilRTLBitmap : PencilLTRBitmap;
         }
 
         protected override Size GetPreferredSize(Graphics graphics, DataGridViewCellStyle cellStyle, int rowIndex, Size constraintSize)
@@ -630,7 +630,7 @@ namespace System.Windows.Forms
             if (DataGridView.ApplyVisualStylesToHeaderCells)
             {
                 // Add the theming margins to the borders.
-                Rectangle rectThemeMargins = DataGridViewHeaderCell.GetThemeMargins(graphics);
+                Rectangle rectThemeMargins = GetThemeMargins(graphics);
                 borderAndPaddingWidths += rectThemeMargins.Y;
                 borderAndPaddingWidths += rectThemeMargins.Height;
                 borderAndPaddingHeights += rectThemeMargins.X;
@@ -733,7 +733,7 @@ namespace System.Windows.Forms
             // Else resultBounds will be Rectangle.Empty;
             Rectangle resultBounds = Rectangle.Empty;
 
-            if (paint && DataGridViewCell.PaintBorder(paintParts))
+            if (paint && PaintBorder(paintParts))
             {
                 PaintBorder(graphics, clipBounds, cellBounds, cellStyle, advancedBorderStyle);
             }
@@ -766,7 +766,7 @@ namespace System.Windows.Forms
 
                 if (backgroundBounds.Width > 0 && backgroundBounds.Height > 0)
                 {
-                    if (paint && DataGridViewCell.PaintBackground(paintParts))
+                    if (paint && PaintBackground(paintParts))
                     {
                         // Theming
                         int state = (int)HeaderItemState.Normal;
@@ -804,7 +804,7 @@ namespace System.Windows.Forms
                         }
                     }
                     // update the val bounds
-                    Rectangle rectThemeMargins = DataGridViewHeaderCell.GetThemeMargins(graphics);
+                    Rectangle rectThemeMargins = GetThemeMargins(graphics);
                     if (DataGridView.RightToLeftInternal)
                     {
                         valBounds.X += rectThemeMargins.Height;
@@ -823,10 +823,14 @@ namespace System.Windows.Forms
                 // No visual style applied
                 if (valBounds.Width > 0 && valBounds.Height > 0)
                 {
-                    SolidBrush br = DataGridView.GetCachedBrush((DataGridViewCell.PaintSelectionBackground(paintParts) && cellSelected) ? cellStyle.SelectionBackColor : cellStyle.BackColor);
-                    if (paint && DataGridViewCell.PaintBackground(paintParts) && br.Color.A == 255)
+                    Color brushColor = PaintSelectionBackground(paintParts) && cellSelected
+                        ? cellStyle.SelectionBackColor
+                        : cellStyle.BackColor;
+
+                    if (paint && PaintBackground(paintParts) && !brushColor.HasTransparency())
                     {
-                        graphics.FillRectangle(br, valBounds);
+                        using var brush = brushColor.GetCachedSolidBrush();
+                        graphics.FillRectangle(brush, valBounds);
                     }
                 }
 
@@ -859,7 +863,7 @@ namespace System.Windows.Forms
                         valBounds.Height >= iconsHeight +
                                             2 * DATAGRIDVIEWROWHEADERCELL_iconMarginHeight)
                     {
-                        if (paint && DataGridViewCell.PaintContentBackground(paintParts))
+                        if (paint && PaintContentBackground(paintParts))
                         {
                             // There is enough room for the potential glyph which is the first priority
                             if (DataGridView.CurrentCellAddress.Y == rowIndex)
@@ -897,7 +901,7 @@ namespace System.Windows.Forms
                             }
                             else if (DataGridView.NewRowIndex == rowIndex)
                             {
-                                bmp = DataGridViewRowHeaderCell.StarBitmap;
+                                bmp = StarBitmap;
                             }
                             if (bmp != null)
                             {
@@ -936,7 +940,7 @@ namespace System.Windows.Forms
                         {
                             // Check if the text fits if we remove the room required for the row error icon
                             Size maxBounds = new Size(valBounds.Width - iconsWidth - 2 * DATAGRIDVIEWROWHEADERCELL_iconMarginWidth, valBounds.Height);
-                            if (DataGridViewCell.TextFitsInBounds(graphics,
+                            if (TextFitsInBounds(graphics,
                                                                   formattedString,
                                                                   cellStyle.Font,
                                                                   maxBounds,
@@ -951,7 +955,7 @@ namespace System.Windows.Forms
                             }
                         }
 
-                        if (DataGridViewCell.PaintContentForeground(paintParts))
+                        if (PaintContentForeground(paintParts))
                         {
                             if (paint)
                             {
@@ -986,7 +990,7 @@ namespace System.Windows.Forms
                                              2 * iconsWidth)
                     {
                         // There is enough horizontal room for the error icon and the glyph
-                        if (paint && DataGridView.ShowRowErrors && DataGridViewCell.PaintErrorIcon(paintParts))
+                        if (paint && DataGridView.ShowRowErrors && PaintErrorIcon(paintParts))
                         {
                             PaintErrorIcon(graphics, clipBounds, errorBounds, errorText);
                         }
@@ -1005,7 +1009,7 @@ namespace System.Windows.Forms
                     if (valBounds.Width >= iconsWidth + 2 * DATAGRIDVIEWROWHEADERCELL_iconMarginWidth &&
                         valBounds.Height >= iconsHeight + 2 * DATAGRIDVIEWROWHEADERCELL_iconMarginHeight)
                     {
-                        if (paint && DataGridViewCell.PaintContentBackground(paintParts))
+                        if (paint && PaintContentBackground(paintParts))
                         {
                             // There is enough room for the potential icon
                             if (DataGridView.CurrentCellAddress.Y == rowIndex)
@@ -1043,7 +1047,7 @@ namespace System.Windows.Forms
                             }
                             else if (DataGridView.NewRowIndex == rowIndex)
                             {
-                                bmp = DataGridViewRowHeaderCell.StarBitmap;
+                                bmp = StarBitmap;
                             }
                             if (bmp != null)
                             {
@@ -1068,7 +1072,7 @@ namespace System.Windows.Forms
                                              2 * iconsWidth)
                     {
                         // There is enough horizontal room for the error icon
-                        if (paint && DataGridView.ShowRowErrors && DataGridViewCell.PaintErrorIcon(paintParts))
+                        if (paint && DataGridView.ShowRowErrors && PaintErrorIcon(paintParts))
                         {
                             PaintErrorIcon(graphics, cellStyle, rowIndex, cellBounds, errorBounds, errorText);
                         }

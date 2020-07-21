@@ -133,14 +133,17 @@ namespace System.Windows.Forms
             Gdi32.Ellipse(hdc, left, top, right, bottom);
         }
 
-        internal static void FillRectangle(this Gdi32.HDC hdc, Gdi32.HBRUSH brush, Rectangle rectangle)
+        internal static void FillRectangle(this User32.GetDcScope hdc, Gdi32.HBRUSH hbrush, Rectangle rectangle)
+            => FillRectangle(hdc.HDC, hbrush, rectangle);
+
+        internal static void FillRectangle(this Gdi32.HDC hdc, Gdi32.HBRUSH hbrush, Rectangle rectangle)
         {
-            Debug.Assert(!brush.IsNull, "brush == null");
+            Debug.Assert(!hbrush.IsNull, "HBRUSH is null");
             RECT rect = rectangle;
             User32.FillRect(
                 hdc,
                 ref rect,
-                brush);
+                hbrush);
         }
 
         /// <summary>

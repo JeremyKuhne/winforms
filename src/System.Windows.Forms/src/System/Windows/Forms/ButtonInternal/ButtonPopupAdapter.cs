@@ -48,7 +48,7 @@ namespace System.Windows.Forms.ButtonInternal
 
             if (state == CheckState.Unchecked)
             {
-                ControlPaint.DrawBorderSolid(e, r, colors.options.HighContrast ? colors.windowText : colors.buttonShadow);
+                ControlPaint.DrawBorderSimple(e, r, colors.options.HighContrast ? colors.windowText : colors.buttonShadow);
             }
             else
             {
@@ -133,7 +133,7 @@ namespace System.Windows.Forms.ButtonInternal
 
             r.Inflate(1, 1);
             DrawDefaultBorder(e, r, colors.options.HighContrast ? colors.windowText : colors.windowFrame, Control.IsDefault);
-            ControlPaint.DrawBorderSolid(e, r, colors.options.HighContrast ? colors.windowText : colors.buttonShadow);
+            ControlPaint.DrawBorderSimple(e, r, colors.options.HighContrast ? colors.windowText : colors.buttonShadow);
         }
 
         #region Layout

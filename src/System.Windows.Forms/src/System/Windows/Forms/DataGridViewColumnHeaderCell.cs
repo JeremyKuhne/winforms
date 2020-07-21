@@ -118,9 +118,9 @@ namespace System.Windows.Forms
             {
                 //
 
-                dataGridViewCell = (DataGridViewColumnHeaderCell)System.Activator.CreateInstance(thisType);
+                dataGridViewCell = (DataGridViewColumnHeaderCell)Activator.CreateInstance(thisType);
             }
-            base.CloneInternal(dataGridViewCell);
+            CloneInternal(dataGridViewCell);
             dataGridViewCell.Value = Value;
             return dataGridViewCell;
         }
@@ -519,7 +519,7 @@ namespace System.Windows.Forms
                 throw new ArgumentNullException(nameof(cellStyle));
             }
 
-            DataGridViewFreeDimension freeDimension = DataGridViewCell.GetFreeDimensionFromConstraint(constraintSize);
+            DataGridViewFreeDimension freeDimension = GetFreeDimensionFromConstraint(constraintSize);
             DataGridViewAdvancedBorderStyle dgvabsPlaceholder = new DataGridViewAdvancedBorderStyle(), dgvabsEffective;
             dgvabsEffective = DataGridView.AdjustColumnHeaderBorderStyle(DataGridView.AdvancedColumnHeadersBorderStyle,
                 dgvabsPlaceholder,
@@ -544,7 +544,7 @@ namespace System.Windows.Forms
                         {
                             if (cellStyle.WrapMode == DataGridViewTriState.True)
                             {
-                                preferredSize = new Size(DataGridViewCell.MeasureTextWidth(graphics,
+                                preferredSize = new Size(MeasureTextWidth(graphics,
                                                                                            valStr,
                                                                                            cellStyle.Font,
                                                                                            Math.Max(1, constraintSize.Height - borderAndPaddingHeights - 2 * DATAGRIDVIEWCOLUMNHEADERCELL_verticalMargin),
@@ -553,7 +553,7 @@ namespace System.Windows.Forms
                             }
                             else
                             {
-                                preferredSize = new Size(DataGridViewCell.MeasureTextSize(graphics,
+                                preferredSize = new Size(MeasureTextSize(graphics,
                                                                                           valStr,
                                                                                           cellStyle.Font,
                                                                                           flags).Width,
@@ -605,7 +605,7 @@ namespace System.Windows.Forms
                                     glyphSize.Width > 0)
                                 {
                                     preferredSize = new Size(0,
-                                                             DataGridViewCell.MeasureTextHeight(graphics,
+                                                             MeasureTextHeight(graphics,
                                                                                                 valStr,
                                                                                                 cellStyle.Font,
                                                                                                 allowedWidth -
@@ -618,7 +618,7 @@ namespace System.Windows.Forms
                                 else
                                 {
                                     preferredSize = new Size(0,
-                                                             DataGridViewCell.MeasureTextHeight(graphics,
+                                                             MeasureTextHeight(graphics,
                                                                                                 valStr,
                                                                                                 cellStyle.Font,
                                                                                                 allowedWidth -
@@ -630,7 +630,7 @@ namespace System.Windows.Forms
                             else
                             {
                                 preferredSize = new Size(0,
-                                                         DataGridViewCell.MeasureTextSize(graphics,
+                                                         MeasureTextSize(graphics,
                                                                                           valStr,
                                                                                           cellStyle.Font,
                                                                                           flags).Height);
@@ -646,11 +646,11 @@ namespace System.Windows.Forms
                         {
                             if (cellStyle.WrapMode == DataGridViewTriState.True)
                             {
-                                preferredSize = DataGridViewCell.MeasureTextPreferredSize(graphics, valStr, cellStyle.Font, 5.0F, flags);
+                                preferredSize = MeasureTextPreferredSize(graphics, valStr, cellStyle.Font, 5.0F, flags);
                             }
                             else
                             {
-                                preferredSize = DataGridViewCell.MeasureTextSize(graphics, valStr, cellStyle.Font, flags);
+                                preferredSize = MeasureTextSize(graphics, valStr, cellStyle.Font, flags);
                             }
                         }
                         else
@@ -688,7 +688,7 @@ namespace System.Windows.Forms
             }
             if (DataGridView.ApplyVisualStylesToHeaderCells)
             {
-                Rectangle rectThemeMargins = DataGridViewHeaderCell.GetThemeMargins(graphics);
+                Rectangle rectThemeMargins = GetThemeMargins(graphics);
                 if (freeDimension != DataGridViewFreeDimension.Height)
                 {
                     preferredSize.Width += rectThemeMargins.X + rectThemeMargins.Width;
@@ -771,7 +771,7 @@ namespace System.Windows.Forms
             Debug.Assert(cellStyle != null);
             Rectangle contentBounds = Rectangle.Empty;
 
-            if (paint && DataGridViewCell.PaintBorder(paintParts))
+            if (paint && PaintBorder(paintParts))
             {
                 PaintBorder(g, clipBounds, cellBounds, cellStyle, advancedBorderStyle);
             }
@@ -785,7 +785,6 @@ namespace System.Windows.Forms
             Rectangle backgroundBounds = valBounds;
 
             bool cellSelected = (dataGridViewElementState & DataGridViewElementStates.Selected) != 0;
-            SolidBrush br;
 
             if (DataGridView.ApplyVisualStylesToHeaderCells)
             {
@@ -805,8 +804,9 @@ namespace System.Windows.Forms
                         valBounds.Height -= cellStyle.Padding.Vertical;
                     }
                 }
+
                 // Theming
-                if (paint && DataGridViewCell.PaintBackground(paintParts) && backgroundBounds.Width > 0 && backgroundBounds.Height > 0)
+                if (paint && PaintBackground(paintParts) && backgroundBounds.Width > 0 && backgroundBounds.Height > 0)
                 {
                     int state = (int)HeaderItemState.Normal;
 
@@ -861,7 +861,7 @@ namespace System.Windows.Forms
                     }
                 }
                 // update the value bounds
-                Rectangle rectThemeMargins = DataGridViewHeaderCell.GetThemeMargins(g);
+                Rectangle rectThemeMargins = GetThemeMargins(g);
                 valBounds.Y += rectThemeMargins.Y;
                 valBounds.Height -= rectThemeMargins.Y + rectThemeMargins.Height;
                 if (DataGridView.RightToLeftInternal)
@@ -877,15 +877,18 @@ namespace System.Windows.Forms
             }
             else
             {
-                if (paint && DataGridViewCell.PaintBackground(paintParts) && backgroundBounds.Width > 0 && backgroundBounds.Height > 0)
+                if (paint && PaintBackground(paintParts) && backgroundBounds.Width > 0 && backgroundBounds.Height > 0)
                 {
-                    br = DataGridView.GetCachedBrush((DataGridViewCell.PaintSelectionBackground(paintParts) && cellSelected) || IsHighlighted() ?
-                        cellStyle.SelectionBackColor : cellStyle.BackColor);
-                    if (br.Color.A == 255)
+                    Color brushColor = (PaintSelectionBackground(paintParts) && cellSelected) || IsHighlighted()
+                        ? cellStyle.SelectionBackColor : cellStyle.BackColor;
+
+                    if (!brushColor.HasTransparency())
                     {
-                        g.FillRectangle(br, backgroundBounds);
+                        using var brush = brushColor.GetCachedSolidBrush();
+                        g.FillRectangle(brush, backgroundBounds);
                     }
                 }
+
                 if (cellStyle.Padding != Padding.Empty)
                 {
                     if (DataGridView.RightToLeftInternal)
@@ -935,7 +938,7 @@ namespace System.Windows.Forms
                         2 * sortGlyphHorizontalMargin;
                     if (width > 0)
                     {
-                        int preferredHeight = DataGridViewCell.GetPreferredTextHeight(g, DataGridView.RightToLeftInternal, formattedValueStr, cellStyle, width, out bool widthTruncated);
+                        int preferredHeight = GetPreferredTextHeight(g, DataGridView.RightToLeftInternal, formattedValueStr, cellStyle, width, out bool widthTruncated);
                         if (preferredHeight <= valBounds.Height && !widthTruncated)
                         {
                             displaySortGlyph = (SortGlyphDirection != SortOrder.None);
@@ -970,7 +973,7 @@ namespace System.Windows.Forms
                 TextFormatFlags flags = DataGridViewUtilities.ComputeTextFormatFlagsForCellStyleAlignment(DataGridView.RightToLeftInternal, cellStyle.Alignment, cellStyle.WrapMode);
                 if (paint)
                 {
-                    if (DataGridViewCell.PaintContentForeground(paintParts))
+                    if (PaintContentForeground(paintParts))
                     {
                         if ((flags & TextFormatFlags.SingleLine) != 0)
                         {
@@ -1001,10 +1004,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (paint && displaySortGlyph && DataGridViewCell.PaintContentBackground(paintParts))
+            if (paint && displaySortGlyph && PaintContentBackground(paintParts))
             {
-                Pen penControlDark = null, penControlLightLight = null;
-                GetContrastedPens(cellStyle.BackColor, ref penControlDark, ref penControlLightLight);
+                (Color darkColor, Color lightColor) = GetContrastedColors(cellStyle.BackColor);
+                using var penControlDark = darkColor.GetCachedPen();
+                using var penControlLightLight = lightColor.GetCachedPen();
 
                 if (SortGlyphDirection == SortOrder.Ascending)
                 {

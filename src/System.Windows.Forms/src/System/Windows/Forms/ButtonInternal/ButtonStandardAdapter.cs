@@ -214,7 +214,7 @@ namespace System.Windows.Forms.ButtonInternal
                 else
                 {
                     // Not Draw3DBorder(..., raised: false);
-                    ControlPaint.DrawBorderSolid(e, r, colors.buttonShadow);
+                    ControlPaint.DrawBorderSimple(e, r, colors.buttonShadow);
                 }
             }
         }

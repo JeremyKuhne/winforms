@@ -24,37 +24,37 @@ namespace System.Windows.Forms
     [SRDescription(nameof(SR.DescriptionLinkLabel))]
     public class LinkLabel : Label, IButtonControl
     {
-        static readonly object EventLinkClicked = new object();
-        static Color iedisabledLinkColor = Color.Empty;
+        private static readonly object s_eventLinkClicked = new object();
+        private static Color s_iedisabledLinkColor = Color.Empty;
 
-        static readonly LinkComparer linkComparer = new LinkComparer();
+        private static readonly LinkComparer s_linkComparer = new LinkComparer();
 
         /// <summary>
         ///  The dialog result that will be sent to the parent dialog form when
         ///  we are clicked.
         /// </summary>
-        DialogResult dialogResult;
+        private DialogResult _dialogResult;
 
-        Color linkColor = Color.Empty;
-        Color activeLinkColor = Color.Empty;
-        Color visitedLinkColor = Color.Empty;
-        Color disabledLinkColor = Color.Empty;
+        private Color _linkColor = Color.Empty;
+        private Color _activeLinkColor = Color.Empty;
+        private Color _visitedLinkColor = Color.Empty;
+        private Color _disabledLinkColor = Color.Empty;
 
-        Font linkFont;
-        Font hoverLinkFont;
+        private Font _linkFont;
+        private Font _hoverLinkFont;
 
-        bool textLayoutValid;
-        bool receivedDoubleClick;
-        readonly ArrayList links = new ArrayList(2);
+        private bool _textLayoutValid;
+        private bool _receivedDoubleClick;
+        private readonly ArrayList _links = new ArrayList(2);
 
-        Link focusLink;
-        LinkCollection linkCollection;
-        Region textRegion;
-        Cursor overrideCursor;
+        private Link _focusLink;
+        private LinkCollection _linkCollection;
+        private Region _textRegion;
+        private Cursor _overrideCursor;
 
-        bool processingOnGotFocus;  // used to avoid raising the OnGotFocus event twice after selecting a focus link.
+        bool _processingOnGotFocus;  // used to avoid raising the OnGotFocus event twice after selecting a focus link.
 
-        LinkBehavior linkBehavior = System.Windows.Forms.LinkBehavior.SystemDefault;
+        LinkBehavior _linkBehavior = LinkBehavior.SystemDefault;
 
         /// <summary>
         ///  Initializes a new default instance of the <see cref='LinkLabel'/> class.
@@ -77,50 +77,30 @@ namespace System.Windows.Forms
         [SRDescription(nameof(SR.LinkLabelActiveLinkColorDescr))]
         public Color ActiveLinkColor
         {
-            get
-            {
-                if (activeLinkColor.IsEmpty)
-                {
-                    return IEActiveLinkColor;
-                }
-                else
-                {
-                    return activeLinkColor;
-                }
-            }
+            get => _activeLinkColor.IsEmpty ? IEActiveLinkColor : _activeLinkColor;
             set
             {
-                if (activeLinkColor != value)
+                if (_activeLinkColor != value)
                 {
-                    activeLinkColor = value;
+                    _activeLinkColor = value;
                     InvalidateLink(null);
                 }
             }
         }
 
         /// <summary>
-            ///  Gets or sets the color used to display disabled links.
-            /// </summary>
+        ///  Gets or sets the color used to display disabled links.
+        /// </summary>
         [SRCategory(nameof(SR.CatAppearance))]
         [SRDescription(nameof(SR.LinkLabelDisabledLinkColorDescr))]
         public Color DisabledLinkColor
         {
-            get
-            {
-                if (disabledLinkColor.IsEmpty)
-                {
-                    return IEDisabledLinkColor;
-                }
-                else
-                {
-                    return disabledLinkColor;
-                }
-            }
+            get => _disabledLinkColor.IsEmpty ? IEDisabledLinkColor : _disabledLinkColor;
             set
             {
-                if (disabledLinkColor != value)
+                if (_disabledLinkColor != value)
                 {
-                    disabledLinkColor = value;
+                    _disabledLinkColor = value;
                     InvalidateLink(null);
                 }
             }
@@ -130,24 +110,24 @@ namespace System.Windows.Forms
         {
             get
             {
-                return focusLink;
+                return _focusLink;
             }
             set
             {
-                if (focusLink != value)
+                if (_focusLink != value)
                 {
-                    if (focusLink != null)
+                    if (_focusLink != null)
                     {
-                        InvalidateLink(focusLink);
+                        InvalidateLink(_focusLink);
                     }
 
-                    focusLink = value;
+                    _focusLink = value;
 
-                    if (focusLink != null)
+                    if (_focusLink != null)
                     {
-                        InvalidateLink(focusLink);
+                        InvalidateLink(_focusLink);
 
-                        UpdateAccessibilityLink(focusLink);
+                        UpdateAccessibilityLink(_focusLink);
                     }
                 }
             }
@@ -179,11 +159,11 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (iedisabledLinkColor.IsEmpty)
+                if (s_iedisabledLinkColor.IsEmpty)
                 {
-                    iedisabledLinkColor = ControlPaint.Dark(DisabledColor);
+                    s_iedisabledLinkColor = ControlPaint.Dark(DisabledColor);
                 }
-                return iedisabledLinkColor;
+                return s_iedisabledLinkColor;
             }
         }
 
@@ -215,17 +195,17 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (links.Count == 0)
+                if (_links.Count == 0)
                 {
                     return new LinkArea(0, 0);
                 }
-                return new LinkArea(((Link)links[0]).Start, ((Link)links[0]).Length);
+                return new LinkArea(((Link)_links[0]).Start, ((Link)_links[0]).Length);
             }
             set
             {
                 LinkArea pt = LinkArea;
 
-                links.Clear();
+                _links.Clear();
 
                 if (!value.IsEmpty)
                 {
@@ -244,8 +224,8 @@ namespace System.Windows.Forms
 
                         // Update the link area of the first link
                         //
-                        ((Link)links[0]).Start = value.Start;
-                        ((Link)links[0]).Length = value.Length;
+                        ((Link)_links[0]).Start = value.Start;
+                        ((Link)_links[0]).Length = value.Length;
                     }
                 }
 
@@ -271,7 +251,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                return linkBehavior;
+                return _linkBehavior;
             }
             set
             {
@@ -280,9 +260,9 @@ namespace System.Windows.Forms
                 {
                     throw new InvalidEnumArgumentException(nameof(LinkBehavior), (int)value, typeof(LinkBehavior));
                 }
-                if (value != linkBehavior)
+                if (value != _linkBehavior)
                 {
-                    linkBehavior = value;
+                    _linkBehavior = value;
                     InvalidateLinkFonts();
                     InvalidateLink(null);
                 }
@@ -298,7 +278,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (linkColor.IsEmpty)
+                if (_linkColor.IsEmpty)
                 {
                     if (SystemInformation.HighContrast)
                     {
@@ -308,14 +288,14 @@ namespace System.Windows.Forms
                 }
                 else
                 {
-                    return linkColor;
+                    return _linkColor;
                 }
             }
             set
             {
-                if (linkColor != value)
+                if (_linkColor != value)
                 {
-                    linkColor = value;
+                    _linkColor = value;
                     InvalidateLink(null);
                 }
             }
@@ -330,11 +310,11 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (linkCollection == null)
+                if (_linkCollection == null)
                 {
-                    linkCollection = new LinkCollection(this);
+                    _linkCollection = new LinkCollection(this);
                 }
-                return linkCollection;
+                return _linkCollection;
             }
         }
 
@@ -348,24 +328,24 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (links.Count == 0)
+                if (_links.Count == 0)
                 {
                     return false;
                 }
                 else
                 {
-                    return ((Link)links[0]).Visited;
+                    return ((Link)_links[0]).Visited;
                 }
             }
             set
             {
                 if (value != LinkVisited)
                 {
-                    if (links.Count == 0)
+                    if (_links.Count == 0)
                     {
                         Links.Add(new Link(this));
                     }
-                    ((Link)links[0]).Visited = value;
+                    ((Link)_links[0]).Visited = value;
                 }
             }
         }
@@ -384,13 +364,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return overrideCursor;
+                return _overrideCursor;
             }
             set
             {
-                if (overrideCursor != value)
+                if (_overrideCursor != value)
                 {
-                    overrideCursor = value;
+                    _overrideCursor = value;
 
                     if (IsHandleCreated)
                     {
@@ -448,7 +428,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (visitedLinkColor.IsEmpty)
+                if (_visitedLinkColor.IsEmpty)
                 {
                     if (SystemInformation.HighContrast)
                     {
@@ -458,14 +438,14 @@ namespace System.Windows.Forms
                 }
                 else
                 {
-                    return visitedLinkColor;
+                    return _visitedLinkColor;
                 }
             }
             set
             {
-                if (visitedLinkColor != value)
+                if (_visitedLinkColor != value)
                 {
-                    visitedLinkColor = value;
+                    _visitedLinkColor = value;
                     InvalidateLink(null);
                 }
             }
@@ -478,8 +458,8 @@ namespace System.Windows.Forms
         [SRDescription(nameof(SR.LinkLabelLinkClickedDescr))]
         public event LinkLabelLinkClickedEventHandler LinkClicked
         {
-            add => Events.AddHandler(EventLinkClicked, value);
-            remove => Events.RemoveHandler(EventLinkClicked, value);
+            add => Events.AddHandler(s_eventLinkClicked, value);
+            remove => Events.RemoveHandler(s_eventLinkClicked, value);
         }
 
         internal static Rectangle CalcTextRenderBounds(Rectangle textRect, Rectangle clientRect, ContentAlignment align)
@@ -625,15 +605,15 @@ namespace System.Windows.Forms
         private void EnsureRun(Graphics g)
         {
             // bail early if everything is valid!
-            if (textLayoutValid)
+            if (_textLayoutValid)
             {
                 return;
             }
 
-            if (textRegion != null)
+            if (_textRegion != null)
             {
-                textRegion.Dispose();
-                textRegion = null;
+                _textRegion.Dispose();
+                _textRegion = null;
             }
 
             // bail early for no text
@@ -642,7 +622,7 @@ namespace System.Windows.Forms
             {
                 Links.Clear();
                 Links.Add(new Link(0, -1));   // default 'magic' link.
-                textLayoutValid = true;
+                _textLayoutValid = true;
                 return;
             }
 
@@ -679,7 +659,7 @@ namespace System.Windows.Forms
                         }
 
                         Debug.Assert(regionIndex == (textRegions.Length - 1), "Failed to consume all link label visual regions");
-                        textRegion = textRegions[textRegions.Length - 1];
+                        _textRegion = textRegions[textRegions.Length - 1];
                     }
                     else
                     {
@@ -716,11 +696,11 @@ namespace System.Windows.Forms
                         //
 
                         Region visualRegion = new Region(visualRectangle);
-                        if (links != null && links.Count == 1)
+                        if (_links != null && _links.Count == 1)
                         {
                             Links[0].VisualRegion = visualRegion;
                         }
-                        textRegion = visualRegion;
+                        _textRegion = visualRegion;
                     }
                 }
                 finally
@@ -733,7 +713,7 @@ namespace System.Windows.Forms
                     }
                 }
 
-                textLayoutValid = true;
+                _textLayoutValid = true;
             }
             finally
             {
@@ -795,7 +775,7 @@ namespace System.Windows.Forms
         /// </summary>
         private bool IsOneLink()
         {
-            if (links == null || links.Count != 1 || Text == null)
+            if (_links == null || _links.Count != 1 || Text == null)
             {
                 return false;
             }
@@ -818,7 +798,7 @@ namespace System.Windows.Forms
             try
             {
                 EnsureRun(g);
-                foreach (Link link in links)
+                foreach (Link link in _links)
                 {
                     if (link.VisualRegion != null && link.VisualRegion.IsVisible(x, y, g))
                     {
@@ -861,23 +841,23 @@ namespace System.Windows.Forms
         /// </summary>
         private void InvalidateLinkFonts()
         {
-            if (linkFont != null)
+            if (_linkFont != null)
             {
-                linkFont.Dispose();
+                _linkFont.Dispose();
             }
 
-            if (hoverLinkFont != null && hoverLinkFont != linkFont)
+            if (_hoverLinkFont != null && _hoverLinkFont != _linkFont)
             {
-                hoverLinkFont.Dispose();
+                _hoverLinkFont.Dispose();
             }
 
-            linkFont = null;
-            hoverLinkFont = null;
+            _linkFont = null;
+            _hoverLinkFont = null;
         }
 
         private void InvalidateTextLayout()
         {
-            textLayoutValid = false;
+            _textLayoutValid = false;
         }
 
         private bool LinkInText(int start, int length)
@@ -894,7 +874,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                return dialogResult;
+                return _dialogResult;
             }
 
             set
@@ -905,7 +885,7 @@ namespace System.Windows.Forms
                     throw new InvalidEnumArgumentException(nameof(value), (int)value, typeof(DialogResult));
                 }
 
-                dialogResult = value;
+                _dialogResult = value;
             }
         }
 
@@ -918,10 +898,10 @@ namespace System.Windows.Forms
         /// </summary>
         protected override void OnGotFocus(EventArgs e)
         {
-            if (!processingOnGotFocus)
+            if (!_processingOnGotFocus)
             {
                 base.OnGotFocus(e);
-                processingOnGotFocus = true;
+                _processingOnGotFocus = true;
             }
 
             try
@@ -941,9 +921,9 @@ namespace System.Windows.Forms
             }
             finally
             {
-                if (processingOnGotFocus)
+                if (_processingOnGotFocus)
                 {
-                    processingOnGotFocus = false;
+                    _processingOnGotFocus = false;
                 }
             }
         }
@@ -991,7 +971,7 @@ namespace System.Windows.Forms
                 return;
             }
 
-            foreach (Link link in links)
+            foreach (Link link in _links)
             {
                 if ((link.State & LinkState.Hover) == LinkState.Hover
                     || (link.State & LinkState.Active) == LinkState.Active)
@@ -999,7 +979,7 @@ namespace System.Windows.Forms
                     bool activeChanged = (link.State & LinkState.Active) == LinkState.Active;
                     link.State &= ~(LinkState.Hover | LinkState.Active);
 
-                    if (activeChanged || hoverLinkFont != linkFont)
+                    if (activeChanged || _hoverLinkFont != _linkFont)
                     {
                         InvalidateLink(link);
                     }
@@ -1018,20 +998,20 @@ namespace System.Windows.Forms
 
             if (!Enabled || e.Clicks > 1)
             {
-                receivedDoubleClick = true;
+                _receivedDoubleClick = true;
                 return;
             }
 
-            for (int i = 0; i < links.Count; i++)
+            for (int i = 0; i < _links.Count; i++)
             {
-                if ((((Link)links[i]).State & LinkState.Hover) == LinkState.Hover)
+                if ((((Link)_links[i]).State & LinkState.Hover) == LinkState.Hover)
                 {
-                    ((Link)links[i]).State |= LinkState.Active;
+                    ((Link)_links[i]).State |= LinkState.Active;
 
                     Focus();
-                    if (((Link)links[i]).Enabled)
+                    if (((Link)_links[i]).Enabled)
                     {
-                        FocusLink = (Link)links[i];
+                        FocusLink = (Link)_links[i];
                         InvalidateLink(FocusLink);
                     }
                     Capture = true;
@@ -1054,18 +1034,18 @@ namespace System.Windows.Forms
                 return;
             }
 
-            if (!Enabled || e.Clicks > 1 || receivedDoubleClick)
+            if (!Enabled || e.Clicks > 1 || _receivedDoubleClick)
             {
-                receivedDoubleClick = false;
+                _receivedDoubleClick = false;
                 return;
             }
 
-            for (int i = 0; i < links.Count; i++)
+            for (int i = 0; i < _links.Count; i++)
             {
-                if ((((Link)links[i]).State & LinkState.Active) == LinkState.Active)
+                if ((((Link)_links[i]).State & LinkState.Active) == LinkState.Active)
                 {
-                    ((Link)links[i]).State &= (~LinkState.Active);
-                    InvalidateLink((Link)links[i]);
+                    ((Link)_links[i]).State &= (~LinkState.Active);
+                    InvalidateLink((Link)_links[i]);
                     Capture = false;
 
                     Link clicked = PointInLink(e.X, e.Y);
@@ -1092,7 +1072,7 @@ namespace System.Windows.Forms
             }
 
             Link hoverLink = null;
-            foreach (Link link in links)
+            foreach (Link link in _links)
             {
                 if ((link.State & LinkState.Hover) == LinkState.Hover)
                 {
@@ -1122,7 +1102,7 @@ namespace System.Windows.Forms
                     OverrideCursor = null;
                 }
 
-                if (hoverLinkFont != linkFont)
+                if (_hoverLinkFont != _linkFont)
                 {
                     if (hoverLink != null)
                     {
@@ -1141,7 +1121,7 @@ namespace System.Windows.Forms
         /// </summary>
         protected virtual void OnLinkClicked(LinkLabelLinkClickedEventArgs e)
         {
-            ((LinkLabelLinkClickedEventHandler)Events[EventLinkClicked])?.Invoke(this, e);
+            ((LinkLabelLinkClickedEventHandler)Events[s_eventLinkClicked])?.Invoke(this, e);
         }
 
         protected override void OnPaddingChanged(EventArgs e)
@@ -1198,7 +1178,7 @@ namespace System.Windows.Forms
                             PaintLinkBackground(g);
                         }
 
-                        LinkUtilities.EnsureLinkFonts(Font, LinkBehavior, ref linkFont, ref hoverLinkFont);
+                        LinkUtilities.EnsureLinkFonts(Font, LinkBehavior, ref _linkFont, ref _hoverLinkFont);
 
                         Region originalClip = g.Clip;
 
@@ -1208,7 +1188,7 @@ namespace System.Windows.Forms
                             {
                                 //exclude the area to draw the focus rectangle
                                 g.Clip = originalClip;
-                                RectangleF[] rects = ((Link)links[0]).VisualRegion.GetRegionScans(e.GraphicsInternal.Transform);
+                                RectangleF[] rects = ((Link)_links[0]).VisualRegion.GetRegionScans(e.GraphicsInternal.Transform);
                                 if (rects != null && rects.Length > 0)
                                 {
                                     if (UseCompatibleTextRendering)
@@ -1243,7 +1223,7 @@ namespace System.Windows.Forms
                             }
                             else
                             {
-                                foreach (Link link in links)
+                                foreach (Link link in _links)
                                 {
                                     if (link.VisualRegion != null)
                                     {
@@ -1261,7 +1241,7 @@ namespace System.Windows.Forms
                                 PaintLink(e, null, foreBrush, linkBrush, optimizeBackgroundRendering, finalrect);
                             }
 
-                            foreach (Link link in links)
+                            foreach (Link link in _links)
                             {
                                 PaintLink(e, link, foreBrush, linkBrush, optimizeBackgroundRendering, finalrect);
                             }
@@ -1269,7 +1249,7 @@ namespace System.Windows.Forms
                             if (optimizeBackgroundRendering)
                             {
                                 g.Clip = originalClip;
-                                g.ExcludeClip(textRegion);
+                                g.ExcludeClip(_textRegion);
                                 PaintLinkBackground(g);
                             }
                         }
@@ -1295,7 +1275,7 @@ namespace System.Windows.Forms
                         // ClientRectWithPadding which in some cases is smaller that ClientRectangle.
 
                         PaintLinkBackground(g);
-                        g.IntersectClip(textRegion);
+                        g.IntersectClip(_textRegion);
 
                         if (UseCompatibleTextRendering)
                         {
@@ -1401,9 +1381,9 @@ namespace System.Windows.Forms
 
             if (!Enabled)
             {
-                for (int i = 0; i < links.Count; i++)
+                for (int i = 0; i < _links.Count; i++)
                 {
-                    ((Link)links[i]).State &= ~(LinkState.Hover | LinkState.Active);
+                    ((Link)_links[i]).State &= ~(LinkState.Hover | LinkState.Active);
                 }
                 OverrideCursor = null;
             }
@@ -1451,11 +1431,11 @@ namespace System.Windows.Forms
 
                     if ((linkState & LinkState.Hover) == LinkState.Hover)
                     {
-                        font = hoverLinkFont;
+                        font = _hoverLinkFont;
                     }
                     else
                     {
-                        font = linkFont;
+                        font = _linkFont;
                     }
 
                     if (link.Enabled)
@@ -1556,7 +1536,7 @@ namespace System.Windows.Forms
             else
             {
                 // Painting with no link.
-                g.IntersectClip(textRegion);
+                g.IntersectClip(_textRegion);
 
                 if (optimizeBackgroundRendering)
                 {
@@ -1625,7 +1605,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-            ///  Processes a dialog key. This method is called during message pre-processing
+        ///  Processes a dialog key. This method is called during message pre-processing
         ///  to handle dialog characters, such as TAB, RETURN, ESCAPE, and arrow keys. This
         ///  method is called only if the isInputKey() method indicates that the control
         ///  isn't interested in the key. processDialogKey() simply sends the character to
@@ -1635,7 +1615,7 @@ namespace System.Windows.Forms
         ///  to indicate that it has processed the key. For keys that aren't processed by the
         ///  control, the result of "base.processDialogChar()" should be returned. Controls
         ///  will seldom, if ever, need to override this method.
-            /// </summary>
+        /// </summary>
         protected override bool ProcessDialogKey(Keys keyData)
         {
             if ((keyData & (Keys.Alt | Keys.Control)) != Keys.Alt)
@@ -1675,11 +1655,11 @@ namespace System.Windows.Forms
         private bool FocusNextLink(bool forward)
         {
             int focusIndex = -1;
-            if (focusLink != null)
+            if (_focusLink != null)
             {
-                for (int i = 0; i < links.Count; i++)
+                for (int i = 0; i < _links.Count; i++)
                 {
-                    if (links[i] == focusLink)
+                    if (_links[i] == _focusLink)
                     {
                         focusIndex = i;
                         break;
@@ -1747,7 +1727,7 @@ namespace System.Windows.Forms
                          && LinkInText(charStart, charEnd - charStart));
             }
 
-            if (focusIndex < 0 || focusIndex >= links.Count)
+            if (focusIndex < 0 || focusIndex >= _links.Count)
             {
                 return -1;
             }
@@ -1764,30 +1744,30 @@ namespace System.Windows.Forms
 
         internal void ResetActiveLinkColor()
         {
-            activeLinkColor = Color.Empty;
+            _activeLinkColor = Color.Empty;
         }
 
         internal void ResetDisabledLinkColor()
         {
-            disabledLinkColor = Color.Empty;
+            _disabledLinkColor = Color.Empty;
         }
 
         internal void ResetLinkColor()
         {
-            linkColor = Color.Empty;
+            _linkColor = Color.Empty;
             InvalidateLink(null);
         }
 
         private void ResetVisitedLinkColor()
         {
-            visitedLinkColor = Color.Empty;
+            _visitedLinkColor = Color.Empty;
         }
 
         /// <summary>
-            ///  Performs the work of setting the bounds of this control. Inheriting classes
+        ///  Performs the work of setting the bounds of this control. Inheriting classes
         ///  can overide this function to add size restrictions. Inheriting classes must call
         ///  base.setBoundsCore to actually cause the bounds of the control to change.
-            /// </summary>
+        /// </summary>
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
             // we cache too much state to try and optimize this (regions, etc)... it is best
@@ -1806,14 +1786,14 @@ namespace System.Windows.Forms
             {
                 // In a multi-link label, if the tab came from another control, we want to keep the currently
                 // focused link, otherwise, we set the focus to the next link.
-                if (links.Count > 0)
+                if (_links.Count > 0)
                 {
                     // Find which link is currently focused
                     //
                     int focusIndex = -1;
                     if (FocusLink != null)
                     {
-                        focusIndex = links.IndexOf(FocusLink);
+                        focusIndex = _links.IndexOf(FocusLink);
                     }
 
                     // We could be getting focus from ourself, so we must
@@ -1830,13 +1810,13 @@ namespace System.Windows.Forms
                         }
                         else
                         {
-                            newFocus = GetNextLinkIndex(links.Count, forward); // Count, so "next" will be Count-1
+                            newFocus = GetNextLinkIndex(_links.Count, forward); // Count, so "next" will be Count-1
                         }
                     }
 
                     if (newFocus != -1)
                     {
-                        FocusLink = (Link)links[newFocus];
+                        FocusLink = (Link)_links[newFocus];
                     }
                 }
             }
@@ -1844,28 +1824,27 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-            ///  Determines if the color for active links should remain the same.
-            /// </summary>
+        ///  Determines if the color for active links should remain the same.
+        /// </summary>
         internal bool ShouldSerializeActiveLinkColor()
         {
-            return !activeLinkColor.IsEmpty;
+            return !_activeLinkColor.IsEmpty;
         }
 
         /// <summary>
-            ///  Determines if the color for disabled links should remain the same.
-            /// </summary>
+        ///  Determines if the color for disabled links should remain the same.
+        /// </summary>
         internal bool ShouldSerializeDisabledLinkColor()
         {
-            return !disabledLinkColor.IsEmpty;
+            return !_disabledLinkColor.IsEmpty;
         }
 
         /// <summary>
-            ///  Determines if the range in text that is treated as a
-        ///  link should remain the same.
-            /// </summary>
+        ///  Determines if the range in text that is treated as a link should remain the same.
+        /// </summary>
         private bool ShouldSerializeLinkArea()
         {
-            if (links.Count == 1)
+            if (_links.Count == 1)
             {
                 // use field access to find out if "length" is really -1
                 return Links[0].Start != 0 || Links[0]._length != -1;
@@ -1874,11 +1853,11 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-            ///  Determines if the color of links in normal cases should remain the same.
-            /// </summary>
+        ///  Determines if the color of links in normal cases should remain the same.
+        /// </summary>
         internal bool ShouldSerializeLinkColor()
         {
-            return !linkColor.IsEmpty;
+            return !_linkColor.IsEmpty;
         }
 
         /// <summary>
@@ -1892,16 +1871,16 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-            ///  Determines if the color of links that have been visited should remain the same.
-            /// </summary>
+        ///  Determines if the color of links that have been visited should remain the same.
+        /// </summary>
         private bool ShouldSerializeVisitedLinkColor()
         {
-            return !visitedLinkColor.IsEmpty;
+            return !_visitedLinkColor.IsEmpty;
         }
 
         /// <summary>
-            ///  Update accessibility with the currently focused link.
-            /// </summary>
+        ///  Update accessibility with the currently focused link.
+        /// </summary>
         private void UpdateAccessibilityLink(Link focusLink)
         {
             if (!IsHandleCreated)
@@ -1910,9 +1889,9 @@ namespace System.Windows.Forms
             }
 
             int focusIndex = -1;
-            for (int i = 0; i < links.Count; i++)
+            for (int i = 0; i < _links.Count; i++)
             {
-                if (links[i] == focusLink)
+                if (_links[i] == focusLink)
                 {
                     focusIndex = i;
                 }
@@ -1921,24 +1900,23 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Validates that no links overlap. This will throw an exception if
-        ///  they do.
+        ///  Validates that no links overlap. This will throw an exception if they do.
         /// </summary>
         private void ValidateNoOverlappingLinks()
         {
-            for (int x = 0; x < links.Count; x++)
+            for (int x = 0; x < _links.Count; x++)
             {
-                Link left = (Link)links[x];
+                Link left = (Link)_links[x];
                 if (left.Length < 0)
                 {
                     throw new InvalidOperationException(SR.LinkLabelOverlap);
                 }
 
-                for (int y = x; y < links.Count; y++)
+                for (int y = x; y < _links.Count; y++)
                 {
                     if (x != y)
                     {
-                        Link right = (Link)links[y];
+                        Link right = (Link)_links[y];
                         int maxStart = Math.Max(left.Start, right.Start);
                         int minEnd = Math.Min(left.Start + left.Length, right.Start + right.Length);
                         if (maxStart < minEnd)
@@ -1951,9 +1929,8 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Updates the label's ability to get focus. If there are
-        ///  any links in the label, then the label can get focus,
-        ///  else it can't.
+        ///  Updates the label's ability to get focus. If there are any links in the label, then the label can get
+        ///  focus, else it can't.
         /// </summary>
         private void UpdateSelectability()
         {
@@ -2048,8 +2025,7 @@ namespace System.Windows.Forms
 
         public class LinkCollection : IList
         {
-            private readonly LinkLabel owner;
-            private bool linksAdded;   //whether we should serialize the linkCollection
+            private readonly LinkLabel _owner;
 
             ///  A caching mechanism for key accessor
             ///  We use an index here rather than control so that we don't have lifetime
@@ -2059,37 +2035,34 @@ namespace System.Windows.Forms
 
             public LinkCollection(LinkLabel owner)
             {
-                this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
+                _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             }
 
             public virtual Link this[int index]
             {
                 get
                 {
-                    return (Link)owner.links[index];
+                    return (Link)_owner._links[index];
                 }
                 set
                 {
-                    owner.links[index] = value;
+                    _owner._links[index] = value;
 
-                    owner.links.Sort(LinkLabel.linkComparer);
+                    _owner._links.Sort(s_linkComparer);
 
-                    owner.InvalidateTextLayout();
-                    owner.Invalidate();
+                    _owner.InvalidateTextLayout();
+                    _owner.Invalidate();
                 }
             }
 
             object IList.this[int index]
             {
-                get
-                {
-                    return this[index];
-                }
+                get => this[index];
                 set
                 {
-                    if (value is Link)
+                    if (value is Link link)
                     {
-                        this[index] = (Link)value;
+                        this[index] = link;
                     }
                     else
                     {
@@ -2125,63 +2098,28 @@ namespace System.Windows.Forms
             }
 
             [Browsable(false)]
-            public int Count
-            {
-                get
-                {
-                    return owner.links.Count;
-                }
-            }
+            public int Count => _owner._links.Count;
 
             /// <summary>
             ///  whether we have added a non-trivial link to the collection
             /// </summary>
-            public bool LinksAdded
-            {
-                get
-                {
-                    return linksAdded;
-                }
-            }
+            public bool LinksAdded { get; private set; }
 
-            object ICollection.SyncRoot
-            {
-                get
-                {
-                    return this;
-                }
-            }
+            object ICollection.SyncRoot => this;
 
-            bool ICollection.IsSynchronized
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            bool ICollection.IsSynchronized => false;
 
-            bool IList.IsFixedSize
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            bool IList.IsFixedSize => false;
 
-            public bool IsReadOnly
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public bool IsReadOnly => false;
 
             public Link Add(int start, int length)
             {
                 if (length != 0)
                 {
-                    linksAdded = true;
+                    LinksAdded = true;
                 }
+
                 return Add(start, length, null);
             }
 
@@ -2189,21 +2127,22 @@ namespace System.Windows.Forms
             {
                 if (length != 0)
                 {
-                    linksAdded = true;
+                    LinksAdded = true;
                 }
+
                 // check for the special case where the list is in the "magic"
                 // state of having only the default link in it. In that case
                 // we want to clear the list before adding this link.
-                //
-                if (owner.links.Count == 1
+
+                if (_owner._links.Count == 1
                     && this[0].Start == 0
                     && this[0]._length == -1)
                 {
-                    owner.links.Clear();
-                    owner.FocusLink = null;
+                    _owner._links.Clear();
+                    _owner.FocusLink = null;
                 }
 
-                Link l = new Link(owner)
+                Link l = new Link(_owner)
                 {
                     Start = start,
                     Length = length,
@@ -2217,43 +2156,43 @@ namespace System.Windows.Forms
             {
                 if (value != null && value.Length != 0)
                 {
-                    linksAdded = true;
+                    LinksAdded = true;
                 }
                 // check for the special case where the list is in the "magic"
                 // state of having only the default link in it. In that case
                 // we want to clear the list before adding this link.
                 //
-                if (owner.links.Count == 1
+                if (_owner._links.Count == 1
                     && this[0].Start == 0
                     && this[0]._length == -1)
                 {
-                    owner.links.Clear();
-                    owner.FocusLink = null;
+                    _owner._links.Clear();
+                    _owner.FocusLink = null;
                 }
 
                 // Set the owner control for this link
-                value.Owner = owner;
+                value.Owner = _owner;
 
-                owner.links.Add(value);
+                _owner._links.Add(value);
 
-                if (owner.AutoSize)
+                if (_owner.AutoSize)
                 {
-                    LayoutTransaction.DoLayout(owner.ParentInternal, owner, PropertyNames.Links);
-                    owner.AdjustSize();
-                    owner.Invalidate();
+                    LayoutTransaction.DoLayout(_owner.ParentInternal, _owner, PropertyNames.Links);
+                    _owner.AdjustSize();
+                    _owner.Invalidate();
                 }
 
-                if (owner.Links.Count > 1)
+                if (_owner.Links.Count > 1)
                 {
-                    owner.links.Sort(LinkLabel.linkComparer);
+                    _owner._links.Sort(LinkLabel.s_linkComparer);
                 }
 
-                owner.ValidateNoOverlappingLinks();
-                owner.UpdateSelectability();
-                owner.InvalidateTextLayout();
-                owner.Invalidate();
+                _owner.ValidateNoOverlappingLinks();
+                _owner.UpdateSelectability();
+                _owner.InvalidateTextLayout();
+                _owner.Invalidate();
 
-                if (owner.Links.Count > 1)
+                if (_owner.Links.Count > 1)
                 {
                     return IndexOf(value);
                 }
@@ -2289,7 +2228,7 @@ namespace System.Windows.Forms
 
             public bool Contains(Link link)
             {
-                return owner.links.Contains(link);
+                return _owner._links.Contains(link);
             }
 
             /// <summary>
@@ -2314,7 +2253,7 @@ namespace System.Windows.Forms
 
             public int IndexOf(Link link)
             {
-                return owner.links.IndexOf(link);
+                return _owner._links.IndexOf(link);
             }
 
             int IList.IndexOf(object link)
@@ -2377,31 +2316,31 @@ namespace System.Windows.Forms
             /// </summary>
             public virtual void Clear()
             {
-                bool doLayout = owner.links.Count > 0 && owner.AutoSize;
-                owner.links.Clear();
+                bool doLayout = _owner._links.Count > 0 && _owner.AutoSize;
+                _owner._links.Clear();
 
                 if (doLayout)
                 {
-                    LayoutTransaction.DoLayout(owner.ParentInternal, owner, PropertyNames.Links);
-                    owner.AdjustSize();
-                    owner.Invalidate();
+                    LayoutTransaction.DoLayout(_owner.ParentInternal, _owner, PropertyNames.Links);
+                    _owner.AdjustSize();
+                    _owner.Invalidate();
                 }
 
-                owner.UpdateSelectability();
-                owner.InvalidateTextLayout();
-                owner.Invalidate();
+                _owner.UpdateSelectability();
+                _owner.InvalidateTextLayout();
+                _owner.Invalidate();
             }
 
             void ICollection.CopyTo(Array dest, int index)
             {
-                owner.links.CopyTo(dest, index);
+                _owner._links.CopyTo(dest, index);
             }
 
             public IEnumerator GetEnumerator()
             {
-                if (owner.links != null)
+                if (_owner._links != null)
                 {
-                    return owner.links.GetEnumerator();
+                    return _owner._links.GetEnumerator();
                 }
                 else
                 {
@@ -2411,30 +2350,30 @@ namespace System.Windows.Forms
 
             public void Remove(Link value)
             {
-                if (value.Owner != owner)
+                if (value.Owner != _owner)
                 {
                     return;
                 }
 
-                owner.links.Remove(value);
+                _owner._links.Remove(value);
 
-                if (owner.AutoSize)
+                if (_owner.AutoSize)
                 {
-                    LayoutTransaction.DoLayout(owner.ParentInternal, owner, PropertyNames.Links);
-                    owner.AdjustSize();
-                    owner.Invalidate();
+                    LayoutTransaction.DoLayout(_owner.ParentInternal, _owner, PropertyNames.Links);
+                    _owner.AdjustSize();
+                    _owner.Invalidate();
                 }
 
-                owner.links.Sort(LinkLabel.linkComparer);
+                _owner._links.Sort(LinkLabel.s_linkComparer);
 
-                owner.ValidateNoOverlappingLinks();
-                owner.UpdateSelectability();
-                owner.InvalidateTextLayout();
-                owner.Invalidate();
+                _owner.ValidateNoOverlappingLinks();
+                _owner.UpdateSelectability();
+                _owner.InvalidateTextLayout();
+                _owner.Invalidate();
 
-                if (owner.FocusLink == null && owner.links.Count > 0)
+                if (_owner.FocusLink == null && _owner._links.Count > 0)
                 {
-                    owner.FocusLink = (Link)owner.links[0];
+                    _owner.FocusLink = (Link)_owner._links[0];
                 }
             }
 
@@ -2589,7 +2528,7 @@ namespace System.Windows.Forms
 
                         if (Owner != null)
                         {
-                            Owner.links.Sort(LinkLabel.linkComparer);
+                            Owner._links.Sort(LinkLabel.s_linkComparer);
                             Owner.InvalidateTextLayout();
                             Owner.Invalidate();
                         }

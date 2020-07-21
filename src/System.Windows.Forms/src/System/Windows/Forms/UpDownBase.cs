@@ -612,7 +612,7 @@ namespace System.Windows.Forms
                 // we only want to do this when BackColor is not serialized, since otherwise
                 // we should display the backcolor instead of the usual grayed textbox.
                 editBounds.Inflate(1, 1);
-                ControlPaint.DrawBorderSolid(e, editBounds, SystemColors.Control);
+                ControlPaint.DrawBorderSimple(e, editBounds, SystemColors.Control);
             }
         }
 

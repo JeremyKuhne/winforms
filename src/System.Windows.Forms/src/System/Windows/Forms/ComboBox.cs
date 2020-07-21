@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms.Internal;
 using System.Windows.Forms.Layout;
 using Accessibility;
 using static Interop;
@@ -3540,26 +3539,15 @@ namespace System.Windows.Forms
         {
             if ((DropDownStyle == ComboBoxStyle.Simple) && ParentInternal != null)
             {
-                RECT rect = new RECT();
-                GetClientRect(new HandleRef(this, Handle), ref rect);
-                Control p = ParentInternal;
-                Graphics graphics = Graphics.FromHdcInternal(m.WParam);
-                if (p != null)
-                {
-                    Brush brush = new SolidBrush(p.BackColor);
-                    graphics.FillRectangle(brush, rect.left, rect.top,
-                                           rect.right - rect.left, rect.bottom - rect.top);
-                    brush.Dispose();
-                }
-                else
-                {
-                    graphics.FillRectangle(SystemBrushes.Control, rect.left, rect.top,
-                                           rect.right - rect.left, rect.bottom - rect.top);
-                }
-                graphics.Dispose();
+                RECT rect = default;
+                GetClientRect(this, ref rect);
+                Gdi32.HDC hdc = (Gdi32.HDC)m.WParam;
+                using var hbrush = new Gdi32.CreateBrushScope(ParentInternal?.BackColor ?? SystemColors.Control);
+                hdc.FillRectangle(rect, hbrush);
                 m.Result = (IntPtr)1;
                 return;
             }
+
             base.WndProc(ref m);
         }
 
@@ -3841,7 +3829,7 @@ namespace System.Windows.Forms
                 case WM.PAINT:
                     if (GetStyle(ControlStyles.UserPaint) == false && (FlatStyle == FlatStyle.Flat || FlatStyle == FlatStyle.Popup))
                     {
-                        using var dropDownRegion = new Gdi32.RegionScope(FlatComboBoxAdapter.dropDownRect);
+                        using var dropDownRegion = new Gdi32.RegionScope(FlatComboBoxAdapter._dropDownRect);
                         using var windowRegion = new Gdi32.RegionScope(Bounds);
 
                         // Stash off the region we have to update (the base is going to clear this off in BeginPaint)
@@ -4534,23 +4522,17 @@ namespace System.Windows.Forms
 
         public class ChildAccessibleObject : AccessibleObject
         {
-            readonly ComboBox owner;
+            private readonly ComboBox _owner;
 
             public ChildAccessibleObject(ComboBox owner, IntPtr handle)
             {
                 Debug.Assert(owner != null && owner.Handle != IntPtr.Zero, "ComboBox's handle hasn't been created");
 
-                this.owner = owner;
+                _owner = owner;
                 UseStdAccessibleObjects(handle);
             }
 
-            public override string Name
-            {
-                get
-                {
-                    return owner.AccessibilityObject.Name;
-                }
-            }
+            public override string Name => _owner.AccessibilityObject.Name;
         }
 
         /// <summary>
@@ -4598,13 +4580,7 @@ namespace System.Windows.Forms
             /// <summary>
             ///  Gets the ComboBox item default action.
             /// </summary>
-            public override string DefaultAction
-            {
-                get
-                {
-                    return _systemIAccessible.accDefaultAction[GetChildId()];
-                }
-            }
+            public override string DefaultAction => _systemIAccessible.accDefaultAction[GetChildId()];
 
             internal override UiaCore.IRawElementProviderFragment FragmentNavigate(UiaCore.NavigateDirection direction)
             {
@@ -4661,47 +4637,26 @@ namespace System.Windows.Forms
                 return GetCurrentIndex() + 1; // Index is zero-based, Child ID is 1-based.
             }
 
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.RuntimeIdPropertyId:
-                        return RuntimeId;
-                    case UiaCore.UIA.BoundingRectanglePropertyId:
-                        return BoundingRectangle;
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.ListItemControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name;
-                    case UiaCore.UIA.AccessKeyPropertyId:
-                        return KeyboardShortcut ?? string.Empty;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return _owningComboBox.Focused && _owningComboBox.SelectedIndex == GetCurrentIndex();
-                    case UiaCore.UIA.IsKeyboardFocusablePropertyId:
-                        return (State & AccessibleStates.Focusable) == AccessibleStates.Focusable;
-                    case UiaCore.UIA.IsEnabledPropertyId:
-                        return _owningComboBox.Enabled;
-                    case UiaCore.UIA.HelpTextPropertyId:
-                        return Help ?? string.Empty;
-                    case UiaCore.UIA.IsControlElementPropertyId:
-                        return true;
-                    case UiaCore.UIA.IsContentElementPropertyId:
-                        return true;
-                    case UiaCore.UIA.IsPasswordPropertyId:
-                        return false;
-                    case UiaCore.UIA.IsOffscreenPropertyId:
-                        return (State & AccessibleStates.Offscreen) == AccessibleStates.Offscreen;
-                    case UiaCore.UIA.IsSelectionItemPatternAvailablePropertyId:
-                        return true;
-                    case UiaCore.UIA.SelectionItemIsSelectedPropertyId:
-                        return (State & AccessibleStates.Selected) != 0;
-                    case UiaCore.UIA.SelectionItemSelectionContainerPropertyId:
-                        return _owningComboBox.ChildListAccessibleObject;
-
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+                UiaCore.UIA.RuntimeIdPropertyId => RuntimeId,
+                UiaCore.UIA.BoundingRectanglePropertyId => BoundingRectangle,
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.ListItemControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name,
+                UiaCore.UIA.AccessKeyPropertyId => KeyboardShortcut ?? string.Empty,
+                UiaCore.UIA.HasKeyboardFocusPropertyId => _owningComboBox.Focused && _owningComboBox.SelectedIndex == GetCurrentIndex(),
+                UiaCore.UIA.IsKeyboardFocusablePropertyId => (State & AccessibleStates.Focusable) == AccessibleStates.Focusable,
+                UiaCore.UIA.IsEnabledPropertyId => _owningComboBox.Enabled,
+                UiaCore.UIA.HelpTextPropertyId => Help ?? string.Empty,
+                UiaCore.UIA.IsControlElementPropertyId => true,
+                UiaCore.UIA.IsContentElementPropertyId => true,
+                UiaCore.UIA.IsPasswordPropertyId => false,
+                UiaCore.UIA.IsOffscreenPropertyId => (State & AccessibleStates.Offscreen) == AccessibleStates.Offscreen,
+                UiaCore.UIA.IsSelectionItemPatternAvailablePropertyId => true,
+                UiaCore.UIA.SelectionItemIsSelectedPropertyId => (State & AccessibleStates.Selected) != 0,
+                UiaCore.UIA.SelectionItemSelectionContainerPropertyId => _owningComboBox.ChildListAccessibleObject,
+                _ => base.GetPropertyValue(propertyID),
+            };
 
             /// <summary>
             ///  Gets the help text.
@@ -5044,13 +4999,7 @@ namespace System.Windows.Forms
                 return base.FragmentNavigate(direction);
             }
 
-            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot
-            {
-                get
-                {
-                    return this;
-                }
-            }
+            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot => this;
 
             internal override UiaCore.IRawElementProviderSimple GetOverrideProviderForHwnd(IntPtr hwnd)
             {
@@ -5125,27 +5074,16 @@ namespace System.Windows.Forms
             /// </summary>
             /// <param name="propertyID">The accessible property ID.</param>
             /// <returns>The accessible property value.</returns>
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.ComboBoxControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return _owningComboBox.Focused;
-                    case UiaCore.UIA.NativeWindowHandlePropertyId:
-                        return _owningComboBox.Handle;
-                    case UiaCore.UIA.IsExpandCollapsePatternAvailablePropertyId:
-                        return IsPatternSupported(UiaCore.UIA.ExpandCollapsePatternId);
-                    case UiaCore.UIA.IsValuePatternAvailablePropertyId:
-                        return IsPatternSupported(UiaCore.UIA.ValuePatternId);
-
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.ComboBoxControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name,
+                UiaCore.UIA.HasKeyboardFocusPropertyId => _owningComboBox.Focused,
+                UiaCore.UIA.NativeWindowHandlePropertyId => _owningComboBox.Handle,
+                UiaCore.UIA.IsExpandCollapsePatternAvailablePropertyId => IsPatternSupported(UiaCore.UIA.ExpandCollapsePatternId),
+                UiaCore.UIA.IsValuePatternAvailablePropertyId => IsPatternSupported(UiaCore.UIA.ValuePatternId),
+                _ => base.GetPropertyValue(propertyID),
+            };
 
             internal void ResetListItemAccessibleObjects()
             {
@@ -5270,41 +5208,23 @@ namespace System.Windows.Forms
             /// </summary>
             /// <param name="propertyID">The accessible property ID.</param>
             /// <returns>The accessible property value.</returns>
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.RuntimeIdPropertyId:
-                        return RuntimeId;
-                    case UiaCore.UIA.BoundingRectanglePropertyId:
-                        return Bounds;
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.EditControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name ?? SR.ComboBoxEditDefaultAccessibleName;
-                    case UiaCore.UIA.AccessKeyPropertyId:
-                        return string.Empty;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return _owner.Focused;
-                    case UiaCore.UIA.IsKeyboardFocusablePropertyId:
-                        return (State & AccessibleStates.Focusable) == AccessibleStates.Focusable;
-                    case UiaCore.UIA.IsEnabledPropertyId:
-                        return _owner.Enabled;
-                    case UiaCore.UIA.AutomationIdPropertyId:
-                        return COMBO_BOX_EDIT_AUTOMATION_ID;
-                    case UiaCore.UIA.HelpTextPropertyId:
-                        return Help ?? string.Empty;
-                    case UiaCore.UIA.IsPasswordPropertyId:
-                        return false;
-                    case UiaCore.UIA.NativeWindowHandlePropertyId:
-                        return _handle;
-                    case UiaCore.UIA.IsOffscreenPropertyId:
-                        return false;
-
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+                UiaCore.UIA.RuntimeIdPropertyId => RuntimeId,
+                UiaCore.UIA.BoundingRectanglePropertyId => Bounds,
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.EditControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name ?? SR.ComboBoxEditDefaultAccessibleName,
+                UiaCore.UIA.AccessKeyPropertyId => string.Empty,
+                UiaCore.UIA.HasKeyboardFocusPropertyId => _owner.Focused,
+                UiaCore.UIA.IsKeyboardFocusablePropertyId => (State & AccessibleStates.Focusable) == AccessibleStates.Focusable,
+                UiaCore.UIA.IsEnabledPropertyId => _owner.Enabled,
+                UiaCore.UIA.AutomationIdPropertyId => COMBO_BOX_EDIT_AUTOMATION_ID,
+                UiaCore.UIA.HelpTextPropertyId => Help ?? string.Empty,
+                UiaCore.UIA.IsPasswordPropertyId => false,
+                UiaCore.UIA.NativeWindowHandlePropertyId => _handle,
+                UiaCore.UIA.IsOffscreenPropertyId => false,
+                _ => base.GetPropertyValue(propertyID),
+            };
 
             internal override UiaCore.IRawElementProviderSimple HostRawElementProvider
             {
@@ -5421,68 +5341,38 @@ namespace System.Windows.Forms
                 return comboBoxAccessibleObject.ItemAccessibleObjects[item] as AccessibleObject;
             }
 
-            public int GetChildFragmentCount()
-            {
-                return _owningComboBox.Items.Count;
-            }
+            public int GetChildFragmentCount() => _owningComboBox.Items.Count;
 
             /// <summary>
             ///  Gets the accessible property value.
             /// </summary>
             /// <param name="propertyID">The accessible property ID.</param>
             /// <returns>The accessible property value.</returns>
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.RuntimeIdPropertyId:
-                        return RuntimeId;
-                    case UiaCore.UIA.BoundingRectanglePropertyId:
-                        return Bounds;
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.ListControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name;
-                    case UiaCore.UIA.AccessKeyPropertyId:
-                        return string.Empty;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return false; // Narrator should keep the keyboard focus on th ComboBox itself but not on the DropDown.
-                    case UiaCore.UIA.IsKeyboardFocusablePropertyId:
-                        return (State & AccessibleStates.Focusable) == AccessibleStates.Focusable;
-                    case UiaCore.UIA.IsEnabledPropertyId:
-                        return _owningComboBox.Enabled;
-                    case UiaCore.UIA.AutomationIdPropertyId:
-                        return COMBO_BOX_LIST_AUTOMATION_ID;
-                    case UiaCore.UIA.HelpTextPropertyId:
-                        return Help ?? string.Empty;
-                    case UiaCore.UIA.IsPasswordPropertyId:
-                        return false;
-                    case UiaCore.UIA.NativeWindowHandlePropertyId:
-                        return _childListControlhandle;
-                    case UiaCore.UIA.IsOffscreenPropertyId:
-                        return false;
-                    case UiaCore.UIA.IsSelectionPatternAvailablePropertyId:
-                        return true;
-                    case UiaCore.UIA.SelectionCanSelectMultiplePropertyId:
-                        return CanSelectMultiple;
-                    case UiaCore.UIA.SelectionIsSelectionRequiredPropertyId:
-                        return IsSelectionRequired;
+                UiaCore.UIA.RuntimeIdPropertyId => RuntimeId,
+                UiaCore.UIA.BoundingRectanglePropertyId => Bounds,
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.ListControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name,
+                UiaCore.UIA.AccessKeyPropertyId => string.Empty,
+                // Narrator should keep the keyboard focus on th ComboBox itself but not on the DropDown.
+                UiaCore.UIA.HasKeyboardFocusPropertyId => false,
+                UiaCore.UIA.IsKeyboardFocusablePropertyId => (State & AccessibleStates.Focusable) == AccessibleStates.Focusable,
+                UiaCore.UIA.IsEnabledPropertyId => _owningComboBox.Enabled,
+                UiaCore.UIA.AutomationIdPropertyId => COMBO_BOX_LIST_AUTOMATION_ID,
+                UiaCore.UIA.HelpTextPropertyId => Help ?? string.Empty,
+                UiaCore.UIA.IsPasswordPropertyId => false,
+                UiaCore.UIA.NativeWindowHandlePropertyId => _childListControlhandle,
+                UiaCore.UIA.IsOffscreenPropertyId => false,
+                UiaCore.UIA.IsSelectionPatternAvailablePropertyId => true,
+                UiaCore.UIA.SelectionCanSelectMultiplePropertyId => CanSelectMultiple,
+                UiaCore.UIA.SelectionIsSelectionRequiredPropertyId => IsSelectionRequired,
+                _ => base.GetPropertyValue(propertyID),
+            };
 
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+            internal override UiaCore.IRawElementProviderFragment GetFocus() => GetFocused();
 
-            internal override UiaCore.IRawElementProviderFragment GetFocus()
-            {
-                return GetFocused();
-            }
-
-            public override AccessibleObject GetFocused()
-            {
-                int selectedIndex = _owningComboBox.SelectedIndex;
-                return GetChildFragment(selectedIndex);
-            }
+            public override AccessibleObject GetFocused() => GetChildFragment(_owningComboBox.SelectedIndex);
 
             internal override UiaCore.IRawElementProviderSimple[] GetSelection()
             {
@@ -5499,21 +5389,9 @@ namespace System.Windows.Forms
                 return Array.Empty<UiaCore.IRawElementProviderSimple>();
             }
 
-            internal override bool CanSelectMultiple
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            internal override bool CanSelectMultiple => false;
 
-            internal override bool IsSelectionRequired
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            internal override bool IsSelectionRequired => true;
 
             /// <summary>
             ///  Indicates whether specified pattern is supported.
@@ -5587,40 +5465,25 @@ namespace System.Windows.Forms
             ///  Initializes new instance of ComboBoxChildTextUiaProvider.
             /// </summary>
             /// <param name="owner">The owning ComboBox control.</param>
-            public ComboBoxChildTextUiaProvider(ComboBox owner)
-            {
-                _owner = owner;
-            }
+            public ComboBoxChildTextUiaProvider(ComboBox owner) => _owner = owner;
 
             /// <summary>
             ///  Gets the bounds.
             /// </summary>
-            public override Rectangle Bounds
-            {
-                get
-                {
-                    return _owner.AccessibilityObject.Bounds;
-                }
-            }
+            public override Rectangle Bounds => _owner.AccessibilityObject.Bounds;
 
             /// <summary>
             ///  Gets the child ID.
             /// </summary>
             /// <returns>The child ID.</returns>
-            internal override int GetChildId()
-            {
-                return COMBOBOX_TEXT_ACC_ITEM_INDEX;
-            }
+            internal override int GetChildId() => COMBOBOX_TEXT_ACC_ITEM_INDEX;
 
             /// <summary>
             ///  Gets or sets the accessible Name of ComboBox's child text element.
             /// </summary>
             public override string Name
             {
-                get
-                {
-                    return _owner.AccessibilityObject.Name ?? string.Empty;
-                }
+                get => _owner.AccessibilityObject.Name ?? string.Empty;
                 set
                 {
                     // Do nothing.
@@ -5669,48 +5532,28 @@ namespace System.Windows.Forms
             /// <summary>
             ///  Gets the top level element.
             /// </summary>
-            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot
-            {
-                get
-                {
-                    return _owner.AccessibilityObject;
-                }
-            }
+            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot => _owner.AccessibilityObject;
 
             /// <summary>
             ///  Gets the accessible property value.
             /// </summary>
             /// <param name="propertyID">The accessible property ID.</param>
             /// <returns>The accessible property value.</returns>
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.RuntimeIdPropertyId:
-                        return RuntimeId;
-                    case UiaCore.UIA.BoundingRectanglePropertyId:
-                        return Bounds;
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.TextControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name;
-                    case UiaCore.UIA.AccessKeyPropertyId:
-                        return string.Empty;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return _owner.Focused;
-                    case UiaCore.UIA.IsKeyboardFocusablePropertyId:
-                        return (State & AccessibleStates.Focusable) == AccessibleStates.Focusable;
-                    case UiaCore.UIA.IsEnabledPropertyId:
-                        return _owner.Enabled;
-                    case UiaCore.UIA.HelpTextPropertyId:
-                        return Help ?? string.Empty;
-                    case UiaCore.UIA.IsPasswordPropertyId:
-                    case UiaCore.UIA.IsOffscreenPropertyId:
-                        return false;
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+                UiaCore.UIA.RuntimeIdPropertyId => RuntimeId,
+                UiaCore.UIA.BoundingRectanglePropertyId => Bounds,
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.TextControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name,
+                UiaCore.UIA.AccessKeyPropertyId => string.Empty,
+                UiaCore.UIA.HasKeyboardFocusPropertyId => _owner.Focused,
+                UiaCore.UIA.IsKeyboardFocusablePropertyId => (State & AccessibleStates.Focusable) == AccessibleStates.Focusable,
+                UiaCore.UIA.IsEnabledPropertyId => _owner.Enabled,
+                UiaCore.UIA.HelpTextPropertyId => Help ?? string.Empty,
+                UiaCore.UIA.IsPasswordPropertyId => false,
+                UiaCore.UIA.IsOffscreenPropertyId => false,
+                _ => base.GetPropertyValue(propertyID)
+            };
 
             /// <summary>
             ///  Gets the runtime ID.
@@ -5772,15 +5615,8 @@ namespace System.Windows.Forms
             /// </summary>
             public override string Name
             {
-                get
-                {
-                    return get_accNameInternal(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
-                }
-                set
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    systemIAccessible.set_accName(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX, value);
-                }
+                get => get_accNameInternal(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
+                set => GetSystemIAccessibleInternal().set_accName(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX, value);
             }
 
             /// <summary>
@@ -5799,14 +5635,8 @@ namespace System.Windows.Forms
             /// <summary>
             ///  Gets the DropDown button default action.
             /// </summary>
-            public override string DefaultAction
-            {
-                get
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    return systemIAccessible.accDefaultAction[COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX];
-                }
-            }
+            public override string DefaultAction =>
+                GetSystemIAccessibleInternal().accDefaultAction[COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX];
 
             /// <summary>
             ///  Returns the element in the specified direction.
@@ -5839,110 +5669,63 @@ namespace System.Windows.Forms
             /// <summary>
             ///  Gets the top level element.
             /// </summary>
-            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot
-            {
-                get
-                {
-                    return _owner.AccessibilityObject;
-                }
-            }
+            internal override UiaCore.IRawElementProviderFragmentRoot FragmentRoot => _owner.AccessibilityObject;
 
             /// <summary>
             ///  Gets the child accessible object ID.
             /// </summary>
             /// <returns>The child accessible object ID.</returns>
-            internal override int GetChildId()
-            {
-                return COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX;
-            }
+            internal override int GetChildId() => COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX;
 
             /// <summary>
             ///  Gets the accessible property value.
             /// </summary>
             /// <param name="propertyID">The accessible property ID.</param>
             /// <returns>The accessible property value.</returns>
-            internal override object GetPropertyValue(UiaCore.UIA propertyID)
+            internal override object GetPropertyValue(UiaCore.UIA propertyID) => propertyID switch
             {
-                switch (propertyID)
-                {
-                    case UiaCore.UIA.RuntimeIdPropertyId:
-                        return RuntimeId;
-                    case UiaCore.UIA.BoundingRectanglePropertyId:
-                        return BoundingRectangle;
-                    case UiaCore.UIA.ControlTypePropertyId:
-                        return UiaCore.UIA.ButtonControlTypeId;
-                    case UiaCore.UIA.NamePropertyId:
-                        return Name;
-                    case UiaCore.UIA.AccessKeyPropertyId:
-                        return KeyboardShortcut;
-                    case UiaCore.UIA.HasKeyboardFocusPropertyId:
-                        return _owner.Focused;
-                    case UiaCore.UIA.IsKeyboardFocusablePropertyId:
-                        return (State & AccessibleStates.Focusable) == AccessibleStates.Focusable;
-                    case UiaCore.UIA.IsEnabledPropertyId:
-                        return _owner.Enabled;
-                    case UiaCore.UIA.HelpTextPropertyId:
-                        return Help ?? string.Empty;
-                    case UiaCore.UIA.IsPasswordPropertyId:
-                        return false;
-                    case UiaCore.UIA.IsOffscreenPropertyId:
-                        return (State & AccessibleStates.Offscreen) == AccessibleStates.Offscreen;
-                    default:
-                        return base.GetPropertyValue(propertyID);
-                }
-            }
+                UiaCore.UIA.RuntimeIdPropertyId => RuntimeId,
+                UiaCore.UIA.BoundingRectanglePropertyId => BoundingRectangle,
+                UiaCore.UIA.ControlTypePropertyId => UiaCore.UIA.ButtonControlTypeId,
+                UiaCore.UIA.NamePropertyId => Name,
+                UiaCore.UIA.AccessKeyPropertyId => KeyboardShortcut,
+                UiaCore.UIA.HasKeyboardFocusPropertyId => _owner.Focused,
+                UiaCore.UIA.IsKeyboardFocusablePropertyId => (State & AccessibleStates.Focusable) == AccessibleStates.Focusable,
+                UiaCore.UIA.IsEnabledPropertyId => _owner.Enabled,
+                UiaCore.UIA.HelpTextPropertyId => Help ?? string.Empty,
+                UiaCore.UIA.IsPasswordPropertyId => false,
+                UiaCore.UIA.IsOffscreenPropertyId => (State & AccessibleStates.Offscreen) == AccessibleStates.Offscreen,
+                _ => base.GetPropertyValue(propertyID),
+            };
 
             /// <summary>
             ///  Gets the help text.
             /// </summary>
-            public override string Help
-            {
-                get
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    return systemIAccessible.accHelp[COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX];
-                }
-            }
+            public override string Help => GetSystemIAccessibleInternal().accHelp[COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX];
 
             /// <summary>
             ///  Gets the keyboard shortcut.
             /// </summary>
             public override string KeyboardShortcut
-            {
-                get
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    return systemIAccessible.get_accKeyboardShortcut(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
-                }
-            }
+                => GetSystemIAccessibleInternal().get_accKeyboardShortcut(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
 
             /// <summary>
             ///  Indicates whether specified pattern is supported.
             /// </summary>
             /// <param name="patternId">The pattern ID.</param>
             /// <returns>True if specified </returns>
-            internal override bool IsPatternSupported(UiaCore.UIA patternId)
+            internal override bool IsPatternSupported(UiaCore.UIA patternId) => patternId switch
             {
-                if (patternId == UiaCore.UIA.LegacyIAccessiblePatternId ||
-                    patternId == UiaCore.UIA.InvokePatternId)
-                {
-                    return true;
-                }
-
-                return base.IsPatternSupported(patternId);
-            }
+                UiaCore.UIA.LegacyIAccessiblePatternId => true,
+                UiaCore.UIA.InvokePatternId => true,
+                _ => base.IsPatternSupported(patternId)
+            };
 
             /// <summary>
             ///  Gets the accessible role.
             /// </summary>
             public override AccessibleRole Role
-            {
-                get
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    return (AccessibleRole)systemIAccessible.get_accRole(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
-                }
-            }
+                => (AccessibleRole)GetSystemIAccessibleInternal().get_accRole(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
 
             /// <summary>
             ///  Gets the runtime ID.
@@ -5969,13 +5752,7 @@ namespace System.Windows.Forms
             ///  Gets the accessible state.
             /// </summary>
             public override AccessibleStates State
-            {
-                get
-                {
-                    var systemIAccessible = GetSystemIAccessibleInternal();
-                    return (AccessibleStates)systemIAccessible.get_accState(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
-                }
-            }
+                => (AccessibleStates)GetSystemIAccessibleInternal().get_accState(COMBOBOX_DROPDOWN_BUTTON_ACC_ITEM_INDEX);
         }
 
         /// <summary>
@@ -6151,20 +5928,19 @@ namespace System.Windows.Forms
                 return comboAdapter;
             }
         }
+
         internal virtual FlatComboAdapter CreateFlatComboAdapterInstance()
-        {
-            return new FlatComboAdapter(this,/*smallButton=*/false);
-        }
+            => new FlatComboAdapter(this, smallButton: false);
 
         internal class FlatComboAdapter
         {
-            Rectangle outerBorder;
-            Rectangle innerBorder;
-            Rectangle innerInnerBorder;
-            internal Rectangle dropDownRect;
-            Rectangle whiteFillRect;
-            Rectangle clientRect;
-            readonly RightToLeft origRightToLeft; // The combo box's RTL value when we were created
+            private Rectangle _outerBorder;
+            private Rectangle _innerBorder;
+            private Rectangle _innerInnerBorder;
+            internal Rectangle _dropDownRect;
+            private Rectangle _whiteFillRect;
+            private Rectangle _clientRect;
+            private readonly RightToLeft _origRightToLeft; // The combo box's RTL value when we were created
 
             private const int WhiteFillRectWidth = 5; // used for making the button look smaller than it is
 
@@ -6176,36 +5952,36 @@ namespace System.Windows.Forms
                 // adapter is re-created when combobox is resized, see IsValid method, thus we don't need to handle DPI changed explicitly
                 Offset2Pixels = comboBox.LogicalToDeviceUnits(OFFSET_2PIXELS);
 
-                clientRect = comboBox.ClientRectangle;
+                _clientRect = comboBox.ClientRectangle;
                 int dropDownButtonWidth = SystemInformation.GetHorizontalScrollBarArrowWidthForDpi(comboBox._deviceDpi);
-                outerBorder = new Rectangle(clientRect.Location, new Size(clientRect.Width - 1, clientRect.Height - 1));
-                innerBorder = new Rectangle(outerBorder.X + 1, outerBorder.Y + 1, outerBorder.Width - dropDownButtonWidth - 2, outerBorder.Height - 2);
-                innerInnerBorder = new Rectangle(innerBorder.X + 1, innerBorder.Y + 1, innerBorder.Width - 2, innerBorder.Height - 2);
-                dropDownRect = new Rectangle(innerBorder.Right + 1, innerBorder.Y, dropDownButtonWidth, innerBorder.Height + 1);
+                _outerBorder = new Rectangle(_clientRect.Location, new Size(_clientRect.Width - 1, _clientRect.Height - 1));
+                _innerBorder = new Rectangle(_outerBorder.X + 1, _outerBorder.Y + 1, _outerBorder.Width - dropDownButtonWidth - 2, _outerBorder.Height - 2);
+                _innerInnerBorder = new Rectangle(_innerBorder.X + 1, _innerBorder.Y + 1, _innerBorder.Width - 2, _innerBorder.Height - 2);
+                _dropDownRect = new Rectangle(_innerBorder.Right + 1, _innerBorder.Y, dropDownButtonWidth, _innerBorder.Height + 1);
 
                 // fill in several pixels of the dropdown rect with white so that it looks like the combo button is thinner.
                 if (smallButton)
                 {
-                    whiteFillRect = dropDownRect;
-                    whiteFillRect.Width = WhiteFillRectWidth;
-                    dropDownRect.X += WhiteFillRectWidth;
-                    dropDownRect.Width -= WhiteFillRectWidth;
+                    _whiteFillRect = _dropDownRect;
+                    _whiteFillRect.Width = WhiteFillRectWidth;
+                    _dropDownRect.X += WhiteFillRectWidth;
+                    _dropDownRect.Width -= WhiteFillRectWidth;
                 }
 
-                origRightToLeft = comboBox.RightToLeft;
+                _origRightToLeft = comboBox.RightToLeft;
 
-                if (origRightToLeft == RightToLeft.Yes)
+                if (_origRightToLeft == RightToLeft.Yes)
                 {
-                    innerBorder.X = clientRect.Width - innerBorder.Right;
-                    innerInnerBorder.X = clientRect.Width - innerInnerBorder.Right;
-                    dropDownRect.X = clientRect.Width - dropDownRect.Right;
-                    whiteFillRect.X = clientRect.Width - whiteFillRect.Right + 1;  // since we're filling, we need to move over to the next px.
+                    _innerBorder.X = _clientRect.Width - _innerBorder.Right;
+                    _innerInnerBorder.X = _clientRect.Width - _innerInnerBorder.Right;
+                    _dropDownRect.X = _clientRect.Width - _dropDownRect.Right;
+                    _whiteFillRect.X = _clientRect.Width - _whiteFillRect.Right + 1;  // since we're filling, we need to move over to the next px.
                 }
             }
 
             public bool IsValid(ComboBox combo)
             {
-                return (combo.ClientRectangle == clientRect && combo.RightToLeft == origRightToLeft);
+                return (combo.ClientRectangle == _clientRect && combo.RightToLeft == _origRightToLeft);
             }
 
             /// <summary>
@@ -6222,65 +5998,39 @@ namespace System.Windows.Forms
                 Color innerBorderColor = GetInnerBorderColor(comboBox);
                 bool rightToLeft = comboBox.RightToLeft == RightToLeft.Yes;
 
-                // draw the drop down
-                DrawFlatComboDropDown(comboBox, g, dropDownRect);
+                // Draw the drop down
+                DrawFlatComboDropDown(comboBox, g, _dropDownRect);
 
-                // when we are disabled there is one line of color that seems to eek through if backcolor is set
+                // When we are disabled there is one line of color that seems to eek through if backcolor is set
                 // so lets erase it.
-                if (!LayoutUtils.IsZeroWidthOrHeight(whiteFillRect))
+                if (!LayoutUtils.IsZeroWidthOrHeight(_whiteFillRect))
                 {
-                    // fill in two more pixels with white so it looks smaller.
-                    using (Brush b = new SolidBrush(innerBorderColor))
-                    {
-                        g.FillRectangle(b, whiteFillRect);
-                    }
+                    // Fill in two more pixels with white so it looks smaller.
+                    using var b = innerBorderColor.GetCachedSolidBrush();
+                    g.FillRectangle(b, _whiteFillRect);
                 }
 
                 // Draw the outer border
-                if (outerBorderColor.IsSystemColor)
+
+                using var outerBorderPen = outerBorderColor.GetCachedPen();
+                g.DrawRectangle(outerBorderPen, _outerBorder);
+                if (rightToLeft)
                 {
-                    Pen outerBorderPen = SystemPens.FromSystemColor(outerBorderColor);
-                    g.DrawRectangle(outerBorderPen, outerBorder);
-                    if (rightToLeft)
-                    {
-                        g.DrawRectangle(outerBorderPen, new Rectangle(outerBorder.X, outerBorder.Y, dropDownRect.Width + 1, outerBorder.Height));
-                    }
-                    else
-                    {
-                        g.DrawRectangle(outerBorderPen, new Rectangle(dropDownRect.X, outerBorder.Y, outerBorder.Right - dropDownRect.X, outerBorder.Height));
-                    }
+                    g.DrawRectangle(
+                        outerBorderPen,
+                        new Rectangle(_outerBorder.X, _outerBorder.Y, _dropDownRect.Width + 1, _outerBorder.Height));
                 }
                 else
                 {
-                    using (Pen outerBorderPen = new Pen(outerBorderColor))
-                    {
-                        g.DrawRectangle(outerBorderPen, outerBorder);
-                        if (rightToLeft)
-                        {
-                            g.DrawRectangle(outerBorderPen, new Rectangle(outerBorder.X, outerBorder.Y, dropDownRect.Width + 1, outerBorder.Height));
-                        }
-                        else
-                        {
-                            g.DrawRectangle(outerBorderPen, new Rectangle(dropDownRect.X, outerBorder.Y, outerBorder.Right - dropDownRect.X, outerBorder.Height));
-                        }
-                    }
+                    g.DrawRectangle(
+                        outerBorderPen,
+                        new Rectangle(_dropDownRect.X, _outerBorder.Y, _outerBorder.Right - _dropDownRect.X, _outerBorder.Height));
                 }
 
                 // Draw the inner border
-                if (innerBorderColor.IsSystemColor)
-                {
-                    Pen innerBorderPen = SystemPens.FromSystemColor(innerBorderColor);
-                    g.DrawRectangle(innerBorderPen, innerBorder);
-                    g.DrawRectangle(innerBorderPen, innerInnerBorder);
-                }
-                else
-                {
-                    using (Pen innerBorderPen = new Pen(innerBorderColor))
-                    {
-                        g.DrawRectangle(innerBorderPen, innerBorder);
-                        g.DrawRectangle(innerBorderPen, innerInnerBorder);
-                    }
-                }
+                using var innerBorderPen = innerBorderColor.GetCachedPen();
+                g.DrawRectangle(innerBorderPen, _innerBorder);
+                g.DrawRectangle(innerBorderPen, _innerInnerBorder);
 
                 // Draw a dark border around everything if we're in popup mode
                 if ((!comboBox.Enabled) || (comboBox.FlatStyle == FlatStyle.Popup))
@@ -6288,23 +6038,25 @@ namespace System.Windows.Forms
                     bool focused = comboBox.ContainsFocus || comboBox.MouseIsOver;
                     Color borderPenColor = GetPopupOuterBorderColor(comboBox, focused);
 
-                    using (Pen borderPen = new Pen(borderPenColor))
+                    using var borderPen = borderPenColor.GetCachedPen();
+                    Pen innerPen = comboBox.Enabled ? borderPen : SystemPens.Control;
+
+                    // Around the dropdown
+                    if (rightToLeft)
                     {
-                        Pen innerPen = (comboBox.Enabled) ? borderPen : SystemPens.Control;
-
-                        // around the dropdown
-                        if (rightToLeft)
-                        {
-                            g.DrawRectangle(innerPen, new Rectangle(outerBorder.X, outerBorder.Y, dropDownRect.Width + 1, outerBorder.Height));
-                        }
-                        else
-                        {
-                            g.DrawRectangle(innerPen, new Rectangle(dropDownRect.X, outerBorder.Y, outerBorder.Right - dropDownRect.X, outerBorder.Height));
-                        }
-
-                        // around the whole combobox.
-                        g.DrawRectangle(borderPen, outerBorder);
+                        g.DrawRectangle(
+                            innerPen,
+                            new Rectangle(_outerBorder.X, _outerBorder.Y, _dropDownRect.Width + 1, _outerBorder.Height));
                     }
+                    else
+                    {
+                        g.DrawRectangle(
+                            innerPen,
+                            new Rectangle(_dropDownRect.X, _outerBorder.Y, _outerBorder.Right - _dropDownRect.X, _outerBorder.Height));
+                    }
+
+                    // Around the whole combobox.
+                    g.DrawRectangle(borderPen, _outerBorder);
                 }
             }
 
@@ -6318,7 +6070,7 @@ namespace System.Windows.Forms
                 Brush brush = (comboBox.Enabled) ? SystemBrushes.ControlText : SystemBrushes.ControlDark;
 
                 Point middle = new Point(dropDownRect.Left + dropDownRect.Width / 2, dropDownRect.Top + dropDownRect.Height / 2);
-                if (origRightToLeft == RightToLeft.Yes)
+                if (_origRightToLeft == RightToLeft.Yes)
                 {
                     // if the width is odd - favor pushing it over one pixel left.
                     middle.X -= (dropDownRect.Width % 2);
@@ -6329,17 +6081,18 @@ namespace System.Windows.Forms
                     middle.X += (dropDownRect.Width % 2);
                 }
 
-                g.FillPolygon(brush, new Point[] {
-                     new Point(middle.X - Offset2Pixels, middle.Y - 1),
-                     new Point(middle.X + Offset2Pixels + 1, middle.Y - 1),
-                     new Point(middle.X, middle.Y + Offset2Pixels)
-                 });
+                g.FillPolygon(
+                    brush,
+                    new Point[]
+                    {
+                        new Point(middle.X - Offset2Pixels, middle.Y - 1),
+                        new Point(middle.X + Offset2Pixels + 1, middle.Y - 1),
+                        new Point(middle.X, middle.Y + Offset2Pixels)
+                    });
             }
 
             protected virtual Color GetOuterBorderColor(ComboBox comboBox)
-            {
-                return (comboBox.Enabled) ? SystemColors.Window : SystemColors.ControlDark;
-            }
+                => comboBox.Enabled ? SystemColors.Window : SystemColors.ControlDark;
 
             protected virtual Color GetPopupOuterBorderColor(ComboBox comboBox, bool focused)
             {
@@ -6347,17 +6100,17 @@ namespace System.Windows.Forms
                 {
                     return SystemColors.ControlDark;
                 }
-                return (focused) ? SystemColors.ControlDark : SystemColors.Window;
+                return focused ? SystemColors.ControlDark : SystemColors.Window;
             }
 
             protected virtual Color GetInnerBorderColor(ComboBox comboBox)
-            {
-                return (comboBox.Enabled) ? comboBox.BackColor : SystemColors.Control;
-            }
+                => comboBox.Enabled ? comboBox.BackColor : SystemColors.Control;
 
-            // this eliminates flicker by removing the pieces we're going to paint ourselves from
-            // the update region.  Note the UpdateRegionBox is the bounding box of the actual update region.
-            // this is just here so we can quickly eliminate rectangles that arent in the update region.
+            /// <summary>
+            ///  This eliminates flicker by removing the pieces we're going to paint ourselves from the update region.
+            ///  Note the UpdateRegionBox is the bounding box of the actual update region. This is here so we can
+            ///  quickly eliminate rectangles that arent in the update region.
+            /// </summary>
             public unsafe void ValidateOwnerDrawRegions(ComboBox comboBox, Rectangle updateRegionBox)
             {
                 if (comboBox != null)
@@ -6365,10 +6118,10 @@ namespace System.Windows.Forms
                     return;
                 }
 
-                Rectangle topOwnerDrawArea = new Rectangle(0, 0, comboBox.Width, innerBorder.Top);
-                Rectangle bottomOwnerDrawArea = new Rectangle(0, innerBorder.Bottom, comboBox.Width, comboBox.Height - innerBorder.Bottom);
-                Rectangle leftOwnerDrawArea = new Rectangle(0, 0, innerBorder.Left, comboBox.Height);
-                Rectangle rightOwnerDrawArea = new Rectangle(innerBorder.Right, 0, comboBox.Width - innerBorder.Right, comboBox.Height);
+                Rectangle topOwnerDrawArea = new Rectangle(0, 0, comboBox.Width, _innerBorder.Top);
+                Rectangle bottomOwnerDrawArea = new Rectangle(0, _innerBorder.Bottom, comboBox.Width, comboBox.Height - _innerBorder.Bottom);
+                Rectangle leftOwnerDrawArea = new Rectangle(0, 0, _innerBorder.Left, comboBox.Height);
+                Rectangle rightOwnerDrawArea = new Rectangle(_innerBorder.Right, 0, comboBox.Width - _innerBorder.Right, comboBox.Height);
 
                 if (topOwnerDrawArea.IntersectsWith(updateRegionBox))
                 {

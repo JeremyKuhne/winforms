@@ -391,10 +391,10 @@ namespace System.Windows.Forms
         Rectangle IKeyboardToolTip.GetNativeScreenRectangle() => AccessibilityObject.Bounds;
 
         /// <summary>
-        ///  The method looks for 8 cells around the current cell
-        ///  to find the optimal tooltip position in <see cref='ToolTip.GetOptimalToolTipPosition'/> method.
-        ///  The optimal tooltip position is the position outside DataGridView or on top of an empty cell.
-        ///  This is done so that tooltips do not overlap the text of other cells whenever possible.
+        ///  The method looks for 8 cells around the current cell to find the optimal tooltip position in
+        ///  <see cref='ToolTip.GetOptimalToolTipPosition'/> method. The optimal tooltip position is the position
+        ///  outside <see cref="DataGridView"/> or on top of an empty cell. This is done so that tooltips do not
+        ///  overlap the text of other cells whenever possible.
         /// </summary>
         /// <returns>
         ///  Non-empty neighboring cells around the current cell.
@@ -1574,51 +1574,38 @@ namespace System.Windows.Forms
             return contextMenuStrip;
         }
 
-        internal void GetContrastedPens(Color baseline, ref Pen darkPen, ref Pen lightPen)
+        internal (Color darkColor, Color lightColor) GetContrastedColors(Color baseline)
         {
             Debug.Assert(DataGridView != null);
 
             int darkDistance = ColorDistance(baseline, SystemColors.ControlDark);
             int lightDistance = ColorDistance(baseline, SystemColors.ControlLightLight);
 
+            Color darkColor = default;
+            Color lightColor = default;
+
             if (SystemInformation.HighContrast)
             {
-                if (darkDistance < DATAGRIDVIEWCELL_highConstrastThreshold)
-                {
-                    darkPen = DataGridView.GetCachedPen(ControlPaint.DarkDark(baseline));
-                }
-                else
-                {
-                    darkPen = DataGridView.GetCachedPen(SystemColors.ControlDark);
-                }
-                if (lightDistance < DATAGRIDVIEWCELL_highConstrastThreshold)
-                {
-                    lightPen = DataGridView.GetCachedPen(ControlPaint.LightLight(baseline));
-                }
-                else
-                {
-                    lightPen = DataGridView.GetCachedPen(SystemColors.ControlLightLight);
-                }
+                darkColor = darkDistance < DATAGRIDVIEWCELL_highConstrastThreshold
+                    ? ControlPaint.DarkDark(baseline)
+                    : SystemColors.ControlDark;
+
+                lightColor = lightDistance < DATAGRIDVIEWCELL_highConstrastThreshold
+                    ? ControlPaint.LightLight(baseline)
+                    : SystemColors.ControlLightLight;
             }
             else
             {
-                if (darkDistance < DATAGRIDVIEWCELL_constrastThreshold)
-                {
-                    darkPen = DataGridView.GetCachedPen(ControlPaint.Dark(baseline));
-                }
-                else
-                {
-                    darkPen = DataGridView.GetCachedPen(SystemColors.ControlDark);
-                }
-                if (lightDistance < DATAGRIDVIEWCELL_constrastThreshold)
-                {
-                    lightPen = DataGridView.GetCachedPen(ControlPaint.Light(baseline));
-                }
-                else
-                {
-                    lightPen = DataGridView.GetCachedPen(SystemColors.ControlLightLight);
-                }
+                darkColor = darkDistance < DATAGRIDVIEWCELL_constrastThreshold
+                    ? ControlPaint.Dark(baseline)
+                    : SystemColors.ControlDark;
+
+                lightColor = lightDistance < DATAGRIDVIEWCELL_constrastThreshold
+                    ? ControlPaint.Light(baseline)
+                    : SystemColors.ControlLightLight;
             }
+
+            return (darkColor, lightColor);
         }
 
         public Rectangle GetContentBounds(int rowIndex)
@@ -3299,26 +3286,21 @@ namespace System.Windows.Forms
             return (paintParts & DataGridViewPaintParts.Border) != 0;
         }
 
-        protected virtual void PaintBorder(Graphics graphics,
+        protected virtual void PaintBorder(
+            Graphics graphics,
             Rectangle clipBounds,
             Rectangle bounds,
             DataGridViewCellStyle cellStyle,
             DataGridViewAdvancedBorderStyle advancedBorderStyle)
         {
-            if (graphics == null)
-            {
+            if (graphics is null)
                 throw new ArgumentNullException(nameof(graphics));
-            }
-            if (cellStyle == null)
-            {
+            if (cellStyle is null)
                 throw new ArgumentNullException(nameof(cellStyle));
-            }
-            if (advancedBorderStyle == null)
-            {
+            if (advancedBorderStyle is null)
                 throw new ArgumentNullException(nameof(advancedBorderStyle));
-            }
 
-            if (DataGridView == null)
+            if (DataGridView is null)
             {
                 return;
             }
@@ -3326,11 +3308,12 @@ namespace System.Windows.Forms
             // Using system colors for non-single grid colors for now
             int y1, y2;
 
-            Pen penControlDark = null, penControlLightLight = null;
-            Pen penBackColor = DataGridView.GetCachedPen(cellStyle.BackColor);
-            Pen penGridColor = DataGridView.GridPen;
+            using var penBackColor = cellStyle.BackColor.GetCachedPen();
+            using var penGridColor = DataGridView.GridPenColor.GetCachedPen();
 
-            GetContrastedPens(cellStyle.BackColor, ref penControlDark, ref penControlLightLight);
+            (Color darkColor, Color lightColor) = GetContrastedColors(cellStyle.BackColor);
+            using var penControlDark = darkColor.GetCachedPen();
+            using var penControlLightLight = lightColor.GetCachedPen();
 
             int dividerThickness = OwningColumn?.DividerWidth ?? 0;
             if (dividerThickness != 0)
@@ -3339,26 +3322,22 @@ namespace System.Windows.Forms
                 {
                     dividerThickness = bounds.Width;
                 }
-                Color dividerWidthColor;
-                switch (advancedBorderStyle.Right)
+
+                Color dividerWidthColor = advancedBorderStyle.Right switch
                 {
-                    case DataGridViewAdvancedCellBorderStyle.Single:
-                        dividerWidthColor = DataGridView.GridPen.Color;
-                        break;
+                    DataGridViewAdvancedCellBorderStyle.Single => DataGridView.GridPenColor,
+                    DataGridViewAdvancedCellBorderStyle.Inset => SystemColors.ControlLightLight,
+                    _ => SystemColors.ControlDark,
+                };
 
-                    case DataGridViewAdvancedCellBorderStyle.Inset:
-                        dividerWidthColor = SystemColors.ControlLightLight;
-                        break;
+                using var dividerWidthBrush = dividerWidthColor.GetCachedSolidBrush();
+                graphics.FillRectangle(
+                    dividerWidthBrush,
+                    DataGridView.RightToLeftInternal ? bounds.X : bounds.Right - dividerThickness,
+                    bounds.Y,
+                    dividerThickness,
+                    bounds.Height);
 
-                    default:   /* ie DataGridViewAdvancedCellBorderStyle.Outset, DataGridViewAdvancedCellBorderStyle.OutsetPartial, DataGridViewAdvancedCellBorderStyle.None */
-                        dividerWidthColor = SystemColors.ControlDark;
-                        break;
-                }
-                graphics.FillRectangle(DataGridView.GetCachedBrush(dividerWidthColor),
-                                DataGridView.RightToLeftInternal ? bounds.X : bounds.Right - dividerThickness,
-                                bounds.Y,
-                                dividerThickness,
-                                bounds.Height);
                 if (DataGridView.RightToLeftInternal)
                 {
                     bounds.X += dividerThickness;
@@ -3377,22 +3356,18 @@ namespace System.Windows.Forms
                 {
                     dividerThickness = bounds.Height;
                 }
-                Color dividerHeightColor;
-                switch (advancedBorderStyle.Bottom)
+
+                Color dividerHeightColor = advancedBorderStyle.Bottom switch
                 {
-                    case DataGridViewAdvancedCellBorderStyle.Single:
-                        dividerHeightColor = DataGridView.GridPen.Color;
-                        break;
+                    DataGridViewAdvancedCellBorderStyle.Single => DataGridView.GridPenColor,
+                    DataGridViewAdvancedCellBorderStyle.Inset => SystemColors.ControlLightLight,
+                    _ => SystemColors.ControlDark,
+                };
 
-                    case DataGridViewAdvancedCellBorderStyle.Inset:
-                        dividerHeightColor = SystemColors.ControlLightLight;
-                        break;
-
-                    default:   /* ie DataGridViewAdvancedCellBorderStyle.Outset, DataGridViewAdvancedCellBorderStyle.OutsetPartial, DataGridViewAdvancedCellBorderStyle.None */
-                        dividerHeightColor = SystemColors.ControlDark;
-                        break;
-                }
-                graphics.FillRectangle(DataGridView.GetCachedBrush(dividerHeightColor), bounds.X, bounds.Bottom - dividerThickness, bounds.Width, dividerThickness);
+                using var dividerHeightColorBrush = dividerHeightColor.GetCachedSolidBrush();
+                graphics.FillRectangle(
+                    dividerHeightColorBrush,
+                    bounds.X, bounds.Bottom - dividerThickness, bounds.Width, dividerThickness);
                 bounds.Height -= dividerThickness;
                 if (bounds.Height <= 0)
                 {
@@ -3716,12 +3691,10 @@ namespace System.Windows.Forms
 
         private static void PaintErrorIcon(Graphics graphics, Rectangle iconBounds)
         {
-            if (graphics == null)
-            {
+            if (graphics is null)
                 throw new ArgumentNullException(nameof(graphics));
-            }
 
-            Bitmap bmp = DataGridViewCell.ErrorBitmap;
+            Bitmap bmp = ErrorBitmap;
             if (bmp != null)
             {
                 lock (bmp)
@@ -3782,6 +3755,7 @@ namespace System.Windows.Forms
                 graphics.FillRectangle(br, rectPadding);
                 rectPadding.X = bounds.Left + cellStyle.Padding.Left;
             }
+
             rectPadding.Y = bounds.Y;
             rectPadding.Width = bounds.Width - cellStyle.Padding.Horizontal;
             rectPadding.Height = cellStyle.Padding.Top;

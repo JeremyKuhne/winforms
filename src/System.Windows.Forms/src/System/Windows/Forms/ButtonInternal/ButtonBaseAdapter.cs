@@ -76,15 +76,13 @@ namespace System.Windows.Forms.ButtonInternal
             // Note: Don't dispose the bitmap here. The texture brush will take ownership
             // of the bitmap. So the bitmap will get disposed by the brush's Dispose().
 
-            using (Bitmap b = new Bitmap(2, 2))
-            {
-                b.SetPixel(0, 0, color1);
-                b.SetPixel(0, 1, color2);
-                b.SetPixel(1, 1, color1);
-                b.SetPixel(1, 0, color2);
+            using Bitmap b = new Bitmap(2, 2);
+            b.SetPixel(0, 0, color1);
+            b.SetPixel(0, 1, color2);
+            b.SetPixel(1, 1, color1);
+            b.SetPixel(1, 0, color2);
 
-                return new TextureBrush(b);
-            }
+            return new TextureBrush(b);
         }
 
         /// <summary>
@@ -105,10 +103,8 @@ namespace System.Windows.Forms.ButtonInternal
 
         internal static void DrawDitheredFill(Graphics g, Color color1, Color color2, Rectangle bounds)
         {
-            using (Brush brush = CreateDitherBrush(color1, color2))
-            {
-                g.FillRectangle(brush, bounds);
-            }
+            using Brush brush = CreateDitherBrush(color1, color2);
+            g.FillRectangle(brush, bounds);
         }
 
         protected void Draw3DBorder(IDeviceContext deviceContext, Rectangle bounds, ColorData colors, bool raised)
@@ -121,7 +117,7 @@ namespace System.Windows.Forms.ButtonInternal
                 }
                 else
                 {
-                    ControlPaint.DrawBorderSolid(deviceContext, bounds, ControlPaint.Dark(Control.BackColor));
+                    ControlPaint.DrawBorderSimple(deviceContext, bounds, ControlPaint.Dark(Control.BackColor));
                 }
             }
             else
@@ -375,8 +371,11 @@ namespace System.Windows.Forms.ButtonInternal
 
             if (!layout.options.everettButtonCompat)
             {
-                // FOR EVERETT COMPATIBILITY - DO NOT CHANGE
-                Rectangle bounds = new Rectangle(ButtonBorderSize, ButtonBorderSize, Control.Width - (2 * ButtonBorderSize), Control.Height - (2 * ButtonBorderSize));
+                Rectangle bounds = new Rectangle(
+                    ButtonBorderSize,
+                    ButtonBorderSize,
+                    Control.Width - (2 * ButtonBorderSize),
+                    Control.Height - (2 * ButtonBorderSize));
 
                 Region newClip = oldClip.Clone();
                 newClip.Intersect(bounds);
@@ -406,12 +405,10 @@ namespace System.Windows.Forms.ButtonInternal
                     graphics.DrawImage(image, imageBounds.X, imageBounds.Y, image.Width, image.Height);
                 }
             }
-
             finally
             {
                 if (!layout.options.everettButtonCompat)
                 {
-                    // FOR EVERETT COMPATIBILITY - DO NOT CHANGE
                     graphics.Clip = oldClip;
                 }
             }
@@ -455,35 +452,34 @@ namespace System.Windows.Forms.ButtonInternal
                 Graphics g = e.GraphicsInternal;
 
                 // Draw text using GDI+
-                using (StringFormat stringFormat = CreateStringFormat())
+                using StringFormat stringFormat = CreateStringFormat();
+
+                // DrawString doesn't seem to draw where it says it does
+                if ((Control.TextAlign & LayoutUtils.AnyCenter) == 0)
                 {
-                    // DrawString doesn't seem to draw where it says it does
-                    if ((Control.TextAlign & LayoutUtils.AnyCenter) == 0)
+                    r.X -= 1;
+                }
+
+                r.Width += 1;
+                if (disabledText3D && !Control.Enabled && !colors.options.HighContrast)
+                {
+                    using SolidBrush brush = new SolidBrush(colors.highlight);
+                    r.Offset(1, 1);
+                    g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
+
+                    r.Offset(-1, -1);
+                    brush.Color = colors.buttonShadow;
+                    g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
+                }
+                else
+                {
+                    Brush brush = c.IsSystemColor ? SystemBrushes.FromSystemColor(c) : new SolidBrush(c);
+
+                    g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
+
+                    if (!c.IsSystemColor)
                     {
-                        r.X -= 1;
-                    }
-
-                    r.Width += 1;
-                    if (disabledText3D && !Control.Enabled && !colors.options.HighContrast)
-                    {
-                        using SolidBrush brush = new SolidBrush(colors.highlight);
-                        r.Offset(1, 1);
-                        g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
-
-                        r.Offset(-1, -1);
-                        brush.Color = colors.buttonShadow;
-                        g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
-                    }
-                    else
-                    {
-                        Brush brush = c.IsSystemColor ? SystemBrushes.FromSystemColor(c) : new SolidBrush(c);
-
-                        g.DrawString(Control.Text, Control.Font, brush, r, stringFormat);
-
-                        if (!c.IsSystemColor)
-                        {
-                            brush.Dispose();
-                        }
+                        brush.Dispose();
                     }
                 }
             }

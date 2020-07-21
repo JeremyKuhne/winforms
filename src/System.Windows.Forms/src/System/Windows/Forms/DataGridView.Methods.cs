@@ -1217,7 +1217,10 @@ namespace System.Windows.Forms
                         if (dataGridViewColumnTmp.Visible &&
                             dataGridViewColumnTmp.InheritedAutoSizeMode == DataGridViewAutoSizeColumnMode.Fill)
                         {
-                            Debug.Assert(Math.Abs(dataGridViewColumnTmp.UsedFillWeight * availableWidthForFillColumns - weightSum * dataGridViewColumnTmp.Width) / weightSum / dataGridViewColumnTmp.Width <= 1.25F / dataGridViewColumnTmp.Width);
+                            //Debug.Assert(
+                            //    Math.Abs(dataGridViewColumnTmp.UsedFillWeight * availableWidthForFillColumns
+                            //    - weightSum * dataGridViewColumnTmp.Width) / weightSum / dataGridViewColumnTmp.Width
+                            //    <= 1.25F / dataGridViewColumnTmp.Width);
                         }
                     }
                 }
@@ -5530,77 +5533,28 @@ namespace System.Windows.Forms
                     Columns.Clear();
 
                     UnwireScrollBarsEvents();
-                    if (vertScrollBar != null)
-                    {
-                        vertScrollBar.Dispose();
-                        vertScrollBar = null;
-                    }
-                    if (horizScrollBar != null)
-                    {
-                        horizScrollBar.Dispose();
-                        horizScrollBar = null;
-                    }
 
-                    if (pens != null)
-                    {
-                        int nPenEntries = pens.Count;
-                        if (nPenEntries > 0)
-                        {
-                            foreach (Pen pen in pens.Values)
-                            {
-                                pen.Dispose();
-                            }
-                            pens.Clear();
-                        }
-                        pens = null;
-                    }
+                    vertScrollBar?.Dispose();
+                    vertScrollBar = null;
 
-                    if (brushes != null)
-                    {
-                        int nBrushEntries = brushes.Count;
-                        if (nBrushEntries > 0)
-                        {
-                            foreach (SolidBrush brush in brushes.Values)
-                            {
-                                brush.Dispose();
-                            }
-                            brushes.Clear();
-                        }
-                        brushes = null;
-                    }
+                    horizScrollBar?.Dispose();
+                    horizScrollBar = null;
 
-                    if (placeholderStringFormat != null)
-                    {
-                        placeholderStringFormat.Dispose();
-                        placeholderStringFormat = null;
-                    }
+                    placeholderStringFormat?.Dispose();
+                    placeholderStringFormat = null;
 
-                    if (latestEditingControl != null)
-                    {
-                        latestEditingControl.Dispose();
-                        latestEditingControl = null;
-                    }
-                    if (editingControl != null)
-                    {
-                        editingControl.Dispose();
-                        editingControl = null;
-                    }
-                    if (editingPanel != null)
-                    {
-                        editingPanel.Dispose();
-                        editingPanel = null;
-                    }
-                    if (gridPen != null)
-                    {
-                        gridPen.Dispose();
-                        gridPen = null;
-                    }
+                    latestEditingControl?.Dispose();
+                    latestEditingControl = null;
+
+                    editingControl?.Dispose();
+                    editingControl = null;
+
+                    editingPanel?.Dispose();
+                    editingPanel = null;
+
                     Debug.Assert(noSelectionChangeCount == 0);
 
-                    if (dataConnection != null)
-                    {
-                        dataConnection.Dispose();
-                    }
+                    dataConnection?.Dispose();
 
                     // DGV should dispose the tool tip control before disposing itself.
                     toolTipControl.Dispose();
@@ -5666,9 +5620,11 @@ namespace System.Windows.Forms
                                                       layout.ColumnHeaders.Right - DATAGRIDVIEW_insertionBarWidth);
                     }
                 }
+
                 if (ApplyVisualStylesToHeaderCells)
                 {
-                    g.FillRectangle(GetCachedBrush(SystemColors.HotTrack), rectInsertionBar);
+                    using var brush = SystemColors.HotTrack.GetCachedSolidBrush();
+                    g.FillRectangle(brush, rectInsertionBar);
                 }
                 else
                 {
@@ -5960,7 +5916,7 @@ namespace System.Windows.Forms
                 Debug.Assert(editingControl != null);
                 Debug.Assert(!dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet]);
                 dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = true;
-                oldCursor = Cursor;
+                _oldCursor = Cursor;
                 CursorInternal = ((IDataGridViewEditingControl)editingControl).EditingPanelCursor;
             }
 
@@ -5981,7 +5937,7 @@ namespace System.Windows.Forms
                 if (dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
                 {
                     dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = false;
-                    CursorInternal = oldCursor;
+                    CursorInternal = _oldCursor;
                 }
             }
 
@@ -6747,37 +6703,15 @@ namespace System.Windows.Forms
             return AccessibilityObject.GetChild(objectId - 1);
         }
 
-        internal SolidBrush GetCachedBrush(Color color)
-        {
-            SolidBrush brush = (SolidBrush)brushes[color];
-            if (brush == null)
-            {
-                brush = new SolidBrush(color);
-                brushes.Add(color, brush);
-            }
-            return brush;
-        }
-
-        internal Pen GetCachedPen(Color color)
-        {
-            Pen pen = (Pen)pens[color];
-            if (pen == null)
-            {
-                pen = new Pen(color);
-                pens.Add(color, pen);
-            }
-            return pen;
-        }
-
         internal TypeConverter GetCachedTypeConverter(Type type)
         {
-            if (converters.ContainsKey(type))
+            if (_converters.ContainsKey(type))
             {
-                return (TypeConverter)converters[type];
+                return (TypeConverter)_converters[type];
             }
 
             TypeConverter converter = TypeDescriptor.GetConverter(type);
-            converters.Add(type, converter);
+            _converters.Add(type, converter);
             return converter;
         }
 
@@ -14660,7 +14594,7 @@ namespace System.Windows.Forms
             base.OnCursorChanged(e);
             if (!dataGridViewState2[DATAGRIDVIEWSTATE2_ignoreCursorChange])
             {
-                oldCursor = Cursor;
+                _oldCursor = Cursor;
             }
         }
 
@@ -15218,14 +15152,17 @@ namespace System.Windows.Forms
                                           ColumnHeadersHeightSizeMode != DataGridViewColumnHeadersHeightSizeMode.AutoSize /*fixedColumnHeadersHeight*/,
                                           autoSizeRowsMode == DataGridViewAutoSizeRowsMode.None /*fixedRowsHeight*/);
             }
+
             if (ColumnHeadersHeightSizeMode == DataGridViewColumnHeadersHeightSizeMode.AutoSize)
             {
-                AutoResizeColumnHeadersHeight(true /*fixedRowHeadersWidth*/, false /*fixedColumnsWidth*/);
+                AutoResizeColumnHeadersHeight(fixedRowHeadersWidth: true, fixedColumnsWidth: false);
             }
+
             if (autoSizeRowsMode != DataGridViewAutoSizeRowsMode.None)
             {
                 AdjustShrinkingRows(autoSizeRowsMode, false /*fixedWidth*/, true /*internalAutosizing*/);
             }
+
             AutoResizeAllVisibleColumnsInternal(DataGridViewAutoSizeColumnCriteriaInternal.Header | DataGridViewAutoSizeColumnCriteriaInternal.AllRows | DataGridViewAutoSizeColumnCriteriaInternal.DisplayedRows, true /*fixedHeight*/);
 
             if (autoSizeRowHeaders &&
@@ -16130,7 +16067,7 @@ namespace System.Windows.Forms
             if (dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
             {
                 dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = false;
-                CursorInternal = oldCursor;
+                CursorInternal = _oldCursor;
             }
 
             bool mouseOverEditingControl = MouseOverEditingControl;
@@ -16209,7 +16146,7 @@ namespace System.Windows.Forms
                 if (!dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
                 {
                     dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = true;
-                    oldCursor = Cursor;
+                    _oldCursor = Cursor;
                 }
                 CursorInternal = Cursors.SizeWE;
                 return;
@@ -16231,7 +16168,7 @@ namespace System.Windows.Forms
                 if (!dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
                 {
                     dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = true;
-                    oldCursor = Cursor;
+                    _oldCursor = Cursor;
                 }
                 CursorInternal = Cursors.SizeNS;
                 return;
@@ -16242,7 +16179,7 @@ namespace System.Windows.Forms
             else if (dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet])
             {
                 dataGridViewState1[DATAGRIDVIEWSTATE1_customCursorSet] = false;
-                CursorInternal = oldCursor;
+                CursorInternal = _oldCursor;
             }
 
             if (dataGridViewOper[DATAGRIDVIEWOPER_trackColSelect] ||
@@ -16653,7 +16590,7 @@ namespace System.Windows.Forms
                     PerformLayoutPrivate(false /*useRowShortcut*/, true /*computeVisibleRows*/, false /*invalidInAdjustFillingColumns*/, false /*repositionEditingControl*/);
                 }
 
-                Graphics g = e.Graphics;
+                Graphics g = e.GraphicsInternal;
                 Rectangle clipRect = e.ClipRectangle;
                 Rectangle gridRect = GetGridRectangle();
 
@@ -16668,12 +16605,18 @@ namespace System.Windows.Forms
 
                 if (clipRect.IntersectsWith(gridRect))
                 {
-                    using (Region clipRegion = g.Clip)
+                    using (Region originalClip = g.Clip)
                     {
-                        g.SetClip(gridRect);
-                        PaintBackground(g, clipRect, gridRect);
-                        PaintGrid(g, gridRect, clipRect, SingleVerticalBorderAdded, SingleHorizontalBorderAdded);
-                        g.Clip = clipRegion;
+                        try
+                        {
+                            g.SetClip(gridRect);
+                            PaintBackground(g, clipRect, gridRect);
+                            PaintGrid(g, gridRect, clipRect, SingleVerticalBorderAdded, SingleHorizontalBorderAdded);
+                        }
+                        finally
+                        {
+                            g.Clip = originalClip;
+                        }
                     }
                 }
 
@@ -19239,7 +19182,7 @@ namespace System.Windows.Forms
             rcBelowRows.Height -= visibleRowsHeight;
             if (rcBelowRows.Width > 0 && rcBelowRows.Height > 0)
             {
-                graphics.FillRectangle(backgroundBrush, rcBelowRows);
+                graphics.FillRectangle(BackgroundBrush, rcBelowRows);
             }
 
             // Paint potential block next to column headers and rows
@@ -19275,9 +19218,10 @@ namespace System.Windows.Forms
             {
                 rcNextRows.Height = gridBounds.Height - rcBelowRows.Height;
             }
+
             if (rcNextRows.Width > 0 && rcNextRows.Height > 0)
             {
-                graphics.FillRectangle(backgroundBrush, rcNextRows);
+                graphics.FillRectangle(BackgroundBrush, rcNextRows);
             }
         }
 
@@ -19289,6 +19233,7 @@ namespace System.Windows.Forms
             {
                 return;
             }
+
             bool paintingNeeded = false;
             int borderWidth = BorderWidth;
             // Does the clipRect intersect with the top edge?
@@ -19321,7 +19266,7 @@ namespace System.Windows.Forms
                 {
                     if (Application.RenderWithVisualStyles)
                     {
-                        Pen pen = GetCachedPen(VisualStyleInformation.TextControlBorder);
+                        using var pen = VisualStyleInformation.TextControlBorder.GetCachedPen();
                         g.DrawRectangle(pen, new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1));
                     }
                     else
@@ -19331,7 +19276,7 @@ namespace System.Windows.Forms
                 }
                 else if (BorderStyle == BorderStyle.FixedSingle)
                 {
-                    Pen pen = GetCachedPen(SystemColors.ControlText);
+                    using var pen = SystemColors.ControlText.GetCachedPen();
                     g.DrawRectangle(pen, new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1));
                 }
                 else
@@ -19515,12 +19460,12 @@ namespace System.Windows.Forms
 
             if (layout.ColumnHeadersVisible)
             {
-                Rectangle columnHeadersClip = new Rectangle();
-                columnHeadersClip = layout.ColumnHeaders;
+                Rectangle columnHeadersClip = layout.ColumnHeaders;
                 if (singleVerticalBorderAdded)
                 {
                     columnHeadersClip.Width++;
                 }
+
                 if (clipRect.IntersectsWith(columnHeadersClip) || lastHeaderShadow != -1)
                 {
                     using (Region clipRegion = g.Clip)

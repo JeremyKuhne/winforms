@@ -57,19 +57,13 @@ namespace System.Windows.Forms.PropertyGridInternal
                 InternalExpanded = (bool)categoryStates[name];
             }
 
-            SetFlag(GridEntry.FLAG_LABEL_BOLD, true);
+            SetFlag(FLAG_LABEL_BOLD, true);
         }
 
         /// <summary>
         ///  Returns true if this GridEntry has a value field in the right hand column.
         /// </summary>
-        internal override bool HasValue
-        {
-            get
-            {
-                return false;
-            }
-        }
+        internal override bool HasValue => false;
 
         protected override void Dispose(bool disposing)
         {
@@ -91,16 +85,12 @@ namespace System.Windows.Forms.PropertyGridInternal
 
         public override void DisposeChildren()
         {
-            // categories should never dispose
-            //
+            // Categories should never dispose
             return;
         }
 
-        // we don't want this guy participating in property depth.
-        public override int PropertyDepth
-        {
-            get => base.PropertyDepth - 1;
-        }
+        // Don't want this participating in property depth.
+        public override int PropertyDepth => base.PropertyDepth - 1;
 
         /// <summary>
         ///  Gets the accessibility object for the current category grid entry.
@@ -111,18 +101,9 @@ namespace System.Windows.Forms.PropertyGridInternal
             return new CategoryGridEntryAccessibleObject(this);
         }
 
-        protected override Brush GetBackgroundBrush(Graphics g)
-        {
-            return GridEntryHost.GetLineBrush(g);
-        }
+        protected override Color GetBackgroundColor() => GridEntryHost.GetLineColor();
 
-        protected override Color LabelTextColor
-        {
-            get
-            {
-                return ownerGrid.CategoryForeColor;
-            }
-        }
+        protected override Color LabelTextColor => ownerGrid.CategoryForeColor;
 
         public override bool Expandable
         {
@@ -207,13 +188,7 @@ namespace System.Windows.Forms.PropertyGridInternal
             return true;
         }
 
-        public override string GetTestingInfo()
-        {
-            string str = "object = (";
-            str += FullLabel;
-            str += "), Category = (" + PropertyLabel + ")";
-            return str;
-        }
+        public override string GetTestingInfo() => $"object = ({FullLabel}), Category = ({PropertyLabel})";
 
         public override void PaintLabel(Graphics g, Rectangle rect, Rectangle clipRect, bool selected, bool paintFullLabel)
         {
@@ -222,13 +197,13 @@ namespace System.Windows.Forms.PropertyGridInternal
             // now draw the focus rect
             if (selected && hasFocus)
             {
-                bool bold = ((Flags & GridEntry.FLAG_LABEL_BOLD) != 0);
+                bool bold = ((Flags & FLAG_LABEL_BOLD) != 0);
                 Font font = GetFont(bold);
                 int labelWidth = GetLabelTextWidth(PropertyLabel, g, font);
 
                 int indent = PropertyLabelIndent - 2;
                 Rectangle focusRect = new Rectangle(indent, rect.Y, labelWidth + 3, rect.Height - 1);
-                if (SystemInformation.HighContrast && !OwnerGrid.developerOverride)
+                if (SystemInformation.HighContrast && !OwnerGrid._developerOverride)
                 {
                     // we changed line color to SystemColors.ControlDarkDark in high contrast mode
                     ControlPaint.DrawFocusRectangle(g, focusRect, SystemColors.ControlText, OwnerGrid.LineColor);
@@ -242,10 +217,8 @@ namespace System.Windows.Forms.PropertyGridInternal
             // draw the line along the top
             if (parentPE.GetChildIndex(this) > 0)
             {
-                using (Pen topLinePen = new Pen(ownerGrid.CategorySplitterColor, 1))
-                {
-                    g.DrawLine(topLinePen, rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Y - 1);
-                }
+                using var topLinePen = ownerGrid.CategorySplitterColor.GetCachedPen();
+                g.DrawLine(topLinePen, rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Y - 1);
             }
         }
 
@@ -256,10 +229,8 @@ namespace System.Windows.Forms.PropertyGridInternal
             // draw the line along the top
             if (parentPE.GetChildIndex(this) > 0)
             {
-                using (Pen topLinePen = new Pen(ownerGrid.CategorySplitterColor, 1))
-                {
-                    g.DrawLine(topLinePen, rect.X - 2, rect.Y - 1, rect.Width + 1, rect.Y - 1);
-                }
+                using var topLinePen = ownerGrid.CategorySplitterColor.GetCachedPen();
+                g.DrawLine(topLinePen, rect.X - 2, rect.Y - 1, rect.Width + 1, rect.Y - 1);
             }
         }
 

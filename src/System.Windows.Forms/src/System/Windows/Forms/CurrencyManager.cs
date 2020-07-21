@@ -16,23 +16,19 @@ namespace System.Windows.Forms
     /// </summary>
     public class CurrencyManager : BindingManagerBase
     {
-        private object dataSource;
-        private IList list;
-
-        private bool bound;
-        private bool shouldBind = true;
-
+        private object _dataSource;
+        private bool _bound;
         protected int listposition = -1;
 
-        private int lastGoodKnownRow = -1;
-        private bool pullingData;
+        private int _lastGoodKnownRow = -1;
+        private bool _pullingData;
 
-        private bool inChangeRecordState;
-        private bool suspendPushDataInCurrentChanged;
-        private ItemChangedEventHandler onItemChanged;
-        private ListChangedEventHandler onListChanged;
-        private readonly ItemChangedEventArgs resetEvent = new ItemChangedEventArgs(-1);
-        private EventHandler onMetaDataChangedHandler;
+        private bool _inChangeRecordState;
+        private bool _suspendPushDataInCurrentChanged;
+        private ItemChangedEventHandler _onItemChanged;
+        private ListChangedEventHandler _onListChanged;
+        private readonly ItemChangedEventArgs _resetEvent = new ItemChangedEventArgs(-1);
+        private EventHandler _onMetaDataChangedHandler;
 
         /// <summary>
         ///  Gets the type of the list.
@@ -40,21 +36,19 @@ namespace System.Windows.Forms
         protected Type finalType;
 
         /// <summary>
-        ///  Occurs when the
-        ///  current item has been
-        ///  altered.
+        ///  Occurs when the current item has been altered.
         /// </summary>
         [SRCategory(nameof(SR.CatData))]
         public event ItemChangedEventHandler ItemChanged
         {
-            add => onItemChanged += value;
-            remove => onItemChanged -= value;
+            add => _onItemChanged += value;
+            remove => _onItemChanged -= value;
         }
 
         public event ListChangedEventHandler ListChanged
         {
-            add => onListChanged += value;
-            remove => onListChanged -= value;
+            add => _onListChanged += value;
+            remove => _onListChanged -= value;
         }
 
         internal CurrencyManager(object dataSource)
@@ -63,23 +57,23 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Gets a value indicating
-        ///  whether items can be added to the list.
+        ///  Gets a value indicating whether items can be added to the list.
         /// </summary>
         internal bool AllowAdd
         {
             get
             {
-                if (list is IBindingList)
+                if (List is IBindingList list)
                 {
-                    return ((IBindingList)list).AllowNew;
+                    return list.AllowNew;
                 }
-                if (list == null)
+
+                if (List is null)
                 {
                     return false;
                 }
 
-                return !list.IsReadOnly && !list.IsFixedSize;
+                return !List.IsReadOnly && !List.IsFixedSize;
             }
         }
 
@@ -91,16 +85,17 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (list is IBindingList)
+                if (List is IBindingList list)
                 {
-                    return ((IBindingList)list).AllowEdit;
+                    return list.AllowEdit;
                 }
-                if (list == null)
+
+                if (List is null)
                 {
                     return false;
                 }
 
-                return !list.IsReadOnly;
+                return !List.IsReadOnly;
             }
         }
 
@@ -111,166 +106,106 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (list is IBindingList)
+                if (List is IBindingList list)
                 {
-                    return ((IBindingList)list).AllowRemove;
+                    return list.AllowRemove;
                 }
-                if (list == null)
+
+                if (List is null)
                 {
                     return false;
                 }
 
-                return !list.IsReadOnly && !list.IsFixedSize;
+                return !List.IsReadOnly && !List.IsFixedSize;
             }
         }
 
         /// <summary>
         ///  Gets the number of items in the list.
         /// </summary>
-        public override int Count
-        {
-            get
-            {
-                if (list == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return list.Count;
-                }
-            }
-        }
+        public override int Count => List is null ? 0 : List.Count;
 
         /// <summary>
         ///  Gets the current item in the list.
         /// </summary>
-        public override object Current
-        {
-            get
-            {
-                return this[Position];
-            }
-        }
+        public override object Current => this[Position];
 
-        internal override Type BindType
-        {
-            get
-            {
-                return ListBindingHelper.GetListItemType(List);
-            }
-        }
+        internal override Type BindType => ListBindingHelper.GetListItemType(List);
 
         /// <summary>
         ///  Gets the data source of the list.
         /// </summary>
-        internal override object DataSource
-        {
-            get
-            {
-                return dataSource;
-            }
-        }
+        internal override object DataSource => _dataSource;
 
         private protected override void SetDataSource(object dataSource)
         {
-            if (this.dataSource != dataSource)
+            if (_dataSource == dataSource)
             {
-                Release();
-                this.dataSource = dataSource;
-                list = null;
-                finalType = null;
+                return;
+            }
 
-                object tempList = dataSource;
-                if (tempList is Array)
-                {
-                    finalType = tempList.GetType();
-                    tempList = (Array)tempList;
-                }
+            Release();
+            _dataSource = dataSource;
+            List = null;
+            finalType = null;
 
-                if (tempList is IListSource)
-                {
-                    tempList = ((IListSource)tempList).GetList();
-                }
+            object tempList = dataSource;
+            if (tempList is Array array)
+            {
+                finalType = tempList.GetType();
+                tempList = array;
+            }
 
-                if (tempList is IList)
-                {
-                    if (finalType == null)
-                    {
-                        finalType = tempList.GetType();
-                    }
-                    list = (IList)tempList;
-                    WireEvents(list);
-                    if (list.Count > 0)
-                    {
-                        listposition = 0;
-                    }
-                    else
-                    {
-                        listposition = -1;
-                    }
+            if (tempList is IListSource source)
+            {
+                tempList = source.GetList();
+            }
 
-                    OnItemChanged(resetEvent);
-                    OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1, -1));
-                    UpdateIsBinding();
-                }
-                else
-                {
-                    if (tempList == null)
-                    {
-                        throw new ArgumentNullException(nameof(dataSource));
-                    }
-                    throw new ArgumentException(string.Format(SR.ListManagerSetDataSource, tempList.GetType().FullName), nameof(dataSource));
-                }
+            if (tempList is null)
+            {
+                throw new ArgumentNullException(nameof(dataSource));
+            }
+
+            if (tempList is IList list)
+            {
+                finalType ??= tempList.GetType();
+
+                List = list;
+                WireEvents(List);
+
+                listposition = List.Count > 0 ? 0 : -1;
+
+                OnItemChanged(_resetEvent);
+                OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1, -1));
+                UpdateIsBinding();
+            }
+            else
+            {
+                throw new ArgumentException(
+                    string.Format(SR.ListManagerSetDataSource, tempList.GetType().FullName),
+                    nameof(dataSource));
             }
         }
 
         /// <summary>
         ///  Gets a value indicating whether the list is bound to a data source.
         /// </summary>
-        internal override bool IsBinding
-        {
-            get
-            {
-                return bound;
-            }
-        }
+        internal override bool IsBinding => _bound;
 
         // The DataGridView needs this.
-        internal bool ShouldBind
-        {
-            get
-            {
-                return shouldBind;
-            }
-        }
+        internal bool ShouldBind { get; private set; } = true;
 
         /// <summary>
         ///  Gets the list as an object.
         /// </summary>
-        public IList List
-        {
-            get
-            {
-                // NOTE: do not change this to throw an exception if the list is not IBindingList.
-                // doing this will cause a major performance hit when wiring the
-                // dataGrid to listen for MetaDataChanged events from the IBindingList
-                // (basically we would have to wrap all calls to CurrencyManager::List with
-                // a try/catch block.)
-                //
-                return list;
-            }
-        }
+        public IList List { get; private set; }
 
         /// <summary>
         ///  Gets or sets the position you are at within the list.
         /// </summary>
         public override int Position
         {
-            get
-            {
-                return listposition;
-            }
+            get => listposition;
             set
             {
                 if (listposition == -1)
@@ -283,15 +218,18 @@ namespace System.Windows.Forms
                     value = 0;
                 }
 
-                int count = list.Count;
+                int count = List.Count;
                 if (value >= count)
                 {
                     value = count - 1;
                 }
 
-                ChangeRecordState(value, listposition != value, true, true, false);       // true for endCurrentEdit
-                                                                                          // true for firingPositionChange notification
-                                                                                          // data will be pulled from controls anyway.
+                ChangeRecordState(
+                    value,
+                    validating: listposition != value,
+                    endCurrentEdit: true,
+                    firePositionChange: true,
+                    pullData: false);
             }
         }
 
@@ -302,25 +240,25 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (index < 0 || index >= list.Count)
-                {
-                    throw new IndexOutOfRangeException(string.Format(SR.ListManagerNoValue, index.ToString(CultureInfo.CurrentCulture)));
-                }
-                return list[index];
+                if (index < 0 || index >= List.Count)
+                    throw new IndexOutOfRangeException(
+                        string.Format(SR.ListManagerNoValue, index.ToString(CultureInfo.CurrentCulture)));
+
+                return List[index];
             }
             set
             {
-                if (index < 0 || index >= list.Count)
-                {
-                    throw new IndexOutOfRangeException(string.Format(SR.ListManagerNoValue, index.ToString(CultureInfo.CurrentCulture)));
-                }
-                list[index] = value;
+                if (index < 0 || index >= List.Count)
+                    throw new IndexOutOfRangeException(
+                        string.Format(SR.ListManagerNoValue, index.ToString(CultureInfo.CurrentCulture)));
+
+                List[index] = value;
             }
         }
 
         public override void AddNew()
         {
-            if (list is IBindingList ibl)
+            if (List is IBindingList ibl)
             {
                 ibl.AddNew();
             }
@@ -330,8 +268,12 @@ namespace System.Windows.Forms
                 throw new NotSupportedException(SR.CurrencyManagerCantAddNew);
             }
 
-            ChangeRecordState(list.Count - 1, (Position != list.Count - 1), (Position != list.Count - 1), true, true);  // true for firingPositionChangeNotification
-                                                                                                                        // true for pulling data from the controls
+            ChangeRecordState(
+                List.Count - 1,
+                (Position != List.Count - 1),
+                (Position != List.Count - 1),
+                firePositionChange: true,
+                pullData: true);
         }
 
         /// <summary>
@@ -341,14 +283,14 @@ namespace System.Windows.Forms
         {
             if (Count > 0)
             {
-                object item = (Position >= 0 && Position < list.Count) ? list[Position] : null;
+                object item = (Position >= 0 && Position < List.Count) ? List[Position] : null;
 
                 if (item is IEditableObject iEditableItem)
                 {
                     iEditableItem.CancelEdit();
                 }
 
-                if (list is ICancelAddNew iListWithCancelAddNewSupport)
+                if (List is ICancelAddNew iListWithCancelAddNewSupport)
                 {
                     iListWithCancelAddNewSupport.CancelNew(Position);
                 }
@@ -363,7 +305,7 @@ namespace System.Windows.Forms
 
         private void ChangeRecordState(int newPosition, bool validating, bool endCurrentEdit, bool firePositionChange, bool pullData)
         {
-            if (newPosition == -1 && list.Count == 0)
+            if (newPosition == -1 && List.Count == 0)
             {
                 if (listposition != -1)
                 {
@@ -378,28 +320,28 @@ namespace System.Windows.Forms
                 throw new IndexOutOfRangeException(SR.ListManagerBadPosition);
             }
 
-            // if PushData fails in the OnCurrentChanged and there was a lastGoodKnownRow
-            // then the position does not change, so we should not fire the OnPositionChanged
-            // event;
-            // this is why we have to cache the old position and compare that w/ the position that
-            // the user will want to navigate to
+            // If PushData fails in the OnCurrentChanged and there was a lastGoodKnownRow then the position does not
+            // change, so we should not fire the OnPositionChanged event; this is why we have to cache the old
+            // position and compare that with the position that the user will want to navigate to.
+
             int oldPosition = listposition;
             if (endCurrentEdit)
             {
                 // Do not PushData when pro.
-                inChangeRecordState = true;
+                _inChangeRecordState = true;
                 try
                 {
                     EndCurrentEdit();
                 }
                 finally
                 {
-                    inChangeRecordState = false;
+                    _inChangeRecordState = false;
                 }
             }
 
-            // we pull the data from the controls only when the ListManager changes the list. when the backEnd changes the list we do not
-            // pull the data from the controls
+            // We pull the data from the controls only when the ListManager changes the list. when the backEnd changes
+            // the list we do not pull the data from the controls.
+
             if (validating && pullData)
             {
                 CurrencyManager_PullData();
@@ -425,22 +367,22 @@ namespace System.Windows.Forms
         /// </summary>
         protected void CheckEmpty()
         {
-            if (dataSource == null || list == null || list.Count == 0)
+            if (_dataSource is null || List is null || List.Count == 0)
             {
                 throw new InvalidOperationException(SR.ListManagerEmptyList);
             }
         }
 
-        // will return true if this function changes the position in the list
+        // Will return true if this function changes the position in the list
         private bool CurrencyManager_PushData()
         {
-            if (pullingData)
+            if (_pullingData)
             {
                 return false;
             }
 
             int initialPosition = listposition;
-            if (lastGoodKnownRow == -1)
+            if (_lastGoodKnownRow == -1)
             {
                 try
                 {
@@ -450,12 +392,11 @@ namespace System.Windows.Forms
                 {
                     OnDataError(ex);
 
-                    // get the first item in the list that is good to push data
-                    // for now, we assume that there is a row in the backEnd
-                    // that is good for all the bindings.
+                    // Get the first item in the list that is good to push data for now, we assume that there is a row
+                    // in the backEnd that is good for all the bindings.
                     FindGoodRow();
                 }
-                lastGoodKnownRow = listposition;
+                _lastGoodKnownRow = listposition;
             }
             else
             {
@@ -467,10 +408,10 @@ namespace System.Windows.Forms
                 {
                     OnDataError(ex);
 
-                    listposition = lastGoodKnownRow;
+                    listposition = _lastGoodKnownRow;
                     PushData();
                 }
-                lastGoodKnownRow = listposition;
+                _lastGoodKnownRow = listposition;
             }
 
             return initialPosition != listposition;
@@ -479,7 +420,7 @@ namespace System.Windows.Forms
         private bool CurrencyManager_PullData()
         {
             bool success = true;
-            pullingData = true;
+            _pullingData = true;
 
             try
             {
@@ -487,7 +428,7 @@ namespace System.Windows.Forms
             }
             finally
             {
-                pullingData = false;
+                _pullingData = false;
             }
 
             return success;
@@ -495,7 +436,7 @@ namespace System.Windows.Forms
 
         public override void RemoveAt(int index)
         {
-            list.RemoveAt(index);
+            List.RemoveAt(index);
         }
 
         /// <summary>
@@ -503,30 +444,30 @@ namespace System.Windows.Forms
         /// </summary>
         public override void EndCurrentEdit()
         {
-            if (Count > 0)
+            if (Count <= 0)
             {
-                bool success = CurrencyManager_PullData();
+                return;
+            }
 
-                if (success)
+            if (CurrencyManager_PullData())
+            {
+                object item = (Position >= 0 && Position < List.Count) ? List[Position] : null;
+
+                if (item is IEditableObject iEditableItem)
                 {
-                    object item = (Position >= 0 && Position < list.Count) ? list[Position] : null;
+                    iEditableItem.EndEdit();
+                }
 
-                    if (item is IEditableObject iEditableItem)
-                    {
-                        iEditableItem.EndEdit();
-                    }
-
-                    if (list is ICancelAddNew iListWithCancelAddNewSupport)
-                    {
-                        iListWithCancelAddNewSupport.EndNew(Position);
-                    }
+                if (List is ICancelAddNew iListWithCancelAddNewSupport)
+                {
+                    iListWithCancelAddNewSupport.EndNew(Position);
                 }
             }
         }
 
         private void FindGoodRow()
         {
-            int rowCount = list.Count;
+            int rowCount = List.Count;
             for (int i = 0; i < rowCount; i++)
             {
                 listposition = i;
@@ -542,8 +483,8 @@ namespace System.Windows.Forms
                 listposition = i;
                 return;
             }
-            // if we got here, the list did not contain any rows suitable for the bindings
-            // suspend binding and throw an exception
+
+            // If we got here, the list did not contain any rows suitable for the bindings suspend binding and throw.
             SuspendBinding();
             throw new InvalidOperationException(SR.DataBindingPushDataException);
         }
@@ -553,9 +494,9 @@ namespace System.Windows.Forms
         /// </summary>
         internal void SetSort(PropertyDescriptor property, ListSortDirection sortDirection)
         {
-            if (list is IBindingList && ((IBindingList)list).SupportsSorting)
+            if (List is IBindingList list && list.SupportsSorting)
             {
-                ((IBindingList)list).ApplySort(property, sortDirection);
+                list.ApplySort(property, sortDirection);
             }
         }
 
@@ -563,46 +504,32 @@ namespace System.Windows.Forms
         ///  Gets a <see cref='PropertyDescriptor'/> for a CurrencyManager.
         /// </summary>
         internal PropertyDescriptor GetSortProperty()
-        {
-            if ((list is IBindingList) && ((IBindingList)list).SupportsSorting)
-            {
-                return ((IBindingList)list).SortProperty;
-            }
-            return null;
-        }
+            => List is IBindingList list && list.SupportsSorting ? list.SortProperty : null;
 
         /// <summary>
         ///  Gets the sort direction of a list.
         /// </summary>
         internal ListSortDirection GetSortDirection()
-        {
-            if ((list is IBindingList) && ((IBindingList)list).SupportsSorting)
-            {
-                return ((IBindingList)list).SortDirection;
-            }
-            return ListSortDirection.Ascending;
-        }
+            => (List is IBindingList list) && list.SupportsSorting ? list.SortDirection : ListSortDirection.Ascending;
 
         /// <summary>
         ///  Find the position of a desired list item.
         /// </summary>
         internal int Find(PropertyDescriptor property, object key, bool keepIndex)
         {
-            if (key == null)
-            {
+            if (key is null)
                 throw new ArgumentNullException(nameof(key));
-            }
 
-            if (property != null && (list is IBindingList) && ((IBindingList)list).SupportsSearching)
+            if (property != null && (List is IBindingList list) && list.SupportsSearching)
             {
-                return ((IBindingList)list).Find(property, key);
+                return list.Find(property, key);
             }
 
             if (property != null)
             {
-                for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < List.Count; i++)
                 {
-                    object value = property.GetValue(list[i]);
+                    object value = property.GetValue(List[i]);
                     if (key.Equals(value))
                     {
                         return i;
@@ -617,151 +544,134 @@ namespace System.Windows.Forms
         ///  Gets the name of the list.
         /// </summary>
         internal override string GetListName()
-        {
-            if (list is ITypedList)
-            {
-                return ((ITypedList)list).GetListName(null);
-            }
-            else
-            {
-                return finalType.Name;
-            }
-        }
+            => List is ITypedList list ? list.GetListName(null) : finalType.Name;
 
         /// <summary>
         ///  Gets the name of the specified list.
         /// </summary>
         protected internal override string GetListName(ArrayList listAccessors)
         {
-            if (list is ITypedList)
+            if (List is ITypedList list)
             {
                 PropertyDescriptor[] properties = new PropertyDescriptor[listAccessors.Count];
                 listAccessors.CopyTo(properties, 0);
-                return ((ITypedList)list).GetListName(properties);
+                return list.GetListName(properties);
             }
-            return "";
+
+            return string.Empty;
         }
 
         internal override PropertyDescriptorCollection GetItemProperties(PropertyDescriptor[] listAccessors)
-        {
-            return ListBindingHelper.GetListItemProperties(list, listAccessors);
-        }
+            => ListBindingHelper.GetListItemProperties(List, listAccessors);
 
         /// <summary>
         ///  Gets the <see cref='PropertyDescriptorCollection'/> for the list.
         /// </summary>
-        public override PropertyDescriptorCollection GetItemProperties()
-        {
-            return GetItemProperties(null);
-        }
+        public override PropertyDescriptorCollection GetItemProperties() => GetItemProperties(null);
 
         /// <summary>
         ///  Gets the <see cref='PropertyDescriptorCollection'/> for the specified list.
         /// </summary>
         private void List_ListChanged(object sender, ListChangedEventArgs e)
         {
-            // If you change the assert below, better change the
-            // code in the OnCurrentChanged that deals w/ firing the OnCurrentChanged event
-            Debug.Assert(lastGoodKnownRow == -1 || lastGoodKnownRow == listposition, "if we have a valid lastGoodKnownRow, then it should equal the position in the list");
+            // If you change the assert below, change the code in the OnCurrentChanged that deals with firing the
+            // OnCurrentChanged event.
+            Debug.Assert(
+                _lastGoodKnownRow == -1 || _lastGoodKnownRow == listposition,
+                "if we have a valid lastGoodKnownRow, then it should equal the position in the list");
 
-            //
-
-            ListChangedEventArgs dbe;
-
-            if (e.ListChangedType == ListChangedType.ItemMoved && e.OldIndex < 0)
+            ListChangedEventArgs dbe = e.ListChangedType switch
             {
-                dbe = new ListChangedEventArgs(ListChangedType.ItemAdded, e.NewIndex, e.OldIndex);
-            }
-            else if (e.ListChangedType == ListChangedType.ItemMoved && e.NewIndex < 0)
-            {
-                dbe = new ListChangedEventArgs(ListChangedType.ItemDeleted, e.OldIndex, e.NewIndex);
-            }
-            else
-            {
-                dbe = e;
-            }
+                ListChangedType.ItemMoved when e.OldIndex < 0
+                    => new ListChangedEventArgs(ListChangedType.ItemAdded, e.NewIndex, e.OldIndex),
+                ListChangedType.ItemMoved when e.NewIndex < 0
+                    => new ListChangedEventArgs(ListChangedType.ItemDeleted, e.OldIndex, e.NewIndex),
+                _ => e,
+            };
 
             int oldposition = listposition;
 
             UpdateLastGoodKnownRow(dbe);
             UpdateIsBinding();
 
-            if (list.Count == 0)
+            if (List.Count == 0)
             {
                 listposition = -1;
 
                 if (oldposition != -1)
                 {
-                    // if we used to have a current row, but not any more, then report current as changed
+                    // If we used to have a current row, but not any more, then report current as changed.
                     OnPositionChanged(EventArgs.Empty);
                     OnCurrentChanged(EventArgs.Empty);
                 }
 
-                if (dbe.ListChangedType == System.ComponentModel.ListChangedType.Reset && e.NewIndex == -1)
+                if (dbe.ListChangedType == ListChangedType.Reset && e.NewIndex == -1)
                 {
-                    // if the list is reset, then let our users know about it.
-                    OnItemChanged(resetEvent);
+                    // If the list is reset, then let our users know about it.
+                    OnItemChanged(_resetEvent);
                 }
 
-                if (dbe.ListChangedType == System.ComponentModel.ListChangedType.ItemDeleted)
+                if (dbe.ListChangedType == ListChangedType.ItemDeleted)
                 {
-                    // if the list is reset, then let our users know about it.
-                    OnItemChanged(resetEvent);
+                    // If the list is reset, then let our users know about it.
+                    OnItemChanged(_resetEvent);
                 }
 
-                // we should still fire meta data change notification even when the list is empty
-                if (e.ListChangedType == System.ComponentModel.ListChangedType.PropertyDescriptorAdded ||
-                    e.ListChangedType == System.ComponentModel.ListChangedType.PropertyDescriptorDeleted ||
-                    e.ListChangedType == System.ComponentModel.ListChangedType.PropertyDescriptorChanged)
+                // We should still fire meta data change notification even when the list is empty.
+                if (e.ListChangedType == ListChangedType.PropertyDescriptorAdded ||
+                    e.ListChangedType == ListChangedType.PropertyDescriptorDeleted ||
+                    e.ListChangedType == ListChangedType.PropertyDescriptorChanged)
                 {
                     OnMetaDataChanged(EventArgs.Empty);
                 }
-
-                //
 
                 OnListChanged(dbe);
                 return;
             }
 
-            suspendPushDataInCurrentChanged = true;
+            _suspendPushDataInCurrentChanged = true;
             try
             {
                 switch (dbe.ListChangedType)
                 {
-                    case System.ComponentModel.ListChangedType.Reset:
-                        Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, "System.ComponentModel.ListChangedType.Reset Position: " + Position + " Count: " + list.Count);
-                        if (listposition == -1 && list.Count > 0)
+                    case ListChangedType.Reset:
+                        DataCursorTrace($"System.ComponentModel.ListChangedType.Reset Position: {Position} Count: {List.Count}");
+
+                        if (listposition == -1 && List.Count > 0)
                         {
-                            ChangeRecordState(0, true, false, true, false);     // last false: we don't pull the data from the control when DM changes
+                            // last false: we don't pull the data from the control when DM changes
+                            ChangeRecordState(0, true, false, true, false);
                         }
                         else
                         {
-                            ChangeRecordState(Math.Min(listposition, list.Count - 1), true, false, true, false);
+                            ChangeRecordState(Math.Min(listposition, List.Count - 1), true, false, true, false);
                         }
 
-                        UpdateIsBinding(/*raiseItemChangedEvent:*/ false);
-                        OnItemChanged(resetEvent);
+                        UpdateIsBinding(raiseItemChangedEvent: false);
+                        OnItemChanged(_resetEvent);
                         break;
-                    case System.ComponentModel.ListChangedType.ItemAdded:
-                        Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, "System.ComponentModel.ListChangedType.ItemAdded " + dbe.NewIndex.ToString(CultureInfo.InvariantCulture));
-                        if (dbe.NewIndex <= listposition && listposition < list.Count - 1)
+                    case ListChangedType.ItemAdded:
+                        DataCursorTrace($"System.ComponentModel.ListChangedType.ItemAdded {dbe.NewIndex}");
+
+                        if (dbe.NewIndex <= listposition && listposition < List.Count - 1)
                         {
-                            // this means the current row just moved down by one.
-                            // the position changes, so end the current edit
-                            ChangeRecordState(listposition + 1, true, true, listposition != list.Count - 2, false);
+                            // This means the current row just moved down by one. End the current edit.
+                            ChangeRecordState(listposition + 1, true, true, listposition != List.Count - 2, false);
                             UpdateIsBinding();
-                            // refresh the list after we got the item added event
-                            OnItemChanged(resetEvent);
-                            // when we get the itemAdded, and the position was at the end
-                            // of the list, do the right thing and notify the positionChanged after refreshing the list
-                            if (listposition == list.Count - 1)
+
+                            // Refresh the list after we got the item added event.
+                            OnItemChanged(_resetEvent);
+
+                            // When we get the itemAdded, and the position was at the end of the list, do the right
+                            // thing and notify the positionChanged after refreshing the list.
+                            if (listposition == List.Count - 1)
                             {
                                 OnPositionChanged(EventArgs.Empty);
                             }
 
                             break;
                         }
-                        else if (dbe.NewIndex == listposition && listposition == list.Count - 1 && listposition != -1)
+                        else if (dbe.NewIndex == listposition && listposition == List.Count - 1 && listposition != -1)
                         {
                             // The CurrencyManager has a non-empty list.
                             // The position inside the currency manager is at the end of the list and the list still fired an ItemAdded event.
@@ -776,15 +686,16 @@ namespace System.Windows.Forms
                             ChangeRecordState(0, false, false, true, false);
                         }
                         UpdateIsBinding();
-                        // put the call to OnItemChanged after setting the position, so the
-                        // controls would use the actual position.
-                        // if we have a control bound to a dataView, and then we add a row to a the dataView,
-                        // then the control will use the old listposition to get the data. and this is bad.
-                        //
-                        OnItemChanged(resetEvent);
+
+                        // Put the call to OnItemChanged after setting the position, so the controls would use the
+                        // actual position. If we have a control bound to a dataView, and then we add a row to a the
+                        // dataView, then the control will use the old listposition to get the data- which is bad.
+
+                        OnItemChanged(_resetEvent);
                         break;
-                    case System.ComponentModel.ListChangedType.ItemDeleted:
-                        Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, "System.ComponentModel.ListChangedType.ItemDeleted " + dbe.NewIndex.ToString(CultureInfo.InvariantCulture));
+                    case ListChangedType.ItemDeleted:
+                        DataCursorTrace($"System.ComponentModel.ListChangedType.ItemDeleted {dbe.NewIndex}");
+
                         if (dbe.NewIndex == listposition)
                         {
                             // this means that the current row got deleted.
@@ -792,7 +703,7 @@ namespace System.Windows.Forms
                             ChangeRecordState(Math.Min(listposition, Count - 1), true, false, true, false);
                             // put the call to OnItemChanged after setting the position
                             // in the currencyManager, so controls will use the actual position
-                            OnItemChanged(resetEvent);
+                            OnItemChanged(_resetEvent);
                             break;
                         }
                         if (dbe.NewIndex < listposition)
@@ -802,73 +713,77 @@ namespace System.Windows.Forms
                             ChangeRecordState(listposition - 1, true, false, true, false);
                             // put the call to OnItemChanged after setting the position
                             // in the currencyManager, so controls will use the actual position
-                            OnItemChanged(resetEvent);
+                            OnItemChanged(_resetEvent);
                             break;
                         }
-                        OnItemChanged(resetEvent);
+                        OnItemChanged(_resetEvent);
                         break;
-                    case System.ComponentModel.ListChangedType.ItemChanged:
-                        Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, "System.ComponentModel.ListChangedType.ItemChanged " + dbe.NewIndex.ToString(CultureInfo.InvariantCulture));
-                        // the current item changed
+                    case ListChangedType.ItemChanged:
+                        DataCursorTrace($"System.ComponentModel.ListChangedType.ItemChanged {dbe.NewIndex}");
+
                         if (dbe.NewIndex == listposition)
                         {
+                            // The current item changed
                             OnCurrentItemChanged(EventArgs.Empty);
                         }
 
                         OnItemChanged(new ItemChangedEventArgs(dbe.NewIndex));
                         break;
-                    case System.ComponentModel.ListChangedType.ItemMoved:
-                        Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, "System.ComponentModel.ListChangedType.ItemMoved " + dbe.NewIndex.ToString(CultureInfo.InvariantCulture));
+                    case ListChangedType.ItemMoved:
+                        DataCursorTrace($"System.ComponentModel.ListChangedType.ItemMoved {dbe.NewIndex}");
+
                         if (dbe.OldIndex == listposition)
-                        { // current got moved.
-                            // the position changes, so end the current edit. Make sure there is something that we can end edit...
-                            ChangeRecordState(dbe.NewIndex, true, Position > -1 && Position < list.Count, true, false);
+                        {
+                            // Current got moved. End the current edit. Make sure there is something that we can end edit.
+                            ChangeRecordState(dbe.NewIndex, true, Position > -1 && Position < List.Count, true, false);
                         }
                         else if (dbe.NewIndex == listposition)
-                        { // current was moved
-                            // the position changes, so end the current edit. Make sure there is something that we can end edit
-                            ChangeRecordState(dbe.OldIndex, true, Position > -1 && Position < list.Count, true, false);
+                        {
+                            // Current was moved. End the current edit. Make sure there is something that we can end edit.
+                            ChangeRecordState(dbe.OldIndex, true, Position > -1 && Position < List.Count, true, false);
                         }
-                        OnItemChanged(resetEvent);
+                        OnItemChanged(_resetEvent);
                         break;
-                    case System.ComponentModel.ListChangedType.PropertyDescriptorAdded:
-                    case System.ComponentModel.ListChangedType.PropertyDescriptorDeleted:
-                    case System.ComponentModel.ListChangedType.PropertyDescriptorChanged:
+                    case ListChangedType.PropertyDescriptorAdded:
+                    case ListChangedType.PropertyDescriptorDeleted:
+                    case ListChangedType.PropertyDescriptorChanged:
                         // reset lastGoodKnownRow because it was computed against property descriptors which changed
-                        lastGoodKnownRow = -1;
+                        _lastGoodKnownRow = -1;
 
-                        // In Everett, metadata changes did not alter current list position. In Whidbey, this behavior
-                        // preserved - except that we will now force the position to stay in valid range if necessary.
-                        if (listposition == -1 && list.Count > 0)
+                        // In .NET Framework 1.1, metadata changes did not alter current list position. In .NET
+                        // Framework 2.0, this behavior is preserved - except it forces the position to stay in valid
+                        // range if necessary.
+
+                        if (listposition == -1 && List.Count > 0)
                         {
                             ChangeRecordState(0, true, false, true, false);
                         }
-                        else if (listposition > list.Count - 1)
+                        else if (listposition > List.Count - 1)
                         {
-                            ChangeRecordState(list.Count - 1, true, false, true, false);
+                            ChangeRecordState(List.Count - 1, true, false, true, false);
                         }
 
-                        // fire the MetaDataChanged event
+                        // Fire the MetaDataChanged event
                         OnMetaDataChanged(EventArgs.Empty);
                         break;
                 }
-                // send the ListChanged notification after the position changed in the list
-                //
 
+                // Send the ListChanged notification after the position changed in the list
                 OnListChanged(dbe);
             }
             finally
             {
-                suspendPushDataInCurrentChanged = false;
+                _suspendPushDataInCurrentChanged = false;
             }
-            Debug.Assert(lastGoodKnownRow == -1 || listposition == lastGoodKnownRow, "how did they get out of sync?");
+
+            Debug.Assert(_lastGoodKnownRow == -1 || listposition == _lastGoodKnownRow, "how did they get out of sync?");
         }
 
         [SRCategory(nameof(SR.CatData))]
         public event EventHandler MetaDataChanged
         {
-            add => onMetaDataChangedHandler += value;
-            remove => onMetaDataChangedHandler -= value;
+            add => _onMetaDataChangedHandler += value;
+            remove => _onMetaDataChangedHandler -= value;
         }
 
         /// <summary>
@@ -876,70 +791,77 @@ namespace System.Windows.Forms
         /// </summary>
         internal protected override void OnCurrentChanged(EventArgs e)
         {
-            if (!inChangeRecordState)
+            if (_inChangeRecordState)
             {
-                Debug.WriteLineIf(CompModSwitches.DataView.TraceVerbose, "OnCurrentChanged() " + e.ToString());
-                int curLastGoodKnownRow = lastGoodKnownRow;
-                bool positionChanged = false;
-                if (!suspendPushDataInCurrentChanged)
-                {
-                    positionChanged = CurrencyManager_PushData();
-                }
-
-                if (Count > 0)
-                {
-                    object item = list[Position];
-                    if (item is IEditableObject)
-                    {
-                        ((IEditableObject)item).BeginEdit();
-                    }
-                }
-                try
-                {
-                    // if currencyManager changed position then we have two cases:
-                    // 1. the previous lastGoodKnownRow was valid: in that case we fell back so do not fire onCurrentChanged
-                    // 2. the previous lastGoodKnownRow was invalid: we have two cases:
-                    //      a. FindGoodRow actually found a good row, so it can't be the one before the user changed the position: fire the onCurrentChanged
-                    //      b. FindGoodRow did not find a good row: we should have gotten an exception so we should not even execute this code
-                    if (!positionChanged || (positionChanged && curLastGoodKnownRow != -1))
-                    {
-                        onCurrentChangedHandler?.Invoke(this, e);
-
-                        // we fire OnCurrentItemChanged event every time we fire the CurrentChanged + when a property of the Current item changed
-                        _onCurrentItemChangedHandler?.Invoke(this, e);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    OnDataError(ex);
-                }
+                return;
             }
-        }
 
-        // this method should only be called when the currency manager receives the ListChangedType.ItemChanged event
-        // and when the index of the ListChangedEventArgs == the position in the currency manager
-        protected internal override void OnCurrentItemChanged(EventArgs e)
-        {
-            _onCurrentItemChangedHandler?.Invoke(this, e);
-        }
-
-        protected virtual void OnItemChanged(ItemChangedEventArgs e)
-        {
-            // It is possible that CurrencyManager_PushData will change the position
-            // in the list. in that case we have to fire OnPositionChanged event
+            DataViewTrace($"OnCurrentChanged() {e}");
+            int curLastGoodKnownRow = _lastGoodKnownRow;
             bool positionChanged = false;
-
-            // We should not push the data when we suspend the changeEvents.
-            // but we should still fire the OnItemChanged event that we get when processing the EndCurrentEdit method.
-            if ((e.Index == listposition || (e.Index == -1 && Position < Count)) && !inChangeRecordState)
+            if (!_suspendPushDataInCurrentChanged)
             {
                 positionChanged = CurrencyManager_PushData();
             }
 
-            Debug.WriteLineIf(CompModSwitches.DataView.TraceVerbose, "OnItemChanged(" + e.Index.ToString(CultureInfo.InvariantCulture) + ") " + e.ToString());
+            if (Count > 0)
+            {
+                object item = List[Position];
+                if (item is IEditableObject editableObject)
+                {
+                    editableObject.BeginEdit();
+                }
+            }
             try
             {
-                onItemChanged?.Invoke(this, e);
+                // If CurrencyManager changed position then we have two cases:
+                //
+                // 1. the previous lastGoodKnownRow was valid: in that case we fell back so do not fire onCurrentChanged
+                // 2. The previous lastGoodKnownRow was invalid: we have two cases:
+                //      a. FindGoodRow actually found a good row, so it can't be the one before the user changed the
+                //         position: fire the onCurrentChanged
+                //      b. FindGoodRow did not find a good row: we should have gotten an exception so we should not
+                //         even execute this code.
+                if (!positionChanged || (positionChanged && curLastGoodKnownRow != -1))
+                {
+                    onCurrentChangedHandler?.Invoke(this, e);
+
+                    // We fire OnCurrentItemChanged event every time we fire the CurrentChanged + when a property of
+                    // the Current item changed.
+                    _onCurrentItemChangedHandler?.Invoke(this, e);
+                }
+            }
+            catch (Exception ex)
+            {
+                OnDataError(ex);
+            }
+        }
+
+        /// <remarks>
+        ///  This method should only be called when the currency manager receives <see cref="ListChangedType.ItemChanged"/>
+        ///  and when the index of the <see cref="ListChangedEventArgs"/> equals the position in the currency manager.
+        /// </remarks>
+        protected internal override void OnCurrentItemChanged(EventArgs e)
+            => _onCurrentItemChangedHandler?.Invoke(this, e);
+
+        protected virtual void OnItemChanged(ItemChangedEventArgs e)
+        {
+            // It is possible that CurrencyManager_PushData will change the position in the list. In that case we have
+            // to fire OnPositionChanged event.
+            bool positionChanged = false;
+
+            // We should not push the data when we suspend the changeEvents but we should still fire the OnItemChanged
+            // event that we get when processing the EndCurrentEdit method.
+            if ((e.Index == listposition || (e.Index == -1 && Position < Count)) && !_inChangeRecordState)
+            {
+                positionChanged = CurrencyManager_PushData();
+            }
+
+            DataViewTrace($"OnItemChanged({e.Index}) {e}");
+
+            try
+            {
+                _onItemChanged?.Invoke(this, e);
             }
             catch (Exception ex)
             {
@@ -954,18 +876,18 @@ namespace System.Windows.Forms
 
         private void OnListChanged(ListChangedEventArgs e)
         {
-            onListChanged?.Invoke(this, e);
+            _onListChanged?.Invoke(this, e);
         }
 
-//Exists in Everett
+        // Exists in .NET Framework 1.1
         internal protected void OnMetaDataChanged(EventArgs e)
         {
-            onMetaDataChangedHandler?.Invoke(this, e);
+            _onMetaDataChangedHandler?.Invoke(this, e);
         }
 
         protected virtual void OnPositionChanged(EventArgs e)
         {
-            Debug.WriteLineIf(CompModSwitches.DataView.TraceVerbose, "OnPositionChanged(" + listposition.ToString(CultureInfo.InvariantCulture) + ") " + e.ToString());
+            DataViewTrace($"OnPositionChanged({listposition}) {e}");
             try
             {
                 onPositionChangedHandler?.Invoke(this, e);
@@ -981,11 +903,11 @@ namespace System.Windows.Forms
         /// </summary>
         public void Refresh()
         {
-            if (list.Count > 0)
+            if (List.Count > 0)
             {
-                if (listposition >= list.Count)
+                if (listposition >= List.Count)
                 {
-                    lastGoodKnownRow = -1;
+                    _lastGoodKnownRow = -1;
                     listposition = 0;
                 }
             }
@@ -993,12 +915,13 @@ namespace System.Windows.Forms
             {
                 listposition = -1;
             }
-            List_ListChanged(list, new ListChangedEventArgs(System.ComponentModel.ListChangedType.Reset, -1));
+
+            List_ListChanged(List, new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
         internal void Release()
         {
-            UnwireEvents(list);
+            UnwireEvents(List);
         }
 
         /// <summary>
@@ -1006,20 +929,21 @@ namespace System.Windows.Forms
         /// </summary>
         public override void ResumeBinding()
         {
-            lastGoodKnownRow = -1;
+            _lastGoodKnownRow = -1;
             try
             {
-                if (!shouldBind)
+                if (!ShouldBind)
                 {
-                    shouldBind = true;
-                    // we need to put the listPosition at the beginning of the list if the list is not empty
-                    listposition = (list != null && list.Count != 0) ? 0 : -1;
+                    ShouldBind = true;
+
+                    // We need to put the listPosition at the beginning of the list if the list is not empty
+                    listposition = (List != null && List.Count != 0) ? 0 : -1;
                     UpdateIsBinding();
                 }
             }
             catch
             {
-                shouldBind = false;
+                ShouldBind = false;
                 UpdateIsBinding();
                 throw;
             }
@@ -1030,19 +954,19 @@ namespace System.Windows.Forms
         /// </summary>
         public override void SuspendBinding()
         {
-            lastGoodKnownRow = -1;
-            if (shouldBind)
+            _lastGoodKnownRow = -1;
+            if (ShouldBind)
             {
-                shouldBind = false;
+                ShouldBind = false;
                 UpdateIsBinding();
             }
         }
 
         internal void UnwireEvents(IList list)
         {
-            if ((list is IBindingList) && ((IBindingList)list).SupportsChangeNotification)
+            if ((list is IBindingList bindingList) && bindingList.SupportsChangeNotification)
             {
-                ((IBindingList)list).ListChanged -= new ListChangedEventHandler(List_ListChanged);
+                bindingList.ListChanged -= new ListChangedEventHandler(List_ListChanged);
             }
         }
 
@@ -1053,28 +977,25 @@ namespace System.Windows.Forms
 
         private void UpdateIsBinding(bool raiseItemChangedEvent)
         {
-            bool newBound = list != null && list.Count > 0 && shouldBind && listposition != -1;
-            if (list != null)
+            bool newBound = List != null && List.Count > 0 && ShouldBind && listposition != -1;
+            if (List is null || _bound == newBound)
             {
-                if (bound != newBound)
-                {
-                    // we will call end edit when moving from bound state to unbounded state
-                    //
-                    //bool endCurrentEdit = bound && !newBound;
-                    bound = newBound;
-                    int newPos = newBound ? 0 : -1;
-                    ChangeRecordState(newPos, bound, (Position != newPos), true, false);
-                    int numLinks = Bindings.Count;
-                    for (int i = 0; i < numLinks; i++)
-                    {
-                        Bindings[i].UpdateIsBinding();
-                    }
+                return;
+            }
 
-                    if (raiseItemChangedEvent)
-                    {
-                        OnItemChanged(resetEvent);
-                    }
-                }
+            // We will call end edit when moving from bound state to unbounded state
+            _bound = newBound;
+            int newPos = newBound ? 0 : -1;
+            ChangeRecordState(newPos, _bound, (Position != newPos), true, false);
+            int numLinks = Bindings.Count;
+            for (int i = 0; i < numLinks; i++)
+            {
+                Bindings[i].UpdateIsBinding();
+            }
+
+            if (raiseItemChangedEvent)
+            {
+                OnItemChanged(_resetEvent);
             }
         }
 
@@ -1082,46 +1003,50 @@ namespace System.Windows.Forms
         {
             switch (e.ListChangedType)
             {
-                case System.ComponentModel.ListChangedType.ItemDeleted:
-                    if (e.NewIndex == lastGoodKnownRow)
+                case ListChangedType.ItemDeleted:
+                    if (e.NewIndex == _lastGoodKnownRow)
                     {
-                        lastGoodKnownRow = -1;
+                        _lastGoodKnownRow = -1;
                     }
-
                     break;
-                case System.ComponentModel.ListChangedType.Reset:
-                    lastGoodKnownRow = -1;
+                case ListChangedType.Reset:
+                    _lastGoodKnownRow = -1;
                     break;
-                case System.ComponentModel.ListChangedType.ItemAdded:
-                    if (e.NewIndex <= lastGoodKnownRow && lastGoodKnownRow < List.Count - 1)
+                case ListChangedType.ItemAdded:
+                    if (e.NewIndex <= _lastGoodKnownRow && _lastGoodKnownRow < List.Count - 1)
                     {
-                        lastGoodKnownRow++;
+                        _lastGoodKnownRow++;
                     }
-
                     break;
-                case System.ComponentModel.ListChangedType.ItemMoved:
-                    if (e.OldIndex == lastGoodKnownRow)
+                case ListChangedType.ItemMoved:
+                    if (e.OldIndex == _lastGoodKnownRow)
                     {
-                        lastGoodKnownRow = e.NewIndex;
+                        _lastGoodKnownRow = e.NewIndex;
                     }
-
                     break;
-                case System.ComponentModel.ListChangedType.ItemChanged:
-                    if (e.NewIndex == lastGoodKnownRow)
+                case ListChangedType.ItemChanged:
+                    if (e.NewIndex == _lastGoodKnownRow)
                     {
-                        lastGoodKnownRow = -1;
+                        _lastGoodKnownRow = -1;
                     }
-
                     break;
             }
         }
 
         internal void WireEvents(IList list)
         {
-            if ((list is IBindingList) && ((IBindingList)list).SupportsChangeNotification)
+            if ((list is IBindingList bindingList) && bindingList.SupportsChangeNotification)
             {
-                ((IBindingList)list).ListChanged += new ListChangedEventHandler(List_ListChanged);
+                bindingList.ListChanged += new ListChangedEventHandler(List_ListChanged);
             }
         }
+
+        [Conditional("DEBUG")]
+        private void DataViewTrace(string message)
+            => Debug.WriteLineIf(CompModSwitches.DataView.TraceVerbose, message);
+
+        [Conditional("DEBUG")]
+        private void DataCursorTrace(string message)
+            => Debug.WriteLineIf(CompModSwitches.DataCursor.TraceVerbose, message);
     }
 }

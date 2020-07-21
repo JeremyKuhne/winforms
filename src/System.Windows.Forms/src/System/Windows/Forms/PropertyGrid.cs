@@ -77,17 +77,15 @@ namespace System.Windows.Forms
         private GridEntryCollection currentPropEntries;
         private object[] currentObjects;
 
-        private int paintFrozen;
-        private Color lineColor = SystemInformation.HighContrast ? SystemColors.ControlDarkDark : SystemColors.InactiveBorder;
-        internal bool developerOverride;
-        internal Brush lineBrush;
-        private Color categoryForeColor = SystemColors.ControlText;
-        private Color categorySplitterColor = SystemColors.Control;
-        private Color viewBorderColor = SystemColors.ControlDark;
-        private Color selectedItemWithFocusForeColor = SystemColors.HighlightText;
-        private Color selectedItemWithFocusBackColor = SystemColors.Highlight;
-        internal Brush selectedItemWithFocusBackBrush;
-        private bool canShowVisualStyleGlyphs = true;
+        private int _paintFrozen;
+        private Color _lineColor = SystemInformation.HighContrast ? SystemColors.ControlDarkDark : SystemColors.InactiveBorder;
+        internal bool _developerOverride;
+        private Color _categoryForeColor = SystemColors.ControlText;
+        private Color _categorySplitterColor = SystemColors.Control;
+        private Color _viewBorderColor = SystemColors.ControlDark;
+        private Color _selectedItemWithFocusForeColor = SystemColors.HighlightText;
+        private Color _selectedItemWithFocusBackColor = SystemColors.Highlight;
+        private bool _canShowVisualStyleGlyphs = true;
 
         private AttributeCollection browsableAttributes;
 
@@ -487,13 +485,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return categoryForeColor;
+                return _categoryForeColor;
             }
             set
             {
-                if (categoryForeColor != value)
+                if (_categoryForeColor != value)
                 {
-                    categoryForeColor = value;
+                    _categoryForeColor = value;
                     gridView.Invalidate();
                 }
             }
@@ -728,25 +726,25 @@ namespace System.Windows.Forms
         {
             get
             {
-                return paintFrozen > 0;
+                return _paintFrozen > 0;
             }
             set
             {
                 if (value && IsHandleCreated && Visible)
                 {
-                    if (0 == paintFrozen++)
+                    if (0 == _paintFrozen++)
                     {
                         User32.SendMessageW(this, User32.WM.SETREDRAW, PARAM.FromBool(false));
                     }
                 }
                 if (!value)
                 {
-                    if (paintFrozen == 0)
+                    if (_paintFrozen == 0)
                     {
                         return;
                     }
 
-                    if (0 == --paintFrozen)
+                    if (0 == --_paintFrozen)
                     {
                         User32.SendMessageW(this, User32.WM.SETREDRAW, PARAM.FromBool(true));
                         Invalidate(true);
@@ -887,13 +885,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return selectedItemWithFocusBackColor;
+                return _selectedItemWithFocusBackColor;
             }
             set
             {
-                if (selectedItemWithFocusBackColor != value)
+                if (_selectedItemWithFocusBackColor != value)
                 {
-                    selectedItemWithFocusBackColor = value;
+                    _selectedItemWithFocusBackColor = value;
                     gridView.Invalidate();
                 }
             }
@@ -909,13 +907,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return selectedItemWithFocusForeColor;
+                return _selectedItemWithFocusForeColor;
             }
             set
             {
-                if (selectedItemWithFocusForeColor != value)
+                if (_selectedItemWithFocusForeColor != value)
                 {
-                    selectedItemWithFocusForeColor = value;
+                    _selectedItemWithFocusForeColor = value;
                     gridView.Invalidate();
                 }
             }
@@ -950,13 +948,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return categorySplitterColor;
+                return _categorySplitterColor;
             }
             set
             {
-                if (categorySplitterColor != value)
+                if (_categorySplitterColor != value)
                 {
-                    categorySplitterColor = value;
+                    _categorySplitterColor = value;
                     gridView.Invalidate();
                 }
             }
@@ -972,13 +970,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return canShowVisualStyleGlyphs;
+                return _canShowVisualStyleGlyphs;
             }
             set
             {
-                if (canShowVisualStyleGlyphs != value)
+                if (_canShowVisualStyleGlyphs != value)
                 {
-                    canShowVisualStyleGlyphs = value;
+                    _canShowVisualStyleGlyphs = value;
                     gridView.Invalidate();
                 }
             }
@@ -999,19 +997,14 @@ namespace System.Windows.Forms
         {
             get
             {
-                return lineColor;
+                return _lineColor;
             }
             set
             {
-                if (lineColor != value)
+                if (_lineColor != value)
                 {
-                    lineColor = value;
-                    developerOverride = true;
-                    if (lineBrush != null)
-                    {
-                        lineBrush.Dispose();
-                        lineBrush = null;
-                    }
+                    _lineColor = value;
+                    _developerOverride = true;
                     gridView.Invalidate();
                 }
             }
@@ -1625,13 +1618,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return viewBorderColor;
+                return _viewBorderColor;
             }
             set
             {
-                if (viewBorderColor != value)
+                if (_viewBorderColor != value)
                 {
-                    viewBorderColor = value;
+                    _viewBorderColor = value;
                     gridView.Invalidate();
                 }
             }
@@ -2208,12 +2201,6 @@ namespace System.Windows.Forms
                 {
                     bmpPropPage.Dispose();
                     bmpPropPage = null;
-                }
-
-                if (lineBrush != null)
-                {
-                    lineBrush.Dispose();
-                    lineBrush = null;
                 }
 
                 if (peMain != null)
@@ -3350,13 +3337,8 @@ namespace System.Windows.Forms
             {
                 background.Dispose();
             }
-            base.OnPaint(pevent);
 
-            if (lineBrush != null)
-            {
-                lineBrush.Dispose();
-                lineBrush = null;
-            }
+            base.OnPaint(pevent);
         }
 
         // Seems safe - just fires an event
@@ -5106,7 +5088,6 @@ namespace System.Windows.Forms
 
         internal abstract class SnappableControl : Control
         {
-            private Color borderColor = SystemColors.ControlDark;
             protected PropertyGrid ownerGrid;
             internal bool userSized;
 
@@ -5132,17 +5113,7 @@ namespace System.Windows.Forms
             {
             }
 
-            public Color BorderColor
-            {
-                get
-                {
-                    return borderColor;
-                }
-                set
-                {
-                    borderColor = value;
-                }
-            }
+            public Color BorderColor { get; set; } = SystemColors.ControlDark;
 
             protected override void OnPaint(PaintEventArgs e)
             {
@@ -5150,10 +5121,9 @@ namespace System.Windows.Forms
                 Rectangle r = ClientRectangle;
                 r.Width--;
                 r.Height--;
-                using (Pen borderPen = new Pen(BorderColor, 1))
-                {
-                    e.Graphics.DrawRectangle(borderPen, r);
-                }
+
+                using var borderPen = BorderColor.GetCachedPen();
+                e.Graphics.DrawRectangle(borderPen, r);
             }
         }
 
