@@ -15,8 +15,7 @@ using static Interop;
 namespace System.Windows.Forms
 {
     /// <summary>
-    ///  Provides an implementation for an object that can be inspected by an
-    ///  accessibility application.
+    ///  Provides an implementation for an object that can be inspected by an accessibility application.
     /// </summary>
     public partial class AccessibleObject :
         StandardOleMarshalObject,
@@ -50,30 +49,31 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Specifies the <see cref='IAccessible'/> interface used by this <see cref='AccessibleObject'/>.
         /// </summary>
-        private SystemIAccessibleWrapper systemIAccessible = new SystemIAccessibleWrapper(
-            null /* Prevents throwing exception when call to null-value system IAccessible */);
+        /// <remarks>
+        ///  <para>
+        ///   The wrapper prevents exceptions when calling to null-value system IAccessible objects.
+        ///  </para>
+        /// </remarks>
+        private SystemIAccessibleWrapper _systemIAccessible = new(systemIAccessible: null);
 
         /// <summary>
-        ///  Specifies the <see cref='Oleaut32.IEnumVariant'/> used by this
-        /// <see cref='AccessibleObject'/> .
+        ///  Specifies the <see cref='Oleaut32.IEnumVariant'/> used by this <see cref='AccessibleObject'/> .
         /// </summary>
-        private Oleaut32.IEnumVariant? systemIEnumVariant;
-        private Oleaut32.IEnumVariant? enumVariant;
+        private Oleaut32.IEnumVariant? _systemIEnumVariant;
+        private Oleaut32.IEnumVariant? _enumVariant;
 
         // IOleWindow interface of the 'inner' system IAccessible object that we are wrapping
-        private Ole32.IOleWindow? systemIOleWindow;
+        private Ole32.IOleWindow? _systemIOleWindow;
 
         // Indicates this object is being used ONLY to wrap a system IAccessible
-        private readonly bool systemWrapper;
+        private readonly bool _systemWrapper;
 
         private UiaTextProvider? _textProvider;
         private UiaTextProvider2? _textProvider2;
 
-        // The support for the UIA Notification event begins in RS3.
-        // Assume the UIA Notification event is available until we learn otherwise.
-        // If we learn that the UIA Notification event is not available,
-        // controls should not attempt to raise it.
-        private static bool notificationEventAvailable = true;
+        // UIA Notification event support begins in RS3. Assume it is available until we learn otherwise.
+        // If we learn that the UIA Notification event is not available, controls should not attempt to raise it.
+        private static bool s_notificationEventAvailable = true;
 
         internal const int RuntimeIDFirstItem = 0x2a;
 
@@ -84,19 +84,19 @@ namespace System.Windows.Forms
         // This constructor is used ONLY for wrapping system IAccessible objects
         private AccessibleObject(IAccessible? iAcc)
         {
-            systemIAccessible = new SystemIAccessibleWrapper(iAcc);
-            systemWrapper = true;
+            _systemIAccessible = new SystemIAccessibleWrapper(iAcc);
+            _systemWrapper = true;
         }
 
         /// <summary>
-        ///  Gets the bounds of the accessible object, in screen coordinates.
+        ///  Gets the bounds of the accessible object in screen coordinates.
         /// </summary>
         public virtual Rectangle Bounds
         {
             get
             {
                 // Use the system provided bounds
-                systemIAccessible.accLocation(out int left, out int top, out int width, out int height, NativeMethods.CHILDID_SELF);
+                _systemIAccessible.accLocation(out int left, out int top, out int width, out int height, NativeMethods.CHILDID_SELF);
                 return new Rectangle(left, top, width, height);
             }
         }
@@ -104,39 +104,38 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Gets a description of the default action for an object.
         /// </summary>
-        public virtual string? DefaultAction => systemIAccessible.get_accDefaultAction(NativeMethods.CHILDID_SELF);
+        public virtual string? DefaultAction => _systemIAccessible.get_accDefaultAction(NativeMethods.CHILDID_SELF);
 
         /// <summary>
         ///  Gets a description of the object's visual appearance to the user.
         /// </summary>
-        public virtual string? Description => systemIAccessible.get_accDescription(NativeMethods.CHILDID_SELF);
+        public virtual string? Description => _systemIAccessible.get_accDescription(NativeMethods.CHILDID_SELF);
 
-        private Oleaut32.IEnumVariant EnumVariant => enumVariant ?? (enumVariant = new EnumVariantObject(this));
+        private Oleaut32.IEnumVariant EnumVariant => _enumVariant ??= new EnumVariantObject(this);
 
         /// <summary>
         ///  Gets a description of what the object does or how the object is used.
         /// </summary>
-        public virtual string? Help => systemIAccessible.get_accHelp(NativeMethods.CHILDID_SELF);
+        public virtual string? Help => _systemIAccessible.get_accHelp(NativeMethods.CHILDID_SELF);
 
         /// <summary>
         ///  Gets the object shortcut key or access key for an accessible object.
         /// </summary>
-        public virtual string? KeyboardShortcut => systemIAccessible.get_accKeyboardShortcut(NativeMethods.CHILDID_SELF);
+        public virtual string? KeyboardShortcut => _systemIAccessible.get_accKeyboardShortcut(NativeMethods.CHILDID_SELF);
 
         /// <summary>
         ///  Gets or sets the object name.
         /// </summary>
         public virtual string? Name
         {
-            get => systemIAccessible.get_accName(NativeMethods.CHILDID_SELF);
-            set => systemIAccessible.set_accName(NativeMethods.CHILDID_SELF, value);
+            get => _systemIAccessible.get_accName(NativeMethods.CHILDID_SELF);
+            set => _systemIAccessible.set_accName(NativeMethods.CHILDID_SELF, value);
         }
 
         /// <summary>
-        ///  When overridden in a derived class, gets or sets the parent of an
-        ///  accessible object.
+        ///  When overridden in a derived class, gets or sets the parent of an accessible object.
         /// </summary>
-        public virtual AccessibleObject? Parent => WrapIAccessible(systemIAccessible.accParent);
+        public virtual AccessibleObject? Parent => WrapIAccessible(_systemIAccessible.accParent);
 
         /// <summary>
         ///  Gets the role of this accessible object.
@@ -145,7 +144,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                var accRole = systemIAccessible.get_accRole(NativeMethods.CHILDID_SELF);
+                var accRole = _systemIAccessible.get_accRole(NativeMethods.CHILDID_SELF);
                 return accRole is not null
                     ? (AccessibleRole)accRole
                     : AccessibleRole.None;
@@ -159,7 +158,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                var accState = systemIAccessible.get_accState(NativeMethods.CHILDID_SELF);
+                var accState = _systemIAccessible.get_accState(NativeMethods.CHILDID_SELF);
                 return accState is not null
                     ? (AccessibleStates)accState
                     : AccessibleStates.None;
@@ -173,27 +172,25 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (systemIAccessible.IsIAccessibleCreated)
+                if (_systemIAccessible.IsIAccessibleCreated)
                 {
-                    return systemIAccessible.get_accValue(NativeMethods.CHILDID_SELF);
+                    return _systemIAccessible.get_accValue(NativeMethods.CHILDID_SELF);
                 }
 
                 return string.Empty;
             }
-            set => systemIAccessible.set_accValue(NativeMethods.CHILDID_SELF, value);
+            set => _systemIAccessible.set_accValue(NativeMethods.CHILDID_SELF, value);
         }
 
         /// <summary>
-        ///  When overridden in a derived class, gets the accessible child
-        ///  corresponding to the specified index.
+        ///  When overridden in a derived class, gets the accessible child corresponding to the specified index.
         /// </summary>
         public virtual AccessibleObject? GetChild(int index) => null;
 
         internal virtual int GetChildIndex(AccessibleObject? child) => -1;
 
         /// <summary>
-        ///  When overridden in a derived class, gets the number of children
-        ///  belonging to an accessible object.
+        ///  When overridden in a derived class, gets the number of children belonging to an accessible object.
         /// </summary>
         public virtual int GetChildCount() => -1;
 
@@ -231,8 +228,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  When overridden in a derived class, gets the object that has the
-        ///  keyboard focus.
+        ///  When overridden in a derived class, gets the object that has the keyboard focus.
         /// </summary>
         public virtual AccessibleObject? GetFocused()
         {
@@ -243,7 +239,8 @@ namespace System.Windows.Forms
                 for (int index = 0; index < count; ++index)
                 {
                     AccessibleObject? child = GetChild(index);
-                    Debug.Assert(child is not null, "GetChild(" + index.ToString(CultureInfo.InvariantCulture) + ") returned null!");
+                    Debug.Assert(child is not null, $"GetChild({index}) returned null!");
+
                     if (child is not null && ((child.State & AccessibleStates.Focused) != 0))
                     {
                         return child;
@@ -258,15 +255,14 @@ namespace System.Windows.Forms
                 return null;
             }
 
-            return WrapIAccessible(systemIAccessible.accFocus);
+            return WrapIAccessible(_systemIAccessible.accFocus);
         }
 
         /// <summary>
-        ///  Gets an identifier for a Help topic and the path to the Help file
-        ///  associated with this accessible object.
+        ///  Gets an identifier for a Help topic and the path to the Help file associated with this accessible object.
         /// </summary>
         public virtual int GetHelpTopic(out string? fileName) =>
-            systemIAccessible.get_accHelpTopic(out fileName, NativeMethods.CHILDID_SELF);
+            _systemIAccessible.get_accHelpTopic(out fileName, NativeMethods.CHILDID_SELF);
 
         /// <summary>
         ///  When overridden in a derived class, gets the currently selected child.
@@ -280,7 +276,7 @@ namespace System.Windows.Forms
                 for (int index = 0; index < count; ++index)
                 {
                     AccessibleObject? child = GetChild(index);
-                    Debug.Assert(child is not null, "GetChild(" + index.ToString(CultureInfo.InvariantCulture) + ") returned null!");
+                    Debug.Assert(child is not null, $"GetChild({index}) returned null!");
                     if (child is not null && ((child.State & AccessibleStates.Selected) != 0))
                     {
                         return child;
@@ -295,7 +291,7 @@ namespace System.Windows.Forms
                 return null;
             }
 
-            return WrapIAccessible(systemIAccessible.accSelection);
+            return WrapIAccessible(_systemIAccessible.accSelection);
         }
 
         /// <summary>
@@ -310,7 +306,7 @@ namespace System.Windows.Forms
                 for (int index = 0; index < count; ++index)
                 {
                     AccessibleObject? child = GetChild(index);
-                    Debug.Assert(child is not null, "GetChild(" + index.ToString(CultureInfo.InvariantCulture) + ") returned null!");
+                    Debug.Assert(child is not null, $"GetChild({index}) returned null!");
                     if (child is not null && child.Bounds.Contains(x, y))
                     {
                         return child;
@@ -320,9 +316,9 @@ namespace System.Windows.Forms
                 return this;
             }
 
-            if (systemIAccessible.IsIAccessibleCreated)
+            if (_systemIAccessible.IsIAccessibleCreated)
             {
-                return WrapIAccessible(systemIAccessible.accHitTest(x, y));
+                return WrapIAccessible(_systemIAccessible.accHitTest(x, y));
             }
 
             if (Bounds.Contains(x, y))
@@ -667,7 +663,7 @@ namespace System.Windows.Forms
 
         void UiaCore.IRawElementProviderFragment.SetFocus() => SetFocus();
 
-        UiaCore.UiaRect UiaCore.IRawElementProviderFragment.BoundingRectangle => new UiaCore.UiaRect(BoundingRectangle);
+        UiaCore.UiaRect UiaCore.IRawElementProviderFragment.BoundingRectangle => new(BoundingRectangle);
 
         // An accessible object should provide info about its correct root object,
         // even its owner is used like a ToolStrip item via ToolStripControlHost.
@@ -801,8 +797,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccDoDefaultAction: this = " +
-                    ToString() + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.AccDoDefaultAction: this = {ToString()}, childID = {childID}");
 
                 // If the default action is to be performed on self, do it.
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -820,18 +817,17 @@ namespace System.Windows.Forms
                 }
             }
 
-            systemIAccessible.accDoDefaultAction(childID);
+            _systemIAccessible.accDoDefaultAction(childID);
         }
 
         /// <summary>
-        ///  Perform a hit test
+        ///  Perform a hit test.
         /// </summary>
         object? IAccessible.accHitTest(int xLeft, int yTop)
         {
             if (IsClientObject)
             {
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccHitTest: this = " +
-                    ToString());
+                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, $"AccessibleObject.AccHitTest: this = {ToString()}");
 
                 AccessibleObject? obj = HitTest(xLeft, yTop);
                 if (obj is not null)
@@ -840,18 +836,18 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.accHitTest(xLeft, yTop);
+            return _systemIAccessible.accHitTest(xLeft, yTop);
         }
 
         /// <summary>
-        ///  The location of the Accessible object
+        ///  The location of the Accessible object.
         /// </summary>
         void IAccessible.accLocation(
-                               out int pxLeft,
-                               out int pyTop,
-                               out int pcxWidth,
-                               out int pcyHeight,
-                               object childID)
+            out int pxLeft,
+            out int pyTop,
+            out int pcxWidth,
+            out int pcyHeight,
+            object childID)
         {
             pxLeft = 0;
             pyTop = 0;
@@ -862,8 +858,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccLocation: this = " +
-                    ToString() + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.AccLocation: this = {ToString()}, childID = {childID}");
 
                 // Use the Location function's return value if available
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -874,8 +871,7 @@ namespace System.Windows.Forms
                     pcxWidth = bounds.Width;
                     pcyHeight = bounds.Height;
 
-                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccLocation: Returning " +
-                        bounds.ToString());
+                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, $"AccessibleObject.AccLocation: Returning {bounds}");
 
                     return;
                 }
@@ -890,14 +886,13 @@ namespace System.Windows.Forms
                     pcxWidth = bounds.Width;
                     pcyHeight = bounds.Height;
 
-                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccLocation: Returning " +
-                        bounds.ToString());
+                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, $"AccessibleObject.AccLocation: Returning {bounds}");
 
                     return;
                 }
             }
 
-            systemIAccessible.accLocation(out pxLeft, out pyTop, out pcxWidth, out pcyHeight, childID);
+            _systemIAccessible.accLocation(out pxLeft, out pyTop, out pcxWidth, out pcyHeight, childID);
         }
 
         /// <summary>
@@ -909,8 +904,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccNavigate: this = " +
-                    ToString() + ", navdir = " + navDir.ToString(CultureInfo.InvariantCulture) + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.AccNavigate: this = {ToString()}, navdir = {navDir}, childID = {childID}");
 
                 // Use the Navigate function's return value if available
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -932,7 +928,7 @@ namespace System.Windows.Forms
 
             if (!SysNavigate(navDir, childID, out object? retObject))
             {
-                return systemIAccessible.accNavigate(navDir, childID);
+                return _systemIAccessible.accNavigate(navDir, childID);
             }
 
             return retObject;
@@ -947,8 +943,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.AccSelect: this = " +
-                    ToString() + ", flagsSelect = " + flagsSelect.ToString(CultureInfo.InvariantCulture) + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.AccSelect: this = {ToString()}, flagsSelect = {flagsSelect}, childID = {childID}");
 
                 // If the selection is self, do it.
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -966,7 +963,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            systemIAccessible.accSelect(flagsSelect, childID);
+            _systemIAccessible.accSelect(flagsSelect, childID);
         }
 
         /// <summary>
@@ -975,7 +972,7 @@ namespace System.Windows.Forms
         public virtual void DoDefaultAction()
         {
             // By default, just does the system default action if available
-            systemIAccessible.accDoDefaultAction(0);
+            _systemIAccessible.accDoDefaultAction(0);
         }
 
         /// <summary>
@@ -987,8 +984,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.GetAccChild: this = " +
-                    ToString() + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.GetAccChild: this = {ToString()}, childID = {childID}");
 
                 // Return self for CHILDID_SELF
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -1000,10 +998,12 @@ namespace System.Windows.Forms
                 AccessibleObject? child = GetAccessibleChild(childID);
                 if (child is not null)
                 {
-                    // Make sure we're not returning ourselves as our own child
-                    Debug.Assert(child != this, "An accessible object is returning itself as its own child. This can cause Accessibility client applications to stop responding.");
                     if (child == this)
                     {
+                        Debug.Fail("Returning self as child.");
+
+                        // Make sure we're not returning ourselves as our own child to prevent accessibility client
+                        // applications from hanging.
                         return null;
                     }
 
@@ -1011,17 +1011,17 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (systemIAccessible is null || systemIAccessible.accChildCount == 0)
+            if (_systemIAccessible is null || _systemIAccessible.accChildCount == 0)
             {
                 return null;
             }
 
             // Otherwise, return the default system child for this control (if any)
-            return systemIAccessible.get_accChild(childID);
+            return _systemIAccessible.get_accChild(childID);
         }
 
         /// <summary>
-        ///  Return the number of children
+        ///  Return the number of children.
         /// </summary>
         int IAccessible.accChildCount
         {
@@ -1036,17 +1036,19 @@ namespace System.Windows.Forms
 
                 if (childCount == -1)
                 {
-                    childCount = systemIAccessible.accChildCount;
+                    childCount = _systemIAccessible.accChildCount;
                 }
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.accHildCount: this = " + ToString() + ", returning " + childCount.ToString(CultureInfo.InvariantCulture));
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.accHildCount: this = {ToString()}, returning {childCount}");
 
                 return childCount;
             }
         }
 
         /// <summary>
-        ///  Return the default action
+        ///  Return the default action.
         /// </summary>
         string? IAccessible.get_accDefaultAction(object childID)
         {
@@ -1054,13 +1056,13 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                // Return the default action property if available
+                // Return the default action property if available.
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
                 {
                     return DefaultAction;
                 }
 
-                // If we have an accessible object collection, get the appropriate child
+                // If we have an accessible object collection, get the appropriate child.
                 AccessibleObject? child = GetAccessibleChild(childID);
                 if (child is not null)
                 {
@@ -1068,11 +1070,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accDefaultAction(childID);
+            return _systemIAccessible.get_accDefaultAction(childID);
         }
 
         /// <summary>
-        ///  Return the object or child description
+        ///  Return the object or child description.
         /// </summary>
         string? IAccessible.get_accDescription(object childID)
         {
@@ -1080,13 +1082,13 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                // Return the description property if available
+                // Return the description property if available.
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
                 {
                     return Description;
                 }
 
-                // If we have an accessible object collection, get the appropriate child
+                // If we have an accessible object collection, get the appropriate child.
                 AccessibleObject? child = GetAccessibleChild(childID);
                 if (child is not null)
                 {
@@ -1094,17 +1096,17 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accDescription(childID);
+            return _systemIAccessible.get_accDescription(childID);
         }
 
         /// <summary>
-        ///  Returns the appropriate child from the Accessible Child Collection, if available
+        ///  Returns the appropriate child from the Accessible Child Collection, if available.
         /// </summary>
         private AccessibleObject? GetAccessibleChild(object childID)
         {
             if (!childID.Equals(NativeMethods.CHILDID_SELF))
             {
-                // The first child is childID == 1 (index == 0)
+                // The first child is childID == 1 (index == 0).
                 int index = (int)childID - 1;
                 if (index >= 0 && index < GetChildCount())
                 {
@@ -1116,7 +1118,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Return the object or child focus
+        ///  Return the object or child focus.
         /// </summary>
         object? IAccessible.accFocus
         {
@@ -1124,8 +1126,7 @@ namespace System.Windows.Forms
             {
                 if (IsClientObject)
                 {
-                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.GetAccFocus: this = " +
-                        ToString());
+                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, $"AccessibleObject.GetAccFocus: this = {ToString()}");
 
                     AccessibleObject? obj = GetFocused();
                     if (obj is not null)
@@ -1134,7 +1135,7 @@ namespace System.Windows.Forms
                     }
                 }
 
-                return systemIAccessible.accFocus;
+                return _systemIAccessible.accFocus;
             }
         }
 
@@ -1160,11 +1161,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accHelp(childID);
+            return _systemIAccessible.get_accHelp(childID);
         }
 
         /// <summary>
-        ///  Return the object or child help topic
+        ///  Return the object or child help topic.
         /// </summary>
         int IAccessible.get_accHelpTopic(out string? pszHelpFile, object childID)
         {
@@ -1185,7 +1186,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accHelpTopic(out pszHelpFile, childID);
+            return _systemIAccessible.get_accHelpTopic(out pszHelpFile, childID);
         }
 
         /// <summary>
@@ -1215,16 +1216,13 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accKeyboardShortcut(childID);
+            return _systemIAccessible.get_accKeyboardShortcut(childID);
         }
 
         /// <summary>
-        ///  Return the object or child name
+        ///  Return the object or child name.
         /// </summary>
-        string? IAccessible.get_accName(object childID)
-        {
-            return get_accNameInternal(childID);
-        }
+        string? IAccessible.get_accName(object childID) => get_accNameInternal(childID);
 
         internal virtual string? get_accNameInternal(object childID)
         {
@@ -1232,8 +1230,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.get_accName: this = " + ToString() +
-                    ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.get_accName: this = {ToString()}, childID = {childID}");
 
                 // Return the name property if available
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -1249,7 +1248,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            string? retval = systemIAccessible.get_accName(childID);
+            string? retval = _systemIAccessible.get_accName(childID);
 
             if (IsClientObject)
             {
@@ -1264,21 +1263,21 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Return the parent object
+        ///  Return the parent object.
         /// </summary>
         object? IAccessible.accParent
         {
             get
             {
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.accParent: this = " + ToString());
+                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, $"AccessibleObject.accParent: this = {ToString()}");
                 AccessibleObject? parent = Parent;
                 if (parent is not null)
                 {
-                    // Some debugging related tests
-                    Debug.Assert(parent != this, "An accessible object is returning itself as its own parent. This can cause accessibility clients to stop responding.");
                     if (parent == this)
                     {
-                        // This should prevent accessibility clients from stop responding
+                        Debug.Fail("An accessible object is returning itself as its own parent.");
+
+                        // This should prevent accessibility clients from hanging.
                         parent = null;
                     }
                 }
@@ -1297,13 +1296,13 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                // Return the role property if available
+                // Return the role property if available.
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
                 {
                     return (int)Role;
                 }
 
-                // If we have an accessible object collection, get the appropriate child
+                // If we have an accessible object collection, get the appropriate child.
                 AccessibleObject? child = GetAccessibleChild(childID);
                 if (child is not null)
                 {
@@ -1311,16 +1310,16 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (systemIAccessible is null || systemIAccessible.accChildCount == 0)
+            if (_systemIAccessible is null || _systemIAccessible.accChildCount == 0)
             {
                 return null;
             }
 
-            return systemIAccessible.get_accRole(childID);
+            return _systemIAccessible.get_accRole(childID);
         }
 
         /// <summary>
-        ///  Return the object or child selection
+        ///  Return the object or child selection.
         /// </summary>
         object? IAccessible.accSelection
         {
@@ -1328,8 +1327,9 @@ namespace System.Windows.Forms
             {
                 if (IsClientObject)
                 {
-                    Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.GetAccSelection: this = " +
-                        ToString());
+                    Debug.WriteLineIf(
+                        CompModSwitches.MSAA.TraceInfo,
+                        $"AccessibleObject.GetAccSelection: this = {ToString()}");
 
                     AccessibleObject? obj = GetSelected();
                     if (obj is not null)
@@ -1338,7 +1338,7 @@ namespace System.Windows.Forms
                     }
                 }
 
-                return systemIAccessible.accSelection;
+                return _systemIAccessible.accSelection;
             }
         }
 
@@ -1351,8 +1351,9 @@ namespace System.Windows.Forms
             {
                 ValidateChildID(ref childID);
 
-                Debug.WriteLineIf(CompModSwitches.MSAA.TraceInfo, "AccessibleObject.GetAccState: this = " +
-                    ToString() + ", childID = " + childID.ToString());
+                Debug.WriteLineIf(
+                    CompModSwitches.MSAA.TraceInfo,
+                    $"AccessibleObject.GetAccState: this = {ToString()}, childID = {childID}");
 
                 // Return the state property if available
                 if (childID.Equals(NativeMethods.CHILDID_SELF))
@@ -1368,11 +1369,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible?.get_accState(childID);
+            return _systemIAccessible?.get_accState(childID);
         }
 
         /// <summary>
-        ///  Return the object or child value
+        ///  Return the object or child value.
         /// </summary>
         string? IAccessible.get_accValue(object childID)
         {
@@ -1394,11 +1395,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            return systemIAccessible.get_accValue(childID);
+            return _systemIAccessible.get_accValue(childID);
         }
 
         /// <summary>
-        ///  Set the object or child name
+        ///  Set the object or child name.
         /// </summary>
         void IAccessible.set_accName(object childID, string newName)
         {
@@ -1423,7 +1424,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            systemIAccessible?.set_accName(childID, newName);
+            _systemIAccessible?.set_accName(childID, newName);
         }
 
         /// <summary>
@@ -1452,7 +1453,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            systemIAccessible?.set_accValue(childID, newValue);
+            _systemIAccessible?.set_accValue(childID, newValue);
         }
 
         /// <summary>
@@ -1473,9 +1474,9 @@ namespace System.Windows.Forms
         unsafe HRESULT Ole32.IOleWindow.GetWindow(IntPtr* phwnd)
         {
             // See if we have an inner object that can provide the window handle
-            if (systemIOleWindow is not null)
+            if (_systemIOleWindow is not null)
             {
-                return systemIOleWindow.GetWindow(phwnd);
+                return _systemIOleWindow.GetWindow(phwnd);
             }
 
             // Otherwise delegate to the parent object
@@ -1501,9 +1502,9 @@ namespace System.Windows.Forms
         HRESULT Ole32.IOleWindow.ContextSensitiveHelp(BOOL fEnterMode)
         {
             // See if we have an inner object that can provide help
-            if (systemIOleWindow is not null)
+            if (_systemIOleWindow is not null)
             {
-                return systemIOleWindow.ContextSensitiveHelp(fEnterMode);
+                return _systemIOleWindow.ContextSensitiveHelp(fEnterMode);
             }
 
             // Otherwise delegate to the parent object
@@ -1575,11 +1576,11 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (systemIAccessible.IsIAccessibleCreated)
+            if (_systemIAccessible.IsIAccessibleCreated)
             {
                 if (!SysNavigate((int)navdir, NativeMethods.CHILDID_SELF, out object? retObject))
                 {
-                    retObject = systemIAccessible.accNavigate((int)navdir, NativeMethods.CHILDID_SELF);
+                    retObject = _systemIAccessible.accNavigate((int)navdir, NativeMethods.CHILDID_SELF);
                 }
 
                 return WrapIAccessible(retObject);
@@ -1593,7 +1594,7 @@ namespace System.Windows.Forms
         /// </summary>
         public virtual void Select(AccessibleSelection flags)
         {
-            systemIAccessible.accSelect((int)flags, 0);
+            _systemIAccessible.accSelect((int)flags, 0);
         }
 
         private object? AsVariant(AccessibleObject? obj)
@@ -1608,9 +1609,9 @@ namespace System.Windows.Forms
 
         private IAccessible? AsIAccessible(AccessibleObject? obj)
         {
-            if (obj is not null && obj.systemWrapper)
+            if (obj is not null && obj._systemWrapper)
             {
-                return obj.systemIAccessible.SystemIAccessibleInternal;
+                return obj._systemIAccessible.SystemIAccessibleInternal;
             }
 
             return obj;
@@ -1645,7 +1646,7 @@ namespace System.Windows.Forms
         /// </summary>
         internal bool IsNonClientObject => AccessibleObjectId == User32.OBJID.WINDOW;
 
-        internal IAccessible? GetSystemIAccessibleInternal() => systemIAccessible.SystemIAccessibleInternal;
+        internal IAccessible? GetSystemIAccessibleInternal() => _systemIAccessible.SystemIAccessibleInternal;
 
         protected void UseStdAccessibleObjects(IntPtr handle)
         {
@@ -1657,26 +1658,26 @@ namespace System.Windows.Forms
             // Get a standard accessible Object
             Guid IID_IAccessible = new Guid(NativeMethods.uuid_IAccessible);
             object? acc = null;
-            int result = UnsafeNativeMethods.CreateStdAccessibleObject(
-                            new HandleRef(this, handle),
-                            objid,
-                            ref IID_IAccessible,
-                            ref acc);
+            UnsafeNativeMethods.CreateStdAccessibleObject(
+                new HandleRef(this, handle),
+                objid,
+                ref IID_IAccessible,
+                ref acc);
 
             // Get the IEnumVariant interface
             Guid IID_IEnumVariant = typeof(Oleaut32.IEnumVariant).GUID;
             object? en = null;
-            result = UnsafeNativeMethods.CreateStdAccessibleObject(
-                        new HandleRef(this, handle),
-                        objid,
-                        ref IID_IEnumVariant,
-                        ref en);
+            UnsafeNativeMethods.CreateStdAccessibleObject(
+                new HandleRef(this, handle),
+                objid,
+                ref IID_IEnumVariant,
+                ref en);
 
             if (acc is not null || en is not null)
             {
-                systemIAccessible = new SystemIAccessibleWrapper((IAccessible?)acc);
-                systemIEnumVariant = (Oleaut32.IEnumVariant?)en;
-                systemIOleWindow = (Ole32.IOleWindow?)acc;
+                _systemIAccessible = new SystemIAccessibleWrapper((IAccessible?)acc);
+                _systemIEnumVariant = (Oleaut32.IEnumVariant?)en;
+                _systemIOleWindow = (Ole32.IOleWindow?)acc;
             }
         }
 
@@ -1733,7 +1734,7 @@ namespace System.Windows.Forms
             {
                 childID = 0;
             }
-            else if (!(childID is int))
+            else if (childID is not int)
             {
                 // AccExplorer seems to occasionally pass in objects instead of an int ChildID.
                 childID = 0;
@@ -1742,13 +1743,13 @@ namespace System.Windows.Forms
 
         private AccessibleObject? WrapIAccessible(object? iacc)
         {
-            if (!(iacc is IAccessible accessible))
+            if (iacc is not IAccessible accessible)
             {
                 return null;
             }
 
             // Check to see if this object already wraps iacc
-            if (systemIAccessible.SystemIAccessibleInternal == iacc)
+            if (_systemIAccessible.SystemIAccessibleInternal == iacc)
             {
                 return this;
             }
@@ -1761,7 +1762,12 @@ namespace System.Windows.Forms
         ///  match is based upon the name and DescriptorInfo which describes the signature
         ///  of the method.
         /// </summary>
-        MethodInfo? IReflect.GetMethod(string name, BindingFlags bindingAttr, Binder? binder, Type[] types, ParameterModifier[]? modifiers)
+        MethodInfo? IReflect.GetMethod(
+            string name,
+            BindingFlags bindingAttr,
+            Binder? binder,
+            Type[] types,
+            ParameterModifier[]? modifiers)
             => typeof(IAccessible).GetMethod(name, bindingAttr, binder, types, modifiers);
 
         /// <summary>
@@ -1798,7 +1804,13 @@ namespace System.Windows.Forms
         ///  Return the property based upon the name and Descriptor info describing
         ///  the property indexing. Return null if no property is found.
         /// </summary>
-        PropertyInfo? IReflect.GetProperty(string name, BindingFlags bindingAttr, Binder? binder, Type? returnType, Type[] types, ParameterModifier[]? modifiers)
+        PropertyInfo? IReflect.GetProperty(
+            string name,
+            BindingFlags bindingAttr,
+            Binder? binder,
+            Type? returnType,
+            Type[] types,
+            ParameterModifier[]? modifiers)
             => typeof(IAccessible).GetProperty(name, bindingAttr, binder, returnType, types, modifiers);
 
         /// <summary>
@@ -1852,14 +1864,22 @@ namespace System.Windows.Forms
         ///  @exception ArgumentException when <var>invokeAttr</var> specifies property set and
         ///  invoke method.
         /// </summary>
-        object? IReflect.InvokeMember(string name, BindingFlags invokeAttr, Binder? binder, object? target, object?[]? args, ParameterModifier[]? modifiers, CultureInfo? culture, string[]? namedParameters)
+        object? IReflect.InvokeMember(
+            string name,
+            BindingFlags invokeAttr,
+            Binder? binder,
+            object? target,
+            object?[]? args,
+            ParameterModifier[]? modifiers,
+            CultureInfo? culture,
+            string[]? namedParameters)
         {
             if (args?.Length == 0)
             {
                 MemberInfo[] member = typeof(IAccessible).GetMember(name);
-                if (member is not null && member.Length > 0 && member[0] is PropertyInfo)
+                if (member is not null && member.Length > 0 && member[0] is PropertyInfo info)
                 {
-                    MethodInfo? getMethod = ((PropertyInfo)member[0]).GetGetMethod();
+                    MethodInfo? getMethod = info.GetGetMethod();
                     if (getMethod is not null && getMethod.GetParameters().Length > 0)
                     {
                         args = new object[getMethod.GetParameters().Length];
@@ -1934,9 +1954,12 @@ namespace System.Windows.Forms
         ///  False if the underlying windows infrastructure is not available or the operation had failed.
         ///  Use Marshal.GetLastWin32Error for details.
         /// </returns>
-        public bool RaiseAutomationNotification(AutomationNotificationKind notificationKind, AutomationNotificationProcessing notificationProcessing, string notificationText)
+        public bool RaiseAutomationNotification(
+            AutomationNotificationKind notificationKind,
+            AutomationNotificationProcessing notificationProcessing,
+            string notificationText)
         {
-            if (!notificationEventAvailable)
+            if (!s_notificationEventAvailable)
             {
                 return false;
             }
@@ -1955,16 +1978,18 @@ namespace System.Windows.Forms
             catch (EntryPointNotFoundException)
             {
                 // The UIA Notification event is not available, so don't attempt to raise it again.
-                notificationEventAvailable = false;
+                s_notificationEventAvailable = false;
                 return false;
             }
         }
 
         /// <summary>
-        ///  Raises the LiveRegionChanged UIA event.
-        ///  This method must be overridden in derived classes that support the UIA live region feature.
+        ///  Raises the LiveRegionChanged UIA event. This method must be overridden in derived classes that support
+        ///  the UIA live region feature.
         /// </summary>
-        /// <returns>True if operation succeeds, False otherwise.</returns>
+        /// <returns>
+        ///  <see langword="true"/> if operation succeeds, <see langword="false"/> otherwise.
+        /// </returns>
         public virtual bool RaiseLiveRegionChanged()
         {
             throw new NotSupportedException(SR.AccessibleObjectLiveRegionNotSupported);
@@ -1992,14 +2017,17 @@ namespace System.Windows.Forms
             return false;
         }
 
-        internal virtual bool InternalRaiseAutomationNotification(AutomationNotificationKind notificationKind, AutomationNotificationProcessing notificationProcessing, string notificationText)
+        internal virtual bool InternalRaiseAutomationNotification(
+            AutomationNotificationKind notificationKind,
+            AutomationNotificationProcessing notificationProcessing,
+            string notificationText)
         {
             if (UiaCore.UiaClientsAreListening().IsTrue())
             {
                 return RaiseAutomationNotification(notificationKind, notificationProcessing, notificationText);
             }
 
-            return notificationEventAvailable;
+            return s_notificationEventAvailable;
         }
 
         internal bool RaiseStructureChangedEvent(UiaCore.StructureChangeType structureChangeType, int[] runtimeId)

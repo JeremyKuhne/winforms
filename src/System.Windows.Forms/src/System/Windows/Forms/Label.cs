@@ -22,13 +22,13 @@ namespace System.Windows.Forms
     /// </summary>
     [DefaultProperty(nameof(Text))]
     [DefaultBindingProperty(nameof(Text))]
-    [Designer("System.Windows.Forms.Design.LabelDesigner, " + AssemblyRef.SystemDesign)]
-    [ToolboxItem("System.Windows.Forms.Design.AutoSizeToolboxItem," + AssemblyRef.SystemDesign)]
+    [Designer($"System.Windows.Forms.Design.LabelDesigner, {AssemblyRef.SystemDesign}")]
+    [ToolboxItem($"System.Windows.Forms.Design.AutoSizeToolboxItem,{AssemblyRef.SystemDesign}")]
     [SRDescription(nameof(SR.DescriptionLabel))]
     // If not for FormatControl, we could inherit from ButtonBase and get foreground images for free.
     public partial class Label : Control, IAutomationLiveRegion
     {
-        private static readonly object s_eventTextAlignChanged = new object();
+        private static readonly object s_eventTextAlignChanged = new();
 
         private static readonly BitVector32.Section s_stateUseMnemonic = BitVector32.CreateSection(1);
         private static readonly BitVector32.Section s_stateAutoSize = BitVector32.CreateSection(1, s_stateUseMnemonic);
@@ -308,13 +308,13 @@ namespace System.Windows.Forms
 
         protected override ImeMode DefaultImeMode => ImeMode.Disable;
 
-        protected override Padding DefaultMargin => new Padding(3, 0, 3, 0);
+        protected override Padding DefaultMargin => new(3, 0, 3, 0);
 
         /// <summary>
         ///  Deriving classes can override this to configure a default size for their control.
         ///  This is more efficient than setting the size in the control's constructor.
         /// </summary>
-        protected override Size DefaultSize => new Size(100, AutoSize ? PreferredHeight : 23);
+        protected override Size DefaultSize => new(100, AutoSize ? PreferredHeight : 23);
 
         [SRCategory(nameof(SR.CatAppearance))]
         [DefaultValue(FlatStyle.Standard)]
@@ -324,7 +324,7 @@ namespace System.Windows.Forms
             get => (FlatStyle)_labelState[s_stateFlatStyle];
             set
             {
-                //valid values are 0x0 to 0x3
+                // Valid values are 0x0 to 0x3.
                 SourceGenerated.EnumValidator.Validate(value);
 
                 if (_labelState[s_stateFlatStyle] != (int)value)
@@ -334,12 +334,12 @@ namespace System.Windows.Forms
                     _labelState[s_stateFlatStyle] = (int)value;
 
                     SetStyle(ControlStyles.UserPaint
-                             | ControlStyles.SupportsTransparentBackColor
-                             | ControlStyles.OptimizedDoubleBuffer, OwnerDraw);
+                        | ControlStyles.SupportsTransparentBackColor
+                        | ControlStyles.OptimizedDoubleBuffer, OwnerDraw);
 
                     if (needRecreate)
                     {
-                        // this will clear the preferred size cache - it's OK if the parent is null - it would be a NOP.
+                        // This will clear the preferred size cache - it's OK if the parent is null - it would be a NOP.
                         LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.BorderStyle);
                         if (AutoSize)
                         {
@@ -391,7 +391,6 @@ namespace System.Windows.Forms
                     }
 
                     // Hook up the frame changed event
-                    //
                     Animate();
                     Invalidate();
                 }
@@ -399,11 +398,10 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Gets or sets the index value of the images displayed on the
-        ///  <see cref='Label'/>.
+        ///  Gets or sets the index value of the images displayed on the <see cref='Label'/>.
         /// </summary>
         [TypeConverter(typeof(ImageIndexConverter))]
-        [Editor("System.Windows.Forms.Design.ImageIndexEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor))]
+        [Editor($"System.Windows.Forms.Design.ImageIndexEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor))]
         [DefaultValue(ImageList.Indexer.DefaultIndex)]
         [Localizable(true)]
         [RefreshProperties(RefreshProperties.Repaint)]
@@ -431,7 +429,10 @@ namespace System.Windows.Forms
             {
                 if (value < ImageList.Indexer.DefaultIndex)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, string.Format(SR.InvalidLowBoundArgumentEx, nameof(ImageIndex), value, ImageList.Indexer.DefaultIndex));
+                    throw new ArgumentOutOfRangeException(
+                        nameof(value),
+                        value,
+                        string.Format(SR.InvalidLowBoundArgumentEx, nameof(ImageIndex), value, ImageList.Indexer.DefaultIndex));
                 }
 
                 if (ImageIndex == value && value != ImageList.Indexer.DefaultIndex)
@@ -451,12 +452,11 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Gets or sets the key accessor for the image list.  This specifies the image
-        ///   from the image list to display on
-        ///  <see cref='Label'/>.
+        ///  Gets or sets the key accessor for the image list. This specifies the image from the image
+        ///  list to display on <see cref='Label'/>.
         /// </summary>
         [TypeConverter(typeof(ImageKeyConverter))]
-        [Editor("System.Windows.Forms.Design.ImageIndexEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor))]
+        [Editor($"System.Windows.Forms.Design.ImageIndexEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor))]
         [DefaultValue(ImageList.Indexer.DefaultKey)]
         [Localizable(true)]
         [RefreshProperties(RefreshProperties.Repaint)]
@@ -485,7 +485,7 @@ namespace System.Windows.Forms
             get
             {
                 // Demand create the ImageIndexer property
-                if ((!(Properties.GetObject(s_propImageIndex, out bool found) is LabelImageIndexer imageIndexer)) || (!found))
+                if ((Properties.GetObject(s_propImageIndex, out bool found) is not LabelImageIndexer imageIndexer) || (!found))
                 {
                     imageIndexer = new LabelImageIndexer(this);
                     ImageIndexer = imageIndexer;
@@ -493,10 +493,7 @@ namespace System.Windows.Forms
 
                 return imageIndexer;
             }
-            set
-            {
-                Properties.SetObject(s_propImageIndex, value);
-            }
+            set => Properties.SetObject(s_propImageIndex, value);
         }
 
         /// <summary>
@@ -511,36 +508,35 @@ namespace System.Windows.Forms
             get => (ImageList)Properties.GetObject(s_propImageList);
             set
             {
-                if (ImageList != value)
+                if (ImageList == value)
                 {
-                    EventHandler recreateHandler = new EventHandler(ImageListRecreateHandle);
-                    EventHandler disposedHandler = new EventHandler(DetachImageList);
-
-                    // Remove the previous imagelist handle recreate handler
-                    ImageList imageList = ImageList;
-                    if (imageList is not null)
-                    {
-                        imageList.RecreateHandle -= recreateHandler;
-                        imageList.Disposed -= disposedHandler;
-                    }
-
-                    // Make sure we don't have an Image as well as an ImageList
-                    if (value is not null)
-                    {
-                        Properties.SetObject(s_propImage, null); // Image.set calls ImageList = null
-                    }
-
-                    Properties.SetObject(s_propImageList, value);
-
-                    // Add the new imagelist handle recreate handler
-                    if (value is not null)
-                    {
-                        value.RecreateHandle += recreateHandler;
-                        value.Disposed += disposedHandler;
-                    }
-
-                    Invalidate();
+                    return;
                 }
+
+                // Remove the previous imagelist handle recreate handler.
+                ImageList imageList = ImageList;
+                if (imageList is not null)
+                {
+                    imageList.RecreateHandle -= ImageListRecreateHandle;
+                    imageList.Disposed -= DetachImageList;
+                }
+
+                // Make sure we don't have an Image as well as an ImageList.
+                if (value is not null)
+                {
+                    Properties.SetObject(s_propImage, null); // Image.set calls ImageList = null
+                }
+
+                Properties.SetObject(s_propImageList, value);
+
+                // Add the new imagelist handle recreate handler
+                if (value is not null)
+                {
+                    value.RecreateHandle += ImageListRecreateHandle;
+                    value.Disposed += DetachImageList;
+                }
+
+                Invalidate();
             }
         }
 
@@ -577,8 +573,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Indicates the "politeness" level that a client should use
-        ///  to notify the user of changes to the live region.
+        ///  Indicates the "politeness" level that a client should use to notify the user of changes to the live region.
         /// </summary>
         [SRCategory(nameof(SR.CatAccessibility))]
         [DefaultValue(AutomationLiveSetting.Off)]
@@ -644,8 +639,7 @@ namespace System.Windows.Forms
         internal virtual bool OwnerDraw => IsOwnerDraw();
 
         /// <summary>
-        ///  Gets the height of the control (in pixels), assuming a
-        ///  single line of text is displayed.
+        ///  Gets the height of the control (in pixels), assuming a single line of text is displayed.
         /// </summary>
         [SRCategory(nameof(SR.CatLayout))]
         [Browsable(false)]
@@ -655,8 +649,7 @@ namespace System.Windows.Forms
         public virtual int PreferredHeight => PreferredSize.Height;
 
         /// <summary>
-        ///  Gets the width of the control (in pixels), assuming a single line
-        ///  of text is displayed.
+        ///  Gets the width of the control (in pixels), assuming a single line of text is displayed.
         /// </summary>
         [SRCategory(nameof(SR.CatLayout))]
         [Browsable(false)]
@@ -666,8 +659,7 @@ namespace System.Windows.Forms
         public virtual int PreferredWidth => PreferredSize.Width;
 
         /// <summary>
-        ///  Indicates whether
-        ///  the container control background is rendered on the <see cref='Label'/>.
+        ///  Indicates whether the container control background is rendered on the <see cref='Label'/>.
         /// </summary>
         [Obsolete("This property has been deprecated. Use BackColor instead.  https://go.microsoft.com/fwlink/?linkid=14202")]
         virtual new protected bool RenderTransparent
@@ -679,8 +671,7 @@ namespace System.Windows.Forms
         private bool SelfSizing => CommonProperties.ShouldSelfSize(this);
 
         /// <summary>
-        ///  Gets or sets a value indicating whether the user can tab to the
-        ///  <see cref='Label'/>.
+        ///  Gets or sets a value indicating whether the user can tab to the <see cref='Label'/>.
         /// </summary>
         [DefaultValue(false)]
         [Browsable(false)]
@@ -700,8 +691,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Gets or sets the
-        ///  horizontal alignment of the text in the control.
+        ///  Gets or sets the horizontal alignment of the text in the control.
         /// </summary>
         [SRDescription(nameof(SR.LabelTextAlignDescr))]
         [Localizable(true)]
@@ -743,7 +733,7 @@ namespace System.Windows.Forms
         ///  Gets or sets the text in the Label. Since we can have multiline support
         ///  this property just overrides the base to pluck in the Multiline editor.
         /// </summary>
-        [Editor("System.ComponentModel.Design.MultilineStringEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor)),
+        [Editor($"System.ComponentModel.Design.MultilineStringEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor)),
         SettingsBindable(true)]
         public override string Text
         {
@@ -849,7 +839,7 @@ namespace System.Windows.Forms
                 return;
             }
 
-            // the rest is here for RTM compat.
+            // The rest is here for RTM compat.
 
             // If width and/or height are constrained by anchoring, don't adjust control size
             // to fit around text, since this will cause us to lose the original anchored size.
@@ -883,24 +873,26 @@ namespace System.Windows.Forms
         private void Animate(bool animate)
         {
             bool currentlyAnimating = _labelState[s_stateAnimating] != 0;
-            if (animate != currentlyAnimating)
+            if (animate == currentlyAnimating)
             {
-                Image image = (Image)Properties.GetObject(s_propImage);
-                if (animate)
+                return;
+            }
+
+            Image image = (Image)Properties.GetObject(s_propImage);
+            if (animate)
+            {
+                if (image is not null)
                 {
-                    if (image is not null)
-                    {
-                        ImageAnimator.Animate(image, new EventHandler(OnFrameChanged));
-                        _labelState[s_stateAnimating] = animate ? 1 : 0;
-                    }
+                    ImageAnimator.Animate(image, OnFrameChanged);
+                    _labelState[s_stateAnimating] = animate ? 1 : 0;
                 }
-                else
+            }
+            else
+            {
+                if (image is not null)
                 {
-                    if (image is not null)
-                    {
-                        ImageAnimator.StopAnimate(image, new EventHandler(OnFrameChanged));
-                        _labelState[s_stateAnimating] = animate ? 1 : 0;
-                    }
+                    ImageAnimator.StopAnimate(image, OnFrameChanged);
+                    _labelState[s_stateAnimating] = animate ? 1 : 0;
                 }
             }
         }
@@ -980,11 +972,12 @@ namespace System.Windows.Forms
             if (disposing)
             {
                 StopAnimate();
+
                 // Holding on to images and image list is a memory leak.
                 if (ImageList is not null)
                 {
-                    ImageList.Disposed -= new EventHandler(DetachImageList);
-                    ImageList.RecreateHandle -= new EventHandler(ImageListRecreateHandle);
+                    ImageList.Disposed -= DetachImageList;
+                    ImageList.RecreateHandle -= ImageListRecreateHandle;
                     Properties.SetObject(s_propImageList, null);
                 }
 
@@ -993,12 +986,8 @@ namespace System.Windows.Forms
                     Properties.SetObject(s_propImage, null);
                 }
 
-                //Dispose the tooltip if one present..
-                if (_textToolTip is not null)
-                {
-                    _textToolTip.Dispose();
-                    _textToolTip = null;
-                }
+                _textToolTip?.Dispose();
+                _textToolTip = null;
 
                 _controlToolTip = false;
             }
@@ -1059,7 +1048,7 @@ namespace System.Windows.Forms
             }
             else
             {
-                // in Whidbey we'll actually ask the control the border size.
+                // In Whidbey we'll actually ask the control the border size.
 
                 bordersAndPadding += SizeFromClientSize(Size.Empty);
                 if (BorderStyle == BorderStyle.Fixed3D)
@@ -1479,11 +1468,7 @@ namespace System.Windows.Forms
         /// <summary>
         ///  Returns a string representation for this control.
         /// </summary>
-        public override string ToString()
-        {
-            string s = base.ToString();
-            return s + ", Text: " + Text;
-        }
+        public override string ToString() => $"{base.ToString()}, Text: {Text}";
 
         /// <summary>
         ///  Overrides Control. This processes certain messages that the Win32 STATIC class would normally override.

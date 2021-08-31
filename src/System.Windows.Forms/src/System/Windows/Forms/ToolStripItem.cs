@@ -18,18 +18,18 @@ using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 namespace System.Windows.Forms
 {
     [DesignTimeVisible(false)]
-    [Designer("System.Windows.Forms.Design.ToolStripItemDesigner, " + AssemblyRef.SystemDesign)]
+    [Designer($"System.Windows.Forms.Design.ToolStripItemDesigner, {AssemblyRef.SystemDesign}")]
     [DefaultEvent(nameof(Click))]
     [ToolboxItem(false)]
     [DefaultProperty(nameof(Text))]
     public abstract partial class ToolStripItem : Component,
-                              IDropTarget,
-                              ISupportOleDropSource,
-                              IArrangedElement,
-                              IKeyboardToolTip
+        IDropTarget,
+        ISupportOleDropSource,
+        IArrangedElement,
+        IKeyboardToolTip
     {
 #if DEBUG
-        internal static readonly TraceSwitch s_mouseDebugging = new TraceSwitch("MouseDebugging", "Debug ToolStripItem mouse debugging code");
+        internal static readonly TraceSwitch s_mouseDebugging = new("MouseDebugging", "Debug ToolStripItem mouse debugging code");
 #else
         internal static readonly TraceSwitch s_mouseDebugging;
 #endif
@@ -59,36 +59,36 @@ namespace System.Windows.Forms
 
         private ToolStripItemDisplayStyle _displayStyle = ToolStripItemDisplayStyle.ImageAndText;
 
-        private static readonly ArrangedElementCollection s_emptyChildCollection = new ArrangedElementCollection();
+        private static readonly ArrangedElementCollection s_emptyChildCollection = new();
 
-        internal static readonly object s_mouseDownEvent = new object();
-        internal static readonly object s_mouseEnterEvent = new object();
-        internal static readonly object s_mouseLeaveEvent = new object();
-        internal static readonly object s_mouseHoverEvent = new object();
-        internal static readonly object s_mouseMoveEvent = new object();
-        internal static readonly object s_mouseUpEvent = new object();
-        internal static readonly object s_clickEvent = new object();
-        internal static readonly object s_doubleClickEvent = new object();
-        internal static readonly object s_dragDropEvent = new object();
-        internal static readonly object s_dragEnterEvent = new object();
-        internal static readonly object s_dragLeaveEvent = new object();
-        internal static readonly object s_dragOverEvent = new object();
-        internal static readonly object s_displayStyleChangedEvent = new object();
-        internal static readonly object s_enabledChangedEvent = new object();
-        internal static readonly object s_internalEnabledChangedEvent = new object();
-        internal static readonly object s_fontChangedEvent = new object();
-        internal static readonly object s_foreColorChangedEvent = new object();
-        internal static readonly object s_backColorChangedEvent = new object();
-        internal static readonly object s_giveFeedbackEvent = new object();
-        internal static readonly object s_queryContinueDragEvent = new object();
-        internal static readonly object s_queryAccessibilityHelpEvent = new object();
-        internal static readonly object s_locationChangedEvent = new object();
-        internal static readonly object s_rightToLeftChangedEvent = new object();
-        internal static readonly object s_visibleChangedEvent = new object();
-        internal static readonly object s_availableChangedEvent = new object();
-        internal static readonly object s_ownerChangedEvent = new object();
-        internal static readonly object s_paintEvent = new object();
-        internal static readonly object s_textChangedEvent = new object();
+        internal static readonly object s_mouseDownEvent = new();
+        internal static readonly object s_mouseEnterEvent = new();
+        internal static readonly object s_mouseLeaveEvent = new();
+        internal static readonly object s_mouseHoverEvent = new();
+        internal static readonly object s_mouseMoveEvent = new();
+        internal static readonly object s_mouseUpEvent = new();
+        internal static readonly object s_clickEvent = new();
+        internal static readonly object s_doubleClickEvent = new();
+        internal static readonly object s_dragDropEvent = new();
+        internal static readonly object s_dragEnterEvent = new();
+        internal static readonly object s_dragLeaveEvent = new();
+        internal static readonly object s_dragOverEvent = new();
+        internal static readonly object s_displayStyleChangedEvent = new();
+        internal static readonly object s_enabledChangedEvent = new();
+        internal static readonly object s_internalEnabledChangedEvent = new();
+        internal static readonly object s_fontChangedEvent = new();
+        internal static readonly object s_foreColorChangedEvent = new();
+        internal static readonly object s_backColorChangedEvent = new();
+        internal static readonly object s_giveFeedbackEvent = new();
+        internal static readonly object s_queryContinueDragEvent = new();
+        internal static readonly object s_queryAccessibilityHelpEvent = new();
+        internal static readonly object s_locationChangedEvent = new();
+        internal static readonly object s_rightToLeftChangedEvent = new();
+        internal static readonly object s_visibleChangedEvent = new();
+        internal static readonly object s_availableChangedEvent = new();
+        internal static readonly object s_ownerChangedEvent = new();
+        internal static readonly object s_paintEvent = new();
+        internal static readonly object s_textChangedEvent = new();
 
         // Property store keys for properties. The property store allocates most efficiently
         // in groups of four, so we try to lump properties in groups of four based on how
@@ -180,7 +180,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The Accessibility Object for this Control
+        ///  The Accessibility Object for this Control.
         /// </summary>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -202,7 +202,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The default action description of the control
+        ///  The default action description of the control.
         /// </summary>
         [SRCategory(nameof(SR.CatAccessibility))]
         [Browsable(false)]
@@ -220,7 +220,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The accessible description of the control
+        ///  The accessible description of the control.
         /// </summary>
         [SRCategory(nameof(SR.CatAccessibility))]
         [DefaultValue(null)]
@@ -237,7 +237,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The accessible name of the control
+        ///  The accessible name of the control.
         /// </summary>
         [SRCategory(nameof(SR.CatAccessibility))]
         [DefaultValue(null)]
@@ -254,7 +254,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The accessible role of the control
+        ///  The accessible role of the control.
         /// </summary>
         [SRCategory(nameof(SR.CatAccessibility))]
         [DefaultValue(AccessibleRole.Default)]
@@ -280,7 +280,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Determines if the item aligns towards the beginning or end of the ToolStrip.
+        ///  Determines if the item aligns towards the beginning or end of the <see cref="ToolStrip"/>.
         /// </summary>
         [DefaultValue(ToolStripItemAlignment.Left)]
         [SRCategory(nameof(SR.CatLayout))]
@@ -306,11 +306,14 @@ namespace System.Windows.Forms
 
         /// <summary>
         ///  Determines if this item can be dragged.
-        ///  This is EXACTLY like Control.AllowDrop - setting this to true WILL call
-        ///  the droptarget handlers. The ToolStripDropTargetManager is the one that
-        ///  handles the routing of DropTarget events to the ToolStripItem's IDropTarget
-        ///  methods.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   This is exactly like <see cref="Control.AllowDrop"/> - setting this to true will call the droptarget
+        ///   handlers. The <see cref="ToolStripDropTargetManager"/> is the one that handles the routing of DropTarget
+        ///   events to the <see cref="ToolStripItem"/>'s <see cref="IDropTarget"/> methods.
+        ///  </para>
+        /// </remarks>
         [SRCategory(nameof(SR.CatDragDrop))]
         [DefaultValue(false)]
         [SRDescription(nameof(SR.ToolStripItemAllowDropDescr))]
@@ -330,7 +333,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Determines whether we set the ToolStripItem to its preferred size
+        ///  Determines whether we set the <see cref="ToolStripItem"/> to its preferred size.
         /// </summary>
         [DefaultValue(true)]
         [SRCategory(nameof(SR.CatBehavior))]
@@ -354,8 +357,13 @@ namespace System.Windows.Forms
 
         /// <summary>
         ///  !!!!This property ONLY works when toolStrip.ShowItemToolTips = true!!!!
-        ///  if AutoToolTip is set to true we use the Text, if false, we use ToolTipText.
+        ///  If set to true we use the <see cref="Text"/>, if false, we use <see cref="ToolTipText"/>.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   This property only works when <see cref="ToolStrip.ShowItemToolTips"/> is true.
+        ///  </para>
+        /// </remarks>
         [DefaultValue(false)]
         [SRDescription(nameof(SR.ToolStripItemAutoToolTipDescr))]
         [SRCategory(nameof(SR.CatBehavior))]
@@ -366,8 +374,9 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  as opposed to Visible, which returns whether or not the item and its parent are Visible
-        ///  Available returns whether or not the item will be shown. Setting Available sets Visible and Vice/Versa
+        ///  As opposed to <see cref="Visible"/>, which returns whether or not the item and its parent are visible
+        ///  <see cref="Available"/> returns whether or not the item will be shown. Setting <see cref="Available"/>
+        ///  sets <see cref="Visible"/> and vice/versa
         /// </summary>
         [Browsable(false)]
         [SRDescription(nameof(SR.ToolStripItemAvailableDescr))]
@@ -444,7 +453,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The BackColor of the item
+        ///  The BackColor of the item.
         /// </summary>
         [SRCategory(nameof(SR.CatAppearance))]
         [SRDescription(nameof(SR.ToolStripItemBackColorDescr))]
@@ -490,13 +499,13 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  The bounds of the item
+        ///  The bounds of the item.
         /// </summary>
         [Browsable(false)]
         public virtual Rectangle Bounds => _bounds;
 
         /// <summary>
-        /// Zero-based rectangle, same concept as ClientRect
+        ///  Zero-based rectangle, same concept as ClientRect.
         /// </summary>
         internal Rectangle ClientBounds
         {
@@ -526,7 +535,7 @@ namespace System.Windows.Forms
         public virtual bool CanSelect => true;
 
         /// <remarks>
-        ///  Usually the same as can select, but things like the control box in an MDI window are exceptions
+        ///  Usually the same as <see cref="CanSelect"/>, but things like the control box in an MDI window are exceptions.
         /// </remarks>
         internal virtual bool CanKeyboardSelect => CanSelect;
 
@@ -548,14 +557,14 @@ namespace System.Windows.Forms
         {
             get
             {
-                // since we don't support DefaultLayout go directly against the CommonProperties
+                // Since we don't support DefaultLayout go directly against the CommonProperties.
                 return CommonProperties.xGetAnchor(this);
             }
             set
             {
                 if (value != Anchor)
                 {
-                    // since we don't support DefaultLayout go directly against the CommonProperties
+                    // Since we don't support DefaultLayout go directly against the CommonProperties.
                     CommonProperties.xSetAnchor(this, value);
                     if (ParentInternal is not null)
                     {
@@ -566,7 +575,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  This does not show up in the property grid because it only applies to flow and table layouts
+        ///  This does not show up in the property grid because it only applies to flow and table layouts.
         /// </summary>
         [Browsable(false)]
         [DefaultValue(CommonProperties.DefaultDock)]
@@ -574,7 +583,7 @@ namespace System.Windows.Forms
         {
             get
             {
-                // since we don't support DefaultLayout go directly against the CommonProperties
+                // Since we don't support DefaultLayout go directly against the CommonProperties.
                 return CommonProperties.xGetDock(this);
             }
             set
@@ -594,7 +603,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Default setting of auto tooltip when this object is created
+        ///  Default setting of auto tooltip when this object is created.
         /// </summary>
         protected virtual bool DefaultAutoToolTip => false;
 
@@ -627,9 +636,9 @@ namespace System.Windows.Forms
         /// </summary>
         protected virtual Size DefaultSize
         {
-            get => DpiHelper.IsPerMonitorV2Awareness ?
-                    DpiHelper.LogicalToDeviceUnits(new Size(23, 23), DeviceDpi) :
-                    new Size(23, 23);
+            get => DpiHelper.IsPerMonitorV2Awareness
+                ? DpiHelper.LogicalToDeviceUnits(new Size(23, 23), DeviceDpi)
+                : new Size(23, 23);
         }
 
         protected virtual ToolStripItemDisplayStyle DefaultDisplayStyle => ToolStripItemDisplayStyle.ImageAndText;
@@ -778,14 +787,15 @@ namespace System.Windows.Forms
             }
             set
             {
-                // flip disabled bit.
+                // Flip disabled bit.
                 if (_state[s_stateEnabled] != value)
                 {
                     _state[s_stateEnabled] = value;
                     if (!_state[s_stateEnabled])
                     {
                         bool wasSelected = _state[s_stateSelected];
-                        // clear all the other states.
+
+                        // Clear all the other states.
                         _state[s_stateSelected | s_statePressed] = false;
 
                         if (wasSelected)
@@ -1075,22 +1085,27 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Returns the ToolStripItem's currently set image index
-        ///  Here for compat only - this is NOT to be visible at DT.
+        ///  Returns the ToolStripItem's currently set image index.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   Here for compat only - this is not to be visible at design time.
+        ///  </para>
+        /// </remarks>
         [SRDescription(nameof(SR.ToolStripItemImageIndexDescr))]
         [Localizable(true)]
         [SRCategory(nameof(SR.CatBehavior))]
         [RefreshProperties(RefreshProperties.Repaint)]
         [TypeConverter(typeof(NoneExcludedImageIndexConverter))]
-        [Editor("System.Windows.Forms.Design.ImageIndexEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor))]
+        [Editor($"System.Windows.Forms.Design.ImageIndexEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor))]
         [Browsable(false)]
         [RelatedImageList("Owner.ImageList")]
         public int ImageIndex
         {
             get
             {
-                if ((Owner is not null) && ImageIndexer.Index != ImageList.Indexer.DefaultIndex && Owner.ImageList is not null && ImageIndexer.Index >= Owner.ImageList.Images.Count)
+                if ((Owner is not null) && ImageIndexer.Index != ImageList.Indexer.DefaultIndex
+                    && Owner.ImageList is not null && ImageIndexer.Index >= Owner.ImageList.Images.Count)
                 {
                     return Owner.ImageList.Images.Count - 1;
                 }
@@ -1101,11 +1116,14 @@ namespace System.Windows.Forms
             {
                 if (value < ImageList.Indexer.DefaultIndex)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), string.Format(SR.InvalidLowBoundArgumentEx, nameof(ImageIndex), value, ImageList.Indexer.DefaultIndex));
+                    throw new ArgumentOutOfRangeException(
+                        nameof(value),
+                        string.Format(SR.InvalidLowBoundArgumentEx, nameof(ImageIndex), value, ImageList.Indexer.DefaultIndex));
                 }
 
                 ImageIndexer.Index = value;
                 _state[s_stateInvalidMirroredImage] = true;
+
                 // Set the Image Property to null
                 Properties.SetObject(s_imageProperty, null);
 
@@ -1117,15 +1135,19 @@ namespace System.Windows.Forms
             => _imageIndexer ??= new ToolStripItemImageIndexer(this);
 
         /// <summary>
-        ///  Returns the ToolStripItem's currently set image index
-        ///  Here for compat only - this is NOT to be visible at DT.
+        ///  Returns the ToolStripItem's currently set image index.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   Here for compat only - this is not to be visible at design time.
+        ///  </para>
+        /// </remarks>
         [SRDescription(nameof(SR.ToolStripItemImageKeyDescr))]
         [SRCategory(nameof(SR.CatBehavior))]
         [Localizable(true)]
         [TypeConverter(typeof(ImageKeyConverter))]
         [RefreshProperties(RefreshProperties.Repaint)]
-        [Editor("System.Windows.Forms.Design.ToolStripImageIndexEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor))]
+        [Editor($"System.Windows.Forms.Design.ToolStripImageIndexEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor))]
         [Browsable(false)]
         [RelatedImageList("Owner.ImageList")]
         public string ImageKey
@@ -1221,8 +1243,7 @@ namespace System.Windows.Forms
         internal virtual bool IsMnemonicsListenerAxSourced => true;
 
         /// <summary>
-        ///  Occurs when the location of the ToolStripItem has been updated -- usually by layout by its
-        ///  owner of ToolStrips
+        ///  Occurs when the location of the ToolStripItem has been updated -- usually by layout by its owner.
         /// </summary>
         [SRCategory(nameof(SR.CatLayout))]
         [SRDescription(nameof(SR.ToolStripItemOnLocationChangedDescr))]
@@ -1371,15 +1392,19 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Name of this control. The designer will set this to the same
-        ///  as the programatic Id "(name)" of the control. The name can be
-        ///  used as a key into the ControlCollection.
+        ///  Name of this control.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   The designer will set this to the same as the programatic Id "(name)" of the control. The name can be
+        ///   used as a key into the <see cref="Control.ControlCollection"/>.
+        ///  </para>
+        /// </remarks>
         [Browsable(false)]
         [DefaultValue(null)]
         public string Name
         {
-            get => WindowsFormsUtils.GetComponentName(this, (string)Properties.GetObject(ToolStripItem.s_nameProperty));
+            get => WindowsFormsUtils.GetComponentName(this, (string)Properties.GetObject(s_nameProperty));
             set
             {
                 if (DesignMode)
@@ -1387,7 +1412,7 @@ namespace System.Windows.Forms
                     return;
                 }
 
-                Properties.SetObject(ToolStripItem.s_nameProperty, value);
+                Properties.SetObject(s_nameProperty, value);
             }
         }
 
@@ -1506,7 +1531,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Specifies the internal spacing between the contents and the edges of the item
+        ///  Specifies the internal spacing between the contents and the edges of the item.
         /// </summary>
         [SRDescription(nameof(SR.ToolStripItemPaddingDescr))]
         [SRCategory(nameof(SR.CatLayout))]
@@ -1524,7 +1549,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  This is explicitly a ToolStrip, because only ToolStrips know how to manage ToolStripItems
+        ///  This is explicitly a ToolStrip, because only ToolStrips know how to manage ToolStripItems.
         /// </summary>
         internal ToolStrip ParentInternal
         {
@@ -1556,7 +1581,7 @@ namespace System.Windows.Forms
                 }
 
                 Image image = (Image)Properties.GetObject(s_imageProperty);
-                bool usingImageList = ((Owner is not null) && (Owner.ImageList is not null) && (ImageIndexer.ActualIndex >= 0));
+                bool usingImageList = (Owner?.ImageList is not null) && (ImageIndexer.ActualIndex >= 0);
 
                 if (ImageScaling == ToolStripItemImageScaling.SizeToFit)
                 {
@@ -1567,29 +1592,20 @@ namespace System.Windows.Forms
                     }
                 }
 
-                Size imageSize = Size.Empty;
-                if (usingImageList)
-                {
-                    imageSize = Owner.ImageList.ImageSize;
-                }
-                else
-                {
-                    imageSize = (image is null) ? Size.Empty : image.Size;
-                }
-
-                return imageSize;
+                return usingImageList
+                    ? Owner.ImageList.ImageSize
+                    : image?.Size ?? Size.Empty;
             }
         }
 
         /// <summary>
-        ///  Retrieves our internal property storage object. If you have a property
-        ///  whose value is not always set, you should store it in here to save
-        ///  space.
+        ///  Retrieves our internal property storage object. If you have a property whose value is not always set, you
+        ///  should store it in here to save space.
         /// </summary>
         internal PropertyStore Properties => _propertyStore ??= new PropertyStore();
 
         /// <summary>
-        ///  Returns true if the state of the item is pushed
+        ///  Returns true if the state of the item is pushed.
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1614,7 +1630,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Returns the value of the backColor field -- no asking the parent with its color is, etc.
+        ///  Returns the value of the BackColor field without asking the parent.
         /// </summary>
         internal Color RawBackColor => Properties.GetColor(s_backColorProperty);
 
@@ -1632,9 +1648,8 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  This is used for international applications where the language
-        ///  is written from RightToLeft. When this property is true,
-        ///  control placement and text will be from right to left.
+        ///  This is used for international applications where the language is written from right to left. When this
+        ///  property is true, control placement and text will be from right to left.
         /// </summary>
         [SRCategory(nameof(SR.CatAppearance))]
         [Localizable(true)]
@@ -1657,7 +1672,7 @@ namespace System.Windows.Forms
                     }
                     else if (ParentInternal is not null)
                     {
-                        // case for Overflow & Grip
+                        // Case for Overflow & Grip
                         rightToLeft = (int)ParentInternal.RightToLeft;
                     }
                     else
@@ -1688,11 +1703,14 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Mirrors the image when RTL.Yes.
-        ///  Note we do not change what is returned back from the Image property as this would cause problems with serialization.
-        ///  Instead we only change what is painted - there's an internal MirroredImage property which fills in as
-        ///  e.Image in the ToolStripItemImageRenderEventArgs if the item is RTL.Yes and AutoMirrorImage is turned on.
+        ///  Mirrors the image when <see cref="RightToLeft"/> is <see cref="RightToLeft.Yes"/>.
         /// </summary>
+        /// <devdoc>
+        ///  Note we do not change what is returned back from the <see cref="Image"/> property as this would cause
+        ///  problems withserialization. Instead we only change what is painted - there's an internal
+        ///  <see cref="MirroredImage"/> property which fills in <see cref="ToolStripItemImageRenderEventArgs.Image"/>
+        ///  if the item is <see cref="RightToLeft.Yes"/> and <see cref="AutoMirrorImage"/> is turned on.
+        /// </devdoc>
         [DefaultValue(false)]
         [SRCategory(nameof(SR.CatAppearance))]
         [Localizable(true)]
@@ -1743,22 +1761,32 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  if the item is selected we return true.
-        ///
+        ///  If the item is selected we return true.
+        /// </summary>
+        /// <devdoc>
         ///  FAQ: Why don't we have a Hot or MouseIsOver property?
-        ///  After going through the scenarios, we've decided NOT to add a separate MouseIsOver or Hot flag to ToolStripItem. The thing to use is 'Selected'.
-        ///  Why?  While the selected thing can be different than the moused over item, the selected item is ALWAYS the one you want to paint differently
+        ///
+        ///  After going through the scenarios, we've decided NOT to add a separate MouseIsOver or Hot flag to ToolStripItem.
+        ///  The thing to use is 'Selected'. Why?  While the selected thing can be different than the moused over item, the
+        ///  selected item is ALWAYS the one you want to paint differently.
         ///
         ///  Scenario 1:  Keyboard select an item then select a different item with the mouse.
-        ///  -          Do Alt+F to expand your File menu, keyboard down several items.
-        ///  -          Mouse over a different item
-        ///  -          Notice how two things are never painted hot at the same time, and how the selection changes from the keyboard selected item to the one selected with the mouse. In  this case the selection should move with the mouse selection.
-        ///  -          Notice how if you hit enter when the mouse is over it, it executes the item. That's selection.
-        ///  Scenario 2: Put focus into a combo box, then mouse over a different item
-        ///  -          Notice how all the other items you mouse over do not change the way they are painted, if you hit enter, that goes to the combobox, rather than executing the current item.
         ///
-        ///  At first look "MouseIsOver" or "Hot" seems to be the thing people want, but its almost never the desired behavior. A unified selection model is simpler and seems to meet the scenarios.
-        /// </summary>
+        ///      - Do Alt+F to expand your File menu, keyboard down several items.
+        ///      - Mouse over a different item
+        ///      - Notice how two things are never painted hot at the same time, and how the selection changes from the
+        ///         keyboard selected item to the one selected with the mouse. In  this case the selection should move
+        ///         with the mouse selection.
+        ///      - Notice how if you hit enter when the mouse is over it, it executes the item. That's selection.
+        ///
+        ///  Scenario 2: Put focus into a combo box, then mouse over a different item
+        ///  
+        ///     - Notice how all the other items you mouse over do not change the way they are painted, if you hit enter,
+        ///       that goes to the combobox, rather than executing the current item.
+        ///
+        ///  At first look "MouseIsOver" or "Hot" seems to be the thing people want, but its almost never the desired
+        ///  behavior. A unified selection model is simpler and seems to meet the scenarios.
+        /// </devdoc>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual bool Selected
@@ -1820,18 +1848,18 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (Properties.ContainsObject(ToolStripItem.s_tagProperty))
+                if (Properties.ContainsObject(s_tagProperty))
                 {
-                    return _propertyStore.GetObject(ToolStripItem.s_tagProperty);
+                    return _propertyStore.GetObject(s_tagProperty);
                 }
 
                 return null;
             }
-            set => Properties.SetObject(ToolStripItem.s_tagProperty, value);
+            set => Properties.SetObject(s_tagProperty, value);
         }
 
         /// <summary>
-        ///  The text of the item
+        ///  The text of the item.
         /// </summary>
         [DefaultValue("")]
         [SRCategory(nameof(SR.CatAppearance))]
@@ -1841,9 +1869,9 @@ namespace System.Windows.Forms
         {
             get
             {
-                if (Properties.ContainsObject(ToolStripItem.s_textProperty))
+                if (Properties.ContainsObject(s_textProperty))
                 {
-                    return (string)Properties.GetObject(ToolStripItem.s_textProperty);
+                    return (string)Properties.GetObject(s_textProperty);
                 }
 
                 return string.Empty;
@@ -1852,7 +1880,7 @@ namespace System.Windows.Forms
             {
                 if (value != Text)
                 {
-                    Properties.SetObject(ToolStripItem.s_textProperty, value);
+                    Properties.SetObject(s_textProperty, value);
                     OnTextChanged(EventArgs.Empty);
                 }
             }
@@ -1895,16 +1923,16 @@ namespace System.Windows.Forms
             get
             {
                 ToolStripTextDirection textDirection = ToolStripTextDirection.Inherit;
-                if (Properties.ContainsObject(ToolStripItem.s_textDirectionProperty))
+                if (Properties.ContainsObject(s_textDirectionProperty))
                 {
-                    textDirection = (ToolStripTextDirection)Properties.GetObject(ToolStripItem.s_textDirectionProperty);
+                    textDirection = (ToolStripTextDirection)Properties.GetObject(s_textDirectionProperty);
                 }
 
                 if (textDirection == ToolStripTextDirection.Inherit)
                 {
                     if (ParentInternal is not null)
                     {
-                        // in the case we're on a ToolStripOverflow
+                        // In the case we're on a ToolStripOverflow
                         textDirection = ParentInternal.TextDirection;
                     }
                     else
@@ -1919,7 +1947,7 @@ namespace System.Windows.Forms
             {
                 SourceGenerated.EnumValidator.Validate(value);
 
-                Properties.SetObject(ToolStripItem.s_textDirectionProperty, value);
+                Properties.SetObject(s_textDirectionProperty, value);
                 InvalidateItemLayout("TextDirection");
             }
         }
@@ -1944,12 +1972,17 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  !!!!This property ONLY works when toolStrip.ShowItemToolTips = true!!!!
-        ///  if AutoToolTip is set to true we return the Text as the ToolTipText.
+        ///  !!!!!!!!
+        ///  If <see cref="AutoToolTip"/> is set to true we return the <see cref="Text"/> as the <see cref="ToolTipText"/>.
         /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   This property only works when <see cref="ToolStrip.ShowItemToolTips"/> is true.
+        ///  </para>
+        /// </remarks>
         [SRDescription(nameof(SR.ToolStripItemToolTipTextDescr))]
         [SRCategory(nameof(SR.CatBehavior))]
-        [Editor("System.ComponentModel.Design.MultilineStringEditor, " + AssemblyRef.SystemDesign, typeof(UITypeEditor))]
+        [Editor($"System.ComponentModel.Design.MultilineStringEditor, {AssemblyRef.SystemDesign}", typeof(UITypeEditor))]
         [Localizable(true)]
         public string ToolTipText
         {
@@ -1960,8 +1993,8 @@ namespace System.Windows.Forms
                     string toolText = Text;
                     if (WindowsFormsUtils.ContainsMnemonic(toolText))
                     {
-                        // this shouldn't be called a lot so we can take the perf hit here.
-                        toolText = string.Join("", toolText.Split('&'));
+                        // This shouldn't be called a lot so we can take the perf hit here.
+                        toolText = toolText.Replace("&", string.Empty);
                     }
 
                     return toolText;
@@ -2073,11 +2106,9 @@ namespace System.Windows.Forms
             => new ToolStripItemAccessibleObject(this);
 
         /// <summary>
-        ///  Creates an instance of the object that defines how image and text
-        ///  gets laid out in the ToolStripItem
+        ///  Creates an instance of the object that defines how image and text gets laid out in the ToolStripItem.
         /// </summary>
-        private protected virtual ToolStripItemInternalLayout CreateInternalLayout()
-            => new ToolStripItemInternalLayout(this);
+        private protected virtual ToolStripItemInternalLayout CreateInternalLayout() => new(this);
 
         /// <summary>
         ///  Disposes this ToolStrip item.
@@ -2098,12 +2129,12 @@ namespace System.Windows.Forms
                 }
             }
 
+            // Need to call basefirst since the Component.Dispose() is listened to by the ComponentChangeService
+            // which Serializes the object in Undo-Redo transactions.
             base.Dispose(disposing);
 
             if (disposing)
             {
-                // need to call base() first since the Component.Dispose(_) is listened to by the ComponentChangeService
-                // which Serializes the object in Undo-Redo transactions.
                 Properties.SetObject(s_mirroredImageProperty, null);
                 Properties.SetObject(s_imageProperty, null);
                 _state[s_stateDisposing] = false;
@@ -2118,35 +2149,32 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Begins a drag operation. The allowedEffects determine which
-        ///  drag operations can occur. If the drag operation needs to interop
-        ///  with applications in another process, data should either be
-        ///  a base managed class (String, Bitmap, or Metafile) or some Object
-        ///  that implements System.Runtime.Serialization.ISerializable. data can also be any Object that
-        ///  implements System.Windows.Forms.IDataObject.
+        ///  Begins a drag operation. The <paramref name="allowedEffects"/> determine which drag operations can occur.
+        ///  If the drag operation needs to interop with applications in another process, <paramref name="data"/> should
+        ///  either be a base managed class (<see cref="String"/>, <see cref="Bitmap"/>, or <see cref="Metafile"/>) or
+        ///  some object that implements <see cref="Runtime.Serialization.ISerializable"/>. <paramref name="data"/> can
+        ///  also be any object that implements <see cref="IDataObject"/>.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public DragDropEffects DoDragDrop(object data, DragDropEffects allowedEffects)
         {
             Ole32.IDropSource dropSource = DropSource;
-            IComDataObject dataObject = null;
+            IComDataObject dataObject;
 
             dataObject = data as IComDataObject;
             if (dataObject is null)
             {
-                DataObject iwdata = null;
+                DataObject iwdata;
                 if (data is IDataObject idataObject)
                 {
                     iwdata = new DataObject(idataObject);
                 }
                 else if (data is ToolStripItem)
                 {
-                    // it seems that the DataObject does string comparison
-                    // on the type, so you can't ask for GetDataPresent of
-                    // a base type (e.g. ToolStripItem) when you are really
-                    // looking at a ToolStripButton. The alternative is
-                    // to set the format string expressly to a string matching
-                    // the type of ToolStripItem
+                    // It seems that the DataObject does string comparison on the type, so you can't ask for
+                    // GetDataPresent of a base type (e.g. ToolStripItem) when you are really looking at a
+                    // ToolStripButton. The alternative is to set the format string expressly to a string matching
+                    // the type of ToolStripItem.
                     iwdata = new DataObject();
                     iwdata.SetData(typeof(ToolStripItem).ToString(), data);
                 }
@@ -2156,7 +2184,7 @@ namespace System.Windows.Forms
                     iwdata.SetData(data);
                 }
 
-                dataObject = (IComDataObject)iwdata;
+                dataObject = iwdata;
             }
 
             HRESULT hr = Ole32.DoDragDrop(dataObject, dropSource, (Ole32.DROPEFFECT)allowedEffects, out Ole32.DROPEFFECT finalEffect);
@@ -2170,6 +2198,7 @@ namespace System.Windows.Forms
 
         internal void FireEvent(ToolStripItemEventType met)
             => FireEvent(EventArgs.Empty, met);
+
         internal void FireEvent(EventArgs e, ToolStripItemEventType met)
         {
             switch (met)
@@ -2181,8 +2210,7 @@ namespace System.Windows.Forms
                     HandlePaint(e as PaintEventArgs);
                     break;
                 case ToolStripItemEventType.MouseHover:
-                    // disabled toolstrip items should show tooltips.
-                    // we won't raise mouse events though.
+                    // Disabled toolstrip items should show tooltips. We won't raise mouse events though.
                     if (!Enabled && ParentInternal is not null && !string.IsNullOrEmpty(ToolTipText))
                     {
                         ParentInternal.UpdateToolTip(this);
@@ -2197,8 +2225,7 @@ namespace System.Windows.Forms
                     HandleMouseEnter(e);
                     break;
                 case ToolStripItemEventType.MouseLeave:
-                    // disabled toolstrip items should also clear tooltips.
-                    // we won't raise mouse events though.
+                    // Disabled toolstrip items should also clear tooltips. We won't raise mouse events though.
                     if (!Enabled && ParentInternal is not null)
                     {
                         ParentInternal.UpdateToolTip(null);
@@ -2210,8 +2237,8 @@ namespace System.Windows.Forms
 
                     break;
                 case ToolStripItemEventType.MouseMove:
-                    // Disabled items typically don't get mouse move
-                    // but they should be allowed to re-order if the ALT key is pressed
+                    // Disabled items typically don't get mouse move but they should be allowed to re-order if the
+                    // ALT key is pressed.
                     if (!Enabled && ParentInternal is not null)
                     {
                         BeginDragForItemReorder();
@@ -2238,7 +2265,7 @@ namespace System.Windows.Forms
                         HandleMouseMove(e as MouseEventArgs);
                         break;
                     case ToolStripItemEventType.MouseHover:
-                        HandleMouseHover(e as EventArgs);
+                        HandleMouseHover(e);
                         break;
                     case ToolStripItemEventType.MouseUp:
                         HandleMouseUp(e as MouseEventArgs);
@@ -2261,10 +2288,9 @@ namespace System.Windows.Forms
 
         private Font GetOwnerFont() => Owner?.Font;
 
-        /// <summary>
-        ///  We don't want a public settable property and usually owner will work
-        ///  except for things like the overflow button
-        /// </summary>
+        /// <devdoc>
+        ///  We don't want a public settable property and usually owner will work except for things like the overflow button.
+        /// </devdoc>
         public ToolStrip GetCurrentParent() => Parent;
 
         internal ToolStripDropDown GetCurrentParentDropDown()
@@ -2279,7 +2305,7 @@ namespace System.Windows.Forms
 
         public virtual Size GetPreferredSize(Size constrainingSize)
         {
-            // Switch Size.Empty to maximum possible values
+            // Switch Size.Empty to maximum possible values.
             constrainingSize = LayoutUtils.ConvertZeroToUnbounded(constrainingSize);
             return InternalLayout.GetPreferredSize(constrainingSize - Padding.Size) + Padding.Size;
         }
@@ -2299,18 +2325,17 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Invalidates the ToolStripItem
+        ///  Invalidates the <see cref="ToolStripItem"/>.
         /// </summary>
         public void Invalidate() => ParentInternal?.Invalidate(Bounds, true);
 
         /// <summary>
-        ///  invalidates a rectangle within the ToolStripItem's bounds
+        ///  Invalidates a rectangle within the <see cref="ToolStripItem"/>'s bounds
         /// </summary>
         public void Invalidate(Rectangle r)
         {
-            // the only value add to this over calling invalidate on the ToolStrip is that
-            // you can specify the rectangle with coordinates relative to the upper left hand
-            // corner of the ToolStripItem.
+            // The only value add to this over calling invalidate on the ToolStrip is that you can specify the rectangle
+            // with coordinates relative to the upper left hand corner of the ToolStripItem.
             Point rectangleLocation = TranslatePoint(r.Location, ToolStripPointType.ToolStripItemCoords, ToolStripPointType.ToolStripCoords);
             ParentInternal?.Invalidate(new Rectangle(rectangleLocation, r.Size), true);
         }
@@ -2328,7 +2353,7 @@ namespace System.Windows.Forms
 
         internal void InvalidateImageListImage()
         {
-            // invalidate the cache.
+            // Invalidate the cache.
             if (ImageIndexer.ActualIndex >= 0)
             {
                 Properties.SetObject(s_imageProperty, null);
@@ -2344,7 +2369,7 @@ namespace System.Windows.Forms
 
         private void HandleClick(EventArgs e)
         {
-            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] HandleClick");
+            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] HandleClick");
 
             try
             {
@@ -2353,13 +2378,13 @@ namespace System.Windows.Forms
                     _state[s_statePressed] = true;
                 }
 
-                // force painting w/o using message loop here because it may be quite a long
+                // Force painting w/o using message loop here because it may be quite a long
                 // time before it gets pumped again.
                 InvokePaint();
 
                 if (SupportsItemClick && Owner is not null)
                 {
-                    Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] HandleItemClick");
+                    Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] HandleItemClick");
                     Owner.HandleItemClick(this);
                 }
 
@@ -2367,7 +2392,7 @@ namespace System.Windows.Forms
 
                 if (SupportsItemClick && Owner is not null)
                 {
-                    Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] HandleItemClicked");
+                    Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] HandleItemClicked");
                     Owner.HandleItemClicked(this);
                 }
             }
@@ -2376,7 +2401,7 @@ namespace System.Windows.Forms
                 _state[s_statePressed] = false;
             }
 
-            // when we get around to it, paint unpressed.
+            // When we get around to it, paint unpressed.
             Invalidate();
         }
 
@@ -2393,34 +2418,32 @@ namespace System.Windows.Forms
 
         private void HandleMouseEnter(EventArgs e)
         {
-            if (!DesignMode)
+            if (!DesignMode
+                && ParentInternal is not null
+                && ParentInternal.CanHotTrack
+                && ParentInternal.ShouldSelectItem())
             {
-                if (ParentInternal is not null
-                     && ParentInternal.CanHotTrack
-                     && ParentInternal.ShouldSelectItem())
+                if (Enabled)
                 {
-                    if (Enabled)
-                    {
-                        // calling select can dismiss a child dropdown which would break auto-expansion.
-                        // save off auto expand and restore it.
-                        bool autoExpand = ParentInternal.MenuAutoExpand;
+                    // calling select can dismiss a child dropdown which would break auto-expansion.
+                    // save off auto expand and restore it.
+                    bool autoExpand = ParentInternal.MenuAutoExpand;
 
-                        if (ParentInternal.LastMouseDownedItem == this)
+                    if (ParentInternal.LastMouseDownedItem == this)
+                    {
+                        // Same as Control.MouseButtons == MouseButtons.Left, but slightly more efficient.
+                        if (User32.GetKeyState((int)Keys.LButton) < 0)
                         {
-                            // Same as Control.MouseButtons == MouseButtons.Left, but slightly more efficient.
-                            if (User32.GetKeyState((int)Keys.LButton) < 0)
-                            {
-                                Push(true);
-                            }
+                            Push(true);
                         }
+                    }
 
-                        Select();
-                        ParentInternal.MenuAutoExpand = autoExpand;
-                    }
-                    else if (SupportsDisabledHotTracking)
-                    {
-                        Select();
-                    }
+                    Select();
+                    ParentInternal.MenuAutoExpand = autoExpand;
+                }
+                else if (SupportsDisabledHotTracking)
+                {
+                    Select();
                 }
             }
 
@@ -2429,14 +2452,14 @@ namespace System.Windows.Forms
             if (Enabled)
             {
                 OnMouseEnter(e);
-                Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] MouseEnter");
+                Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] MouseEnter");
                 RaiseEvent(s_mouseEnterEvent, e);
             }
         }
 
         private void HandleMouseMove(MouseEventArgs mea)
         {
-            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] MouseMove");
+            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] MouseMove");
 
             if (Enabled && CanSelect && !Selected)
             {
@@ -2444,9 +2467,8 @@ namespace System.Windows.Forms
                      && ParentInternal.CanHotTrack
                      && ParentInternal.ShouldSelectItem())
                 {
-                    // this is the case where we got a mouse enter, but ShouldSelectItem
-                    // returned false.
-                    // typically occurs when a window first opens - we get a mouse enter on the item
+                    // This is the case where we got a mouse enter, but ShouldSelectItem returned false.
+                    // Typically occurs when a window first opens - we get a mouse enter on the item
                     // the cursor is hovering over - but we don't actually want to change selection to it.
                     Select();
                 }
@@ -2458,7 +2480,7 @@ namespace System.Windows.Forms
 
         private void HandleMouseHover(EventArgs e)
         {
-            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] MouseHover");
+            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] MouseHover");
             OnMouseHover(e);
             RaiseEvent(s_mouseHoverEvent, e);
         }
@@ -2477,7 +2499,7 @@ namespace System.Windows.Forms
 
         private void HandleMouseLeave(EventArgs e)
         {
-            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] MouseLeave");
+            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] MouseLeave");
             HandleLeave();
             if (Enabled)
             {
@@ -2488,7 +2510,7 @@ namespace System.Windows.Forms
 
         private void HandleMouseDown(MouseEventArgs e)
         {
-            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, "[" + Text + "] MouseDown");
+            Debug.WriteLineIf(s_mouseDebugging.TraceVerbose, $"[{Text}] MouseDown");
 
             _state[s_stateMouseDownAndNoDrag] = !BeginDragForItemReorder();
             if (_state[s_stateMouseDownAndNoDrag])
@@ -2498,7 +2520,6 @@ namespace System.Windows.Forms
                     Push(true);
                 }
 
-                //
                 OnMouseDown(e);
                 RaiseMouseEvent(s_mouseDownEvent, e);
             }
@@ -2512,11 +2533,9 @@ namespace System.Windows.Forms
 
             if (!fireMouseUp && !MouseDownAndUpMustBeInSameItem)
             {
-                // in the case of menus, you can mouse down on one item and mouse up
-                // on another. We do need to be careful
-                // that the mouse has actually moved from when a dropdown has been opened -
-                // otherwise we may accidentally click what's underneath the mouse at the time
-                // the dropdown is opened.
+                // In the case of menus, you can mouse down on one item and mouse up on another. We do need to be
+                // careful that the mouse has actually moved from when a dropdown has been opened - otherwise we may
+                // accidentally click what's underneath the mouse at the time the dropdown is opened.
                 fireMouseUp = ParentInternal.ShouldSelectItem();
             }
 
@@ -2532,9 +2551,11 @@ namespace System.Windows.Forms
                         long newTime = DateTime.Now.Ticks;
                         long deltaTicks = newTime - _lastClickTime;
                         _lastClickTime = newTime;
-                        // use >= for cases where the delta is so fast DateTime cannot pick up the delta.
+
+                        // Use >= for cases where the delta is so fast DateTime cannot pick up the delta.
                         Debug.Assert(deltaTicks >= 0, "why are deltaticks less than zero? thats some mighty fast clicking");
-                        // if we've seen a mouse up less than the double click time ago, we should fire.
+
+                        // If we've seen a mouse up less than the double click time ago, we should fire.
                         if (deltaTicks >= 0 && deltaTicks < DoubleClickTicks)
                         {
                             shouldFireDoubleClick = true;
@@ -2544,6 +2565,7 @@ namespace System.Windows.Forms
                     if (shouldFireDoubleClick)
                     {
                         HandleDoubleClick(EventArgs.Empty);
+
                         // If we actually fired DoubleClick - reset the lastClickTime.
                         _lastClickTime = 0;
                     }
@@ -2630,14 +2652,14 @@ namespace System.Windows.Forms
         protected virtual void OnAvailableChanged(EventArgs e) => RaiseEvent(s_availableChangedEvent, e);
 
         /// <summary>
-        ///  Raises the <see cref='ToolStripItem.DragEnter'/> event.
-        ///  Inheriting classes should override this method to handle this event.
-        ///  Call base.OnEnter to send this event to any registered event listeners.
+        ///  Raises the <see cref='DragEnter'/> event.
         /// </summary>
-        /// <summary>
-        ///  Inheriting classes should override this method to handle this event.
-        ///  Call base.OnDragEnter to send this event to any registered event listeners.
-        /// </summary>
+        /// <remarks>
+        ///  <para>
+        ///   Inheriting classes should override this method to handle this event.
+        ///   Call base.OnDragEnter to send this event to any registered event listeners.
+        ///  </para>
+        /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected virtual void OnDragEnter(DragEventArgs dragEvent)
             => RaiseDragEvent(s_dragEnterEvent, dragEvent);
@@ -2880,9 +2902,9 @@ namespace System.Windows.Forms
         internal void OnOwnerTextDirectionChanged()
         {
             ToolStripTextDirection textDirection = ToolStripTextDirection.Inherit;
-            if (Properties.ContainsObject(ToolStripItem.s_textDirectionProperty))
+            if (Properties.ContainsObject(s_textDirectionProperty))
             {
-                textDirection = (ToolStripTextDirection)Properties.GetObject(ToolStripItem.s_textDirectionProperty);
+                textDirection = (ToolStripTextDirection)Properties.GetObject(s_textDirectionProperty);
             }
 
             if (textDirection == ToolStripTextDirection.Inherit)
@@ -2952,7 +2974,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  See Control.ProcessDialogKey for more info.
+        ///  See <see cref="Control.ProcessDialogKey"/> for more info.
         /// </summary>
         protected internal virtual bool ProcessDialogKey(Keys keyData)
         {
@@ -2977,7 +2999,7 @@ namespace System.Windows.Forms
 
         protected internal virtual bool ProcessMnemonic(char charCode)
         {
-            // checking IsMnemonic is not necessary - control does this for us.
+            // Checking IsMnemonic is not necessary - control does this for us.
             FireEvent(ToolStripItemEventType.Click);
             return true;
         }
@@ -3030,7 +3052,7 @@ namespace System.Windows.Forms
             // let's not snap the stack trace unless we're debugging selection.
             if (ToolStrip.s_selectionDebug.TraceVerbose)
             {
-                Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "[Selection DBG] WBI.Select: {0} \r\n{1}\r\n", ToString(), new StackTrace().ToString().Substring(0, 200)));
+                Debug.WriteLine(string.Format($"[Selection DBG] WBI.Select: {ToString()} \r\n{new StackTrace().ToString().Substring(0, 200)}\r\n"));
             }
 #endif
             if (!CanSelect)
@@ -3063,7 +3085,7 @@ namespace System.Windows.Forms
                 {
                     if (OwnerItem is not null && OwnerItem.IsOnDropDown)
                     {
-                        // ensure the selection is moved back to our owner item.
+                        // Ensure the selection is moved back to our owner item.
                         OwnerItem.Select();
                     }
                 }
@@ -3079,35 +3101,37 @@ namespace System.Windows.Forms
 
         internal void SetOwner(ToolStrip newOwner)
         {
-            if (_owner != newOwner)
+            if (_owner == newOwner)
             {
-                Font f = this.Font;
+                return;
+            }
 
-                if (_owner is not null)
+            Font font = Font;
+
+            if (_owner is not null)
+            {
+                _owner._rescaleConstsCallbackDelegate -= ToolStrip_RescaleConstants;
+            }
+
+            _owner = newOwner;
+
+            if (_owner is not null)
+            {
+                _owner._rescaleConstsCallbackDelegate += ToolStrip_RescaleConstants;
+            }
+
+            // clear the parent if the owner is null.
+            if (newOwner is null)
+            {
+                ParentInternal = null;
+            }
+
+            if (!_state[s_stateDisposing] && !IsDisposed)
+            {
+                OnOwnerChanged(EventArgs.Empty);
+                if (font != Font)
                 {
-                    _owner._rescaleConstsCallbackDelegate -= ToolStrip_RescaleConstants;
-                }
-
-                _owner = newOwner;
-
-                if (_owner is not null)
-                {
-                    _owner._rescaleConstsCallbackDelegate += ToolStrip_RescaleConstants;
-                }
-
-                // clear the parent if the owner is null.
-                if (newOwner is null)
-                {
-                    this.ParentInternal = null;
-                }
-
-                if (!_state[s_stateDisposing] && !IsDisposed)
-                {
-                    OnOwnerChanged(EventArgs.Empty);
-                    if (f != Font)
-                    {
-                        OnFontChanged(EventArgs.Empty);
-                    }
+                    OnFontChanged(EventArgs.Empty);
                 }
             }
         }
@@ -3126,7 +3150,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Sets the bounds of the item
+        ///  Sets the bounds of the item.
         /// </summary>
         protected internal virtual void SetBounds(Rectangle bounds)
         {
@@ -3151,20 +3175,22 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Sets the bounds of the item
+        ///  Sets the bounds of the item.
         /// </summary>
         internal void SetBounds(int x, int y, int width, int height)
             => SetBounds(new Rectangle(x, y, width, height));
 
         /// <summary>
-        ///  Sets the placement of the item
+        ///  Sets the placement of the item.
         /// </summary>
         internal void SetPlacement(ToolStripItemPlacement placement) => _placement = placement;
 
         /// <remarks>
-        ///  Some implementations of DefaultMargin check which container they
-        ///  are on. They need to be re-evaluated when the containership changes.
-        ///  DefaultMargin will stop being honored the moment someone sets the Margin property.
+        ///  <para>
+        ///   Some implementations of <see cref="DefaultMargin"/> check which container they are on. They need to be
+        ///   re-evaluated when the containership changes. <see cref="DefaultMargin"/> will stop being honored the
+        ///   moment someone sets the <see cref="Margin"/> property.
+        ///  </para>
         /// </remarks>
         internal void SetAmbientMargin()
         {
@@ -3178,7 +3204,7 @@ namespace System.Windows.Forms
         private bool ShouldSerializeImageTransparentColor() => ImageTransparentColor != Color.Empty;
 
         /// <summary>
-        ///  Returns true if the backColor should be persisted in code gen.
+        ///  Returns true if the <see cref="BackColor"/> should be persisted in code gen.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal virtual bool ShouldSerializeBackColor()
@@ -3192,7 +3218,7 @@ namespace System.Windows.Forms
         private bool ShouldSerializeToolTipText() => !string.IsNullOrEmpty(_toolTipText);
 
         /// <summary>
-        ///  Returns true if the foreColor should be persisted in code gen.
+        ///  Returns true if the <see cref="ForeColor"/> should be persisted in code gen.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal virtual bool ShouldSerializeForeColor()
@@ -3202,7 +3228,7 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Returns true if the font should be persisted in code gen.
+        ///  Returns true if the <see cref="Font"/> should be persisted in code gen.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal virtual bool ShouldSerializeFont() => TryGetExplicitlySetFont(out _);
@@ -3263,16 +3289,16 @@ namespace System.Windows.Forms
         private bool ShouldSerializeTextDirection()
         {
             ToolStripTextDirection textDirection = ToolStripTextDirection.Inherit;
-            if (Properties.ContainsObject(ToolStripItem.s_textDirectionProperty))
+            if (Properties.ContainsObject(s_textDirectionProperty))
             {
-                textDirection = (ToolStripTextDirection)Properties.GetObject(ToolStripItem.s_textDirectionProperty);
+                textDirection = (ToolStripTextDirection)Properties.GetObject(s_textDirectionProperty);
             }
 
             return textDirection != ToolStripTextDirection.Inherit;
         }
 
         /// <summary>
-        ///  Resets the back color to be based on the parent's back color.
+        ///  Resets the <see cref="BackColor"/> to be based on the parent's <see cref="BackColor"/>.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetBackColor() => BackColor = Color.Empty;
@@ -3281,19 +3307,19 @@ namespace System.Windows.Forms
         public virtual void ResetDisplayStyle() => DisplayStyle = DefaultDisplayStyle;
 
         /// <summary>
-        ///  Resets the fore color to be based on the parent's fore color.
+        ///  Resets the <see cref="ForeColor"/> to be based on the parent's <see cref="ForeColor"/>.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetForeColor() => ForeColor = Color.Empty;
 
         /// <summary>
-        ///  Resets the Font to be based on the parent's Font.
+        ///  Resets the <see cref="Font"/> to be based on the parent's <see cref="Font"/>.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetFont() => Font = null;
 
         /// <summary>
-        ///  Resets the back color to be based on the parent's back color.
+        ///  Resets the <see cref="Image"/>.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetImage() => Image = null;
@@ -3315,19 +3341,19 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        ///  Resets the RightToLeft to be the default.
+        ///  Resets <see cref="RightToLeft"/> to be the default.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetRightToLeft() => RightToLeft = RightToLeft.Inherit;
 
         /// <summary>
-        ///  Resets the TextDirection to be the default.
+        ///  Resets the <see cref="TextDirection"/> to be the default.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void ResetTextDirection() => TextDirection = ToolStripTextDirection.Inherit;
 
         /// <summary>
-        ///  Translates a point from one coordinate system to another
+        ///  Translates a point from one coordinate system to another.
         /// </summary>
         internal Point TranslatePoint(Point fromPoint, ToolStripPointType fromPointType, ToolStripPointType toPointType)
         {
@@ -3340,7 +3366,7 @@ namespace System.Windows.Forms
 
             if (parent is null)
             {
-                // should not throw here as it's an internal function call.
+                // Should not throw here as it's an internal function call.
                 return fromPoint;
             }
 
@@ -3349,7 +3375,7 @@ namespace System.Windows.Forms
                 return fromPoint;
             }
 
-            Point toPoint = Point.Empty;
+            Point toPoint;
             Point currentToolStripItemLocation = Bounds.Location;
 
             // From: Screen
@@ -3437,7 +3463,7 @@ namespace System.Windows.Forms
         /// </summary>
         internal void Unselect()
         {
-            Debug.WriteLineIf(ToolStrip.s_selectionDebug.TraceVerbose, string.Format(CultureInfo.CurrentCulture, "[Selection DBG] WBI.Unselect: {0}", ToString()));
+            Debug.WriteLineIf(ToolStrip.s_selectionDebug.TraceVerbose, $"[Selection DBG] WBI.Unselect: {ToString()}");
             if (_state[s_stateSelected])
             {
                 _state[s_stateSelected] = false;
@@ -3538,7 +3564,7 @@ namespace System.Windows.Forms
         internal virtual bool IsBeingTabbedTo() => ToolStrip.AreCommonNavigationalKeysDown();
 
         /// <summary>
-        /// Query font from property bag.
+        ///  Query font from property bag.
         /// </summary>
         internal bool TryGetExplicitlySetFont(out Font local)
         {

@@ -12,11 +12,11 @@ namespace System.Windows.Forms
     using System.Globalization;
     using System.Windows.Forms.Layout;
 
-    ///  this class is a container for toolstrips on a rafting row.
-    ///  you can set layout styles on this container all day long and not
-    ///  affect the underlying toolstrip's properties.... so if its
-    ///  removed from a rafting container its still got its defaults
-    ///  set up for it.
+    /// <summary>
+    ///  This class is a container for toolstrips on a rafting row. You can set layout styles on this container and not
+    ///  affect the underlying toolstrip's properties. If the toolstrip is removed from a rafting container its will
+    ///  still have its defaults set up for it.
+    /// </summary>
     internal class ToolStripPanelCell : ArrangedElement
     {
         private ToolStrip _wrappedToolStrip;
@@ -43,8 +43,8 @@ namespace System.Windows.Forms
 #if DEBUG
 
             // Ensure 1:1 Cell/ToolStripPanel mapping
-            _cellID = string.Format(CultureInfo.CurrentCulture, "{0}.{1}", control.Name, ++t_cellCount);
-            Debug.Assert(t_cellCount <= ToolStripManager.ToolStrips.Count, "who is allocating an extra toolstrippanel cell?");
+            _cellID = $"{control.Name}.{++t_cellCount}";
+            Debug.Assert(t_cellCount <= ToolStripManager.ToolStrips.Count, "who is allocating an extra ToolStripPanelCell?");
 #endif
 
             ToolStripPanelRow = parent;
@@ -86,27 +86,18 @@ namespace System.Windows.Forms
             get { return (_wrappedToolStrip is not null && _wrappedToolStrip.IsInDesignMode); }
         }
 
-        public IArrangedElement InnerElement
-        {
-            get { return _wrappedToolStrip as IArrangedElement; }
-        }
+        public IArrangedElement InnerElement => _wrappedToolStrip;
 
-        public ISupportToolStripPanel DraggedControl
-        {
-            get { return _wrappedToolStrip as ISupportToolStripPanel; }
-        }
+        public ISupportToolStripPanel DraggedControl => _wrappedToolStrip;
 
         public ToolStripPanelRow ToolStripPanelRow
         {
-            get { return _parent; }
+            get => _parent;
             set
             {
                 if (_parent != value)
                 {
-                    if (_parent is not null)
-                    {
-                        ((IList)_parent.Cells).Remove(this);
-                    }
+                    ((IList)_parent?.Cells)?.Remove(this);
 
                     _parent = value;
                     Margin = Padding.Empty;
