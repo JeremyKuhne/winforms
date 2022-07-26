@@ -42,9 +42,9 @@ namespace System.Windows.Forms.Tests.Interop.Oleaut32
         {
             yield return new object[] { VARENUM.I4, FADF.HAVEVARTYPE, 4 };
             yield return new object[] { VARENUM.I8, FADF.HAVEVARTYPE, 8 };
-            yield return new object[] { VARENUM.BSTR, FADF.HAVEVARTYPE | FADF.BSTR, IntPtr.Size };
-            yield return new object[] { VARENUM.UNKNOWN, FADF.HAVEIID | FADF.UNKNOWN, IntPtr.Size };
-            yield return new object[] { VARENUM.DISPATCH, FADF.HAVEIID | FADF.DISPATCH, IntPtr.Size };
+            yield return new object[] { VARENUM.BSTR, FADF.HAVEVARTYPE | FADF.BSTR, Environment.Is64BitProcess ? 8 : 4 };
+            yield return new object[] { VARENUM.UNKNOWN, FADF.HAVEIID | FADF.UNKNOWN, Environment.Is64BitProcess ? 8 : 4 };
+            yield return new object[] { VARENUM.DISPATCH, FADF.HAVEIID | FADF.DISPATCH, Environment.Is64BitProcess ? 8 : 4 };
         }
 
         [StaTheory]

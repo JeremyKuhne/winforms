@@ -6,7 +6,7 @@ namespace System
 {
     public static class ArchitectureDetection
     {
-        public static bool Is32bit => IntPtr.Size == 4;
-        public static bool Is64bit => IntPtr.Size == 8;
+        public static bool Is32bit => !Environment.Is64BitProcess;
+        public static bool Is64bit => Environment.Is64BitProcess;
     }
 }
