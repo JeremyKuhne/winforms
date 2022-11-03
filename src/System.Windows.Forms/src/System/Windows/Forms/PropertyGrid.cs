@@ -2363,9 +2363,9 @@ namespace System.Windows.Forms
 
                 // This is so changes to names of native objects will be reflected in the combo box.
                 object obj = GetUnwrappedObject(0);
-                if (ComNativeDescriptor.IsNameDispId(obj, dispID) || dispID == Ole32.DispatchID.Name)
+                if (ComNativeDescriptor.IsNameDispId(obj, (int)dispID) || dispID == Ole32.DispatchID.Name)
                 {
-                    OnComComponentNameChanged(new ComponentRenameEventArgs(obj, null, TypeDescriptor.GetClassName(obj)));
+                    OnComComponentNameChanged(new(obj, oldName: null, TypeDescriptor.GetClassName(obj)));
                 }
             }
 

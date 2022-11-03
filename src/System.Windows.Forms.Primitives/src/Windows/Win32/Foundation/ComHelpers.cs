@@ -31,7 +31,7 @@ namespace Windows.Win32.Foundation
         /// <summary>
         ///  Attempts to get a pointer for the specified <typeparamref name="T"/> for the given <paramref name="obj"/>.
         /// </summary>
-        internal static ComScope<T> GetComScope<T>(object obj, out bool success) where T : unmanaged, INativeGuid
+        internal static ComScope<T> GetComScope<T>(object? obj, out bool success) where T : unmanaged, INativeGuid
         {
             success = TryGetComPointer(obj, out T* pInterface);
             return new(pInterface);
@@ -74,6 +74,13 @@ namespace Windows.Win32.Foundation
             if (ccw is null)
             {
                 return HRESULT.E_NOINTERFACE;
+            }
+
+            if (iid->Equals(IUnknown.Guid))
+            {
+                // Explicitly asking for IUnknown, no need to query again.
+                ppvObject = (T*)ccw;
+                return HRESULT.S_OK;
             }
 
             fixed (T** unknown = &ppvObject)

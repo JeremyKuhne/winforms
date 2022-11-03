@@ -5,27 +5,29 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using Windows.Win32.System.Com;
 using Windows.Win32.System.Ole;
-using static Interop.Ole32;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
     /// <summary>
     ///  This class maps an IPicture to a System.Drawing.Image.
     /// </summary>
-    internal unsafe class Com2PictureConverter : Com2DataTypeToManagedDataTypeConverter
+    internal sealed unsafe class Com2PictureConverter : Com2DataTypeToManagedDataTypeConverter, IDisposable
     {
+        // For round tripping performance we try to keep track of the last thing we converted.
+
         private object? _lastManaged;
 
         // OLE_HANDLE
         private uint _lastNativeHandle;
-        private WeakReference? _pictureRef;
+        private IPicture* _lastIPicture;
 
         private Type _pictureType = typeof(Bitmap);
 
         public Com2PictureConverter(Com2PropertyDescriptor pd)
         {
-            if (pd.DISPID == DispatchID.MOUSEICON || pd.Name.Contains("Icon"))
+            if (pd.DISPID == PInvoke.DISPID_MOUSEICON || pd.Name.Contains("Icon"))
             {
                 _pictureType = typeof(Icon);
             }
@@ -40,10 +42,17 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 return null;
             }
 
-            Debug.Assert(nativeValue is IPicture.Interface, "nativevalue is not IPicture");
+            if (!ComHelpers.TryGetComPointer(nativeValue, out IPicture* picture))
+            {
+                Debug.Fail("nativevalue is not IPicture");
+            }
 
-            IPicture.Interface nativePicture = (IPicture.Interface)nativeValue;
-            nativePicture.get_Handle(out uint handle).ThrowOnFailure();
+            if (picture->get_Handle(out uint handle).Failed)
+            {
+                Debug.Fail("Could not get handle");
+                picture->Release();
+                return null;
+            }
 
             if (_lastManaged is not null && handle == _lastNativeHandle)
             {
@@ -55,7 +64,14 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 // GDI handles are sign extended 32 bit values.
                 // We need to first cast to int so sign extension happens correctly.
                 nint extendedHandle = (int)handle;
-                nativePicture.get_Type(out short type).ThrowOnFailure();
+
+                if (picture->get_Type(out short type).Failed)
+                {
+                    Debug.Fail("Could not get type");
+                    picture->Release();
+                    return null;
+                }
+
                 switch ((PICTYPE)type)
                 {
                     case PICTYPE.PICTYPE_ICON:
@@ -72,29 +88,28 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 }
 
                 _lastNativeHandle = handle;
-                _pictureRef = new WeakReference(nativePicture);
+                _lastIPicture = picture;
             }
             else
             {
                 _lastManaged = null;
-                _pictureRef = null;
             }
 
             return _lastManaged;
         }
 
-        public override object? ConvertManagedToNative(object? managedValue, Com2PropertyDescriptor pd, ref bool cancelSet)
+        public override VARIANT ConvertManagedToNative(object? managedValue, Com2PropertyDescriptor pd, ref bool cancelSet)
         {
             // Don't cancel the set.
             cancelSet = false;
 
-            if (_lastManaged?.Equals(managedValue) == true)
+            if (_lastManaged?.Equals(managedValue) == true && _lastIPicture is not null)
             {
-                object? target = _pictureRef?.Target;
-                if (target is not null)
+                return new()
                 {
-                    return target;
-                }
+                    vt = VARENUM.VT_UNKNOWN,
+                    data = new() { punkVal = (IUnknown*)_lastIPicture }
+                };
             }
 
             // We have to build an IPicture.
@@ -118,21 +133,49 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                     return null;
                 }
 
-                using ComScope<IPicture> picture = new(null);
-                PInvoke.OleCreatePictureIndirect(&pictdesc, IPicture.NativeGuid, own, picture).ThrowOnFailure();
+                IPicture* picture = default;
+                PInvoke.OleCreatePictureIndirect(&pictdesc, IPicture.NativeGuid, own, (void**)&picture).ThrowOnFailure();
                 _lastManaged = managedValue;
-                picture.Value->get_Handle(out _lastNativeHandle);
-                var pictureObject = Marshal.GetObjectForIUnknown(picture);
-                _pictureRef = new WeakReference(pictureObject);
-                return pictureObject;
+                _lastIPicture = picture;
+                picture->get_Handle(out _lastNativeHandle).ThrowOnFailure();
+                return new()
+                {
+                    vt = VARENUM.VT_UNKNOWN,
+                    data = new() { punkVal = (IUnknown*)_lastIPicture }
+                };
             }
             else
             {
                 _lastManaged = null;
                 _lastNativeHandle = 0;
-                _pictureRef = null;
+                ReleaseResources();
                 return null;
             }
+        }
+
+        private void ReleaseResources()
+        {
+            if (_lastIPicture is not null)
+            {
+                _lastIPicture->Release();
+                _lastIPicture = null;
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseResources();
+        }
+
+        ~Com2PictureConverter()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -4,6 +4,7 @@
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Windows.Win32.System.Com;
 using static System.TrimmingConstants;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
@@ -11,16 +12,13 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
     internal partial class ComNativeDescriptor
     {
         /// <summary>
-        ///  This type descriptor sits on top of a ComNativeDescriptor
+        ///  This type descriptor sits on top of a <see cref="ComNativeDescriptor"/>.
         /// </summary>
-        private sealed class ComTypeDescriptor : ICustomTypeDescriptor
+        private sealed unsafe class ComTypeDescriptor : ICustomTypeDescriptor
         {
             private readonly ComNativeDescriptor _handler;
             private readonly object? _instance;
 
-            /// <summary>
-            ///  Creates a new WalkingTypeDescriptor.
-            /// </summary>
             internal ComTypeDescriptor(ComNativeDescriptor handler, object? instance)
             {
                 _handler = handler;
@@ -29,9 +27,27 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
 
             AttributeCollection ICustomTypeDescriptor.GetAttributes() => _handler.GetAttributes(_instance);
 
-            string? ICustomTypeDescriptor.GetClassName() => _instance is null ? string.Empty : GetClassName(_instance);
+            string? ICustomTypeDescriptor.GetClassName()
+            {
+                if (_instance is null)
+                {
+                    return string.Empty;
+                }
 
-            string? ICustomTypeDescriptor.GetComponentName() => _instance is null ? string.Empty : GetName(_instance);
+                using var unknown = ComHelpers.GetComScope<IUnknown>(_instance, out bool _);
+                return GetClassName(unknown);
+            }
+
+            string? ICustomTypeDescriptor.GetComponentName()
+            {
+                if (_instance is null)
+                {
+                    return string.Empty;
+                }
+
+                using var dispatch = ComHelpers.GetComScope<IDispatch>(_instance, out bool _);
+                return GetName(dispatch);
+            }
 
             [RequiresUnreferencedCode(AttributesRequiresUnreferencedCodeMessage)]
             TypeConverter ICustomTypeDescriptor.GetConverter() => GetConverter();

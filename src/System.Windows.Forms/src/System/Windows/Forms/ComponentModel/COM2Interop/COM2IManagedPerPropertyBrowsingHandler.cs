@@ -6,14 +6,14 @@ using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.Shell;
 using Windows.Win32.System.Com;
-using static Interop;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
-    internal class Com2IManagedPerPropertyBrowsingHandler : Com2ExtendedBrowsingHandler
+    internal unsafe class Com2IManagedPerPropertyBrowsingHandler : Com2ExtendedBrowsingHandler
     {
-        public override Type Interface => typeof(VSSDK.IVSMDPerPropertyBrowsing);
+        public override Type Interface => typeof(IVSMDPerPropertyBrowsing.Interface);
 
         public override void SetupPropertyHandlers(Com2PropertyDescriptor[]? propDesc)
         {
@@ -24,7 +24,7 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
 
             for (int i = 0; i < propDesc.Length; i++)
             {
-                propDesc[i].QueryGetDynamicAttributes += new GetAttributesEventHandler(OnGetAttributes);
+                propDesc[i].QueryGetDynamicAttributes += OnGetAttributes;
             }
         }
 
@@ -46,13 +46,13 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
             }
         }
 
-        internal static unsafe Attribute[] GetComponentAttributes(VSSDK.IVSMDPerPropertyBrowsing target, Ole32.DispatchID dispid)
+        internal static unsafe Attribute[] GetComponentAttributes(IVSMDPerPropertyBrowsing* target, int dispid)
         {
             uint cItems = 0;
-            IntPtr pbstrs = IntPtr.Zero;
+            BSTR* pbstrs = null;
             VARIANT* pvars = null;
 
-            HRESULT hr = target.GetPropertyAttributes(dispid, &cItems, &pbstrs, &pvars);
+            HRESULT hr = target->GetPropertyAttributes(dispid, &cItems, &pbstrs, &pvars);
             if (hr != HRESULT.S_OK || cItems == 0 || pvars is null)
             {
                 return Array.Empty<Attribute>();
@@ -202,24 +202,24 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
             return temp;
         }
 
-        private static string[] GetStringsFromPtr(IntPtr ptr, uint cStrings)
+        private static string[] GetStringsFromPtr(BSTR* pbstrs, uint cStrings)
         {
-            if (ptr == IntPtr.Zero)
+            if (pbstrs is null)
             {
                 return Array.Empty<string>();
             }
 
             string[] strs = new string[cStrings];
-            IntPtr bstr;
             for (int i = 0; i < cStrings; i++)
             {
                 try
                 {
+
                     bstr = Marshal.ReadIntPtr(ptr, i * 4);
                     if (bstr != IntPtr.Zero)
                     {
                         strs[i] = Marshal.PtrToStringUni(bstr)!;
-                        Oleaut32.SysFreeString(bstr);
+                        PInoke.SysFreeString(bstr);
                     }
                     else
                     {

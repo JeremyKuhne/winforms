@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Windows.Win32.System.Com;
+
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
     /// <summary>
@@ -27,6 +29,6 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         /// <summary>
         ///  Converts the managed value into a native value.
         /// </summary>
-        public abstract object? ConvertManagedToNative(object? managedValue, Com2PropertyDescriptor pd, ref bool cancelSet);
+        public abstract VARIANT ConvertManagedToNative(object? managedValue, Com2PropertyDescriptor pd, ref bool cancelSet);
     }
 }

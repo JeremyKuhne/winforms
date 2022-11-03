@@ -6,7 +6,7 @@ using System.Collections;
 using System.Diagnostics;
 using Windows.Win32.System.Com;
 using Windows.Win32.System.Ole;
-using static Interop;
+using Microsoft.VisualStudio.Shell;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
@@ -43,11 +43,11 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         // The interfaces we recognize for extended browsing.
         private static readonly Type[] s_extendedInterfaces = new Type[]
         {
-            typeof(VSSDK.ICategorizeProperties),
+            typeof(ICategorizeProperties.Interface),
             typeof(VSSDK.IProvidePropertyBuilder),
             typeof(IPerPropertyBrowsing.Interface),
-            typeof(VSSDK.IVsPerPropertyBrowsing),
-            typeof(VSSDK.IVSMDPerPropertyBrowsing)
+            typeof(IVsPerPropertyBrowsing.Interface),
+            typeof(IVSMDPerPropertyBrowsing.Interface)
         };
 
         // The handler classes corresponding to the extended interfaces above.
@@ -276,24 +276,27 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         /// </summary>
         private unsafe (ushort FunctionCount, ushort VariableCount, ushort MajorVersion, ushort MinorVersion)[] GetTypeInfoVersions(object comObject)
         {
-            Oleaut32.ITypeInfo[] pTypeInfos = Com2TypeInfoProcessor.FindTypeInfos(comObject, preferIProvideClassInfo: false);
-            var versions = new (ushort, ushort, ushort, ushort)[pTypeInfos.Length];
-            for (int i = 0; i < pTypeInfos.Length; i++)
+            using var unknown = ComHelpers.GetComScope<IUnknown>(comObject, out bool success);
+            Debug.Assert(success);
+            using var infos = new Com2TypeInfoProcessor.TypeInfoEnumerator(unknown, preferIProvideClassInfo: false);
+
+            List<(ushort, ushort, ushort, ushort)> versions = new();
+            while (infos.MoveNext())
             {
                 TYPEATTR* pTypeAttr = null;
-                HRESULT hr = pTypeInfos[i].GetTypeAttr(&pTypeAttr);
-                if (!hr.Succeeded || pTypeAttr is null)
+                using var info = infos.Current;
+                if (info.Value->GetTypeAttr(&pTypeAttr).Succeeded && pTypeAttr is not null)
                 {
-                    versions[i] = (0, 0, 0, 0);
+                    versions.Add((pTypeAttr->cFuncs, pTypeAttr->cVars, pTypeAttr->wMajorVerNum, pTypeAttr->wMinorVerNum));
+                    info.Value->ReleaseTypeAttr(pTypeAttr);
                 }
                 else
                 {
-                    versions[i] = (pTypeAttr->cFuncs, pTypeAttr->cVars, pTypeAttr->wMajorVerNum, pTypeAttr->wMinorVerNum);
-                    pTypeInfos[i].ReleaseTypeAttr(pTypeAttr);
+                    versions.Add((0, 0, 0, 0));
                 }
             }
 
-            return versions;
+            return versions.ToArray();
         }
 
         /// <summary>

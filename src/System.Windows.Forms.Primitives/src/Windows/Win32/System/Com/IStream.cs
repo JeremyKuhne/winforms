@@ -8,6 +8,16 @@ using ComWrappers = Interop.WinFormsComWrappers;
 
 namespace Windows.Win32.System.Com
 {
+    internal unsafe partial struct ISupportErrorInfo : INativeGuid
+    {
+        public static Guid* NativeGuid => (Guid*)Unsafe.AsPointer(ref Unsafe.AsRef(in Guid));
+    }
+
+    internal unsafe partial struct IErrorInfo : INativeGuid
+    {
+        public static Guid* NativeGuid => (Guid*)Unsafe.AsPointer(ref Unsafe.AsRef(in Guid));
+    }
+
     internal unsafe partial struct IStream : IPopulateVTable<IStream.Vtbl>, INativeGuid, IUnknown.Interface
     {
         static Guid* INativeGuid.NativeGuid => (Guid*)Unsafe.AsPointer(ref Unsafe.AsRef(in Guid));

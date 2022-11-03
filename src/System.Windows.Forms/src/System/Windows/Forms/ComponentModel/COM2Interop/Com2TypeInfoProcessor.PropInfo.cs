@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using static Interop;
+using Windows.Win32.System.Com;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
@@ -10,25 +10,35 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
     {
         private class PropertyInfo
         {
-            public const int ReadOnlyUnknown = 0;
-            public const int ReadOnlyTrue = 1;
-            public const int ReadOnlyFalse = 2;
+            public enum ReadOnlyState
+            {
+                Unknown,
+                True,
+                False
+            }
 
 #pragma warning disable IDE0036 // required must come first
             required public string Name { get; init; }
 #pragma warning restore IDE0036
 
-            public Ole32.DispatchID DispId { get; set; } = Ole32.DispatchID.UNKNOWN;
+            public int DispId { get; set; } = PInvoke.DISPID_UNKNOWN;
 
+            /// <summary>
+            ///  The managed <see cref="Type"/> for the property.
+            /// </summary>
             public Type? ValueType { get; set; }
 
             public List<Attribute> Attributes { get; } = new();
 
-            public int ReadOnly { get; set; } = ReadOnlyUnknown;
+            public ReadOnlyState ReadOnly { get; set; } = ReadOnlyState.Unknown;
 
             public bool IsDefault { get; set; }
 
-            public object? TypeData { get; set; }
+            /// <summary>
+            ///  For <see cref="VARIANT"/>s of type <see cref="VARENUM.VT_DISPATCH"/> or <see cref="VARENUM.VT_UNKNOWN"/>,
+            ///  this is the Guid as returned from <see cref="ITypeInfo"/>.
+            /// </summary>
+            public Guid? TypeGuid { get; set; }
 
             public bool NonBrowsable { get; set; }
 

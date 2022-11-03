@@ -14,14 +14,13 @@ using System.Runtime.InteropServices;
 using Windows.Win32.System.Com;
 using Windows.Win32.System.Diagnostics.Debug;
 using Windows.Win32.System.Ole;
-using static Interop;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
     /// <summary>
     ///  <para>
-    ///   This class wraps a com native property in a property descriptor. It maintains all information relative to the
-    ///   basic (e.g. ITypeInfo) information about the member dispid function, and converts that info to meaningful
+    ///   This class wraps a COM native property in a property descriptor. It maintains all information relative to the
+    ///   basic (e.g. ITypeInfo) information about the member's dispid, and converts that info to meaningful
     ///   managed code information.
     ///  </para>
     ///  <para>
@@ -29,7 +28,7 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
     ///   of <see cref="TypeConverter"/>s.
     ///  </para>
     /// </summary>
-    internal partial class Com2PropertyDescriptor : PropertyDescriptor, ICloneable
+    internal unsafe partial class Com2PropertyDescriptor : PropertyDescriptor, ICloneable
     {
         private EventHandlerList? _events;
 
@@ -45,6 +44,7 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         private string? _displayName;
 
         // This is any extra data needed. For IDispatch types, it's the GUID of the interface, etc.
+        // (Only retained for cloning.)
         private readonly object? _typeData;
 
         // Keeps track of which data members need to be refreshed.
@@ -77,19 +77,19 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         private static readonly Guid GUID_COLOR = new("{66504301-BE0F-101A-8BBB-00AA00300CAB}");
 
         // Our map of native types that we can map to managed types for editors
-        private static readonly IDictionary s_oleConverters = new SortedList
+        private static readonly Dictionary<Guid, Func<Com2PropertyDescriptor, Com2DataTypeToManagedDataTypeConverter>> s_oleConverters = new()
         {
-            [GUID_COLOR] = typeof(Com2ColorConverter),
-            [typeof(Ole32.IFontDisp).GUID] = typeof(Com2FontConverter),
-            [typeof(Ole32.IFont).GUID] = typeof(Com2FontConverter),
-            [IPictureDisp.Guid] = typeof(Com2PictureConverter),
-            [IPicture.Guid] = typeof(Com2PictureConverter)
+            { GUID_COLOR, d => new Com2ColorConverter() },
+            { IFontDisp.Guid, d => new Com2FontConverter() },
+            { IFont.Guid, d => new Com2FontConverter() },
+            { IPictureDisp.Guid, d => new Com2PictureConverter(d) },
+            { IPicture.Guid, d => new Com2PictureConverter(d) }
         };
 
         private readonly Com2DataTypeToManagedDataTypeConverter? _valueConverter;
 
         public Com2PropertyDescriptor(
-            Ole32.DispatchID dispid,
+            int dispid,
             string name,
             Attribute[] attributes,
             bool readOnly,
@@ -120,9 +120,9 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 {
                     _converter = new Com2EnumConverter(comEnum);
                 }
-                else if (typeData is Guid guid)
+                else if (typeData is Guid guid && s_oleConverters.TryGetValue(guid, out var factory))
                 {
-                    _valueConverter = CreateOleTypeConverter((Type?)s_oleConverters[guid]);
+                    _valueConverter = factory(this);
                 }
             }
 
@@ -141,7 +141,9 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 }
             }
 
-            if (CanShow && (propertyType == typeof(object) || (_valueConverter is null && propertyType == typeof(Oleaut32.IDispatch))))
+            if (CanShow
+                && (propertyType == typeof(object)
+                || (_valueConverter is null && propertyType == typeof(IDispatch.Interface))))
             {
                 _typeHide = true;
             }
@@ -211,10 +213,10 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 else if (_hrHidden)
                 {
                     // Check to see if the get still fails.
-                    object? target = TargetObject;
-                    if (target is not null)
+                    using var dispatch = ComHelpers.GetComScope<IDispatch>(TargetObject, out bool success);
+                    if (success)
                     {
-                        HRESULT hr = ComNativeDescriptor.GetPropertyValue(target, DISPID, new object[1]);
+                        HRESULT hr = ComNativeDescriptor.GetPropertyValue(dispatch, DISPID, new object[1]);
 
                         // If not, go ahead and make this a browsable item.
                         if (hr.Succeeded)
@@ -279,7 +281,7 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         /// <summary>
         ///  Retrieves the type of the component this PropertyDescriptor is bound to.
         /// </summary>
-        public override Type ComponentType => typeof(Oleaut32.IDispatch);
+        public override Type ComponentType => typeof(IDispatch.Interface);
 
         /// <summary>
         ///  Retrieves the type converter for this property.
@@ -324,7 +326,7 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
         /// <summary>
         ///  Retrieves the DISPID for this item
         /// </summary>
-        public Ole32.DispatchID DISPID { get; }
+        public int DISPID { get; }
 
         /// <summary>
         ///  Gets the friendly name that should be displayed to the user in a window like the Property Browser.
@@ -500,25 +502,6 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 _propertyType,
                 _typeData,
                 _hrHidden);
-
-        /// <summary>
-        ///  Creates a converter Object, first by looking for a ctor with a Com2PropertyDescriptor
-        ///  parameter, then using the default ctor if it is not found.
-        /// </summary>
-        private Com2DataTypeToManagedDataTypeConverter? CreateOleTypeConverter(Type? type)
-        {
-            if (type is null)
-            {
-                return null;
-            }
-
-            ConstructorInfo? constructor = type.GetConstructor(new Type[] { typeof(Com2PropertyDescriptor) });
-            Com2DataTypeToManagedDataTypeConverter? converter = constructor is not null
-                ? (Com2DataTypeToManagedDataTypeConverter)constructor.Invoke(new object[] { this })
-                : (Com2DataTypeToManagedDataTypeConverter?)Activator.CreateInstance(type);
-
-            return converter;
-        }
 
         /// <summary>
         ///  Creates an instance of the member attribute collection. This can
@@ -891,46 +874,49 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 owner = descriptor.GetPropertyOwner(this);
             }
 
-            if (owner is null || !Marshal.IsComObject(owner) || owner is not Oleaut32.IDispatch)
+            using var dispatch = ComHelpers.GetComScope<IDispatch>(component, out bool success);
+            if (owner is null || !Marshal.IsComObject(owner) || !success)
             {
                 return;
             }
+
+            EXCEPINFO excepInfo = default;
+            int namedArg = PInvoke.DISPID_PROPERTYPUT;
+            DISPPARAMS dispParams = new()
+            {
+                cArgs = 1,
+                cNamedArgs = 1,
+                rgdispidNamedArgs = &namedArg
+            };
+
+            VARIANT variant = default;
 
             // Do we need to convert the type?
             if (_valueConverter is not null)
             {
                 bool cancel = false;
-                value = _valueConverter.ConvertManagedToNative(value, this, ref cancel);
+                variant = _valueConverter.ConvertManagedToNative(value, this, ref cancel);
                 if (cancel)
                 {
                     return;
                 }
             }
-
-            Oleaut32.IDispatch dispatch = (Oleaut32.IDispatch)owner;
-
-            EXCEPINFO excepInfo = default(EXCEPINFO);
-            Ole32.DispatchID namedArg = Ole32.DispatchID.PROPERTYPUT;
-            DISPPARAMS dispParams = new()
+            else
             {
-                cArgs = 1,
-                cNamedArgs = 1,
-                rgdispidNamedArgs = (int*)&namedArg
-            };
+                Marshal.GetNativeVariantForObject(value, (nint)(&variant));
+            }
 
-            using VARIANT variant = default(VARIANT);
-            Marshal.GetNativeVariantForObject(value, (IntPtr)(&variant));
             dispParams.rgvarg = &variant;
             Guid guid = Guid.Empty;
-            HRESULT hr = dispatch.Invoke(
+            HRESULT hr = dispatch.Value->Invoke(
                 DISPID,
                 &guid,
                 PInvoke.GetThreadLocale(),
                 DISPATCH_FLAGS.DISPATCH_PROPERTYPUT,
                 &dispParams,
-                null,
+                (VARIANT*)null,
                 &excepInfo,
-                null);
+                (uint*)null);
 
             string? errorText = null;
             if (hr == HRESULT.DISP_E_EXCEPTION && excepInfo.scode != 0)
@@ -952,21 +938,20 @@ namespace System.Windows.Forms.ComponentModel.Com2Interop
                 _lastValue = value;
             }
 
-            if (dispatch is Oleaut32.ISupportErrorInfo iSupportErrorInfo)
+            using var supportErrorInfo = ComHelpers.GetComScope<ISupportErrorInfo>(component, out success);
+            if (success)
             {
-                guid = typeof(Oleaut32.IDispatch).GUID;
-                if (iSupportErrorInfo.InterfaceSupportsErrorInfo(&guid) == HRESULT.S_OK)
+                if (supportErrorInfo.Value->InterfaceSupportsErrorInfo(IDispatch.NativeGuid).Succeeded)
                 {
-                    Oleaut32.GetErrorInfo(out WinFormsComWrappers.ErrorInfoWrapper? errorInfo);
+                    using ComScope<IErrorInfo> errorInfo = new(null);
 
-                    if (errorInfo is not null)
+                    if (PInvoke.GetErrorInfo(0, errorInfo).Succeeded)
                     {
-                        if (errorInfo.GetDescription(out string? description))
+                        using BSTR description = default;
+                        if (errorInfo.Value->GetDescription(&description).Succeeded)
                         {
-                            errorText = description;
+                            errorText = description.ToString();
                         }
-
-                        errorInfo.Dispose();
                     }
                 }
             }

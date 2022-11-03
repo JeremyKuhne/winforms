@@ -3,54 +3,51 @@
 // See the LICENSE file in the project root for more information.
 
 using System.ComponentModel;
-using static Interop;
+using Microsoft.VisualStudio.Shell;
 
 namespace System.Windows.Forms.ComponentModel.Com2Interop
 {
     internal class Com2ICategorizePropertiesHandler : Com2ExtendedBrowsingHandler
     {
-        public override Type Interface => typeof(VSSDK.ICategorizeProperties);
+        public override Type Interface => typeof(ICategorizeProperties.Interface);
 
-        private static unsafe string? GetCategoryFromObject(object? obj, Ole32.DispatchID dispid)
+        private static unsafe string? GetCategoryFromObject(object? obj, int dispid)
         {
-            if (obj is not VSSDK.ICategorizeProperties catObj)
+            using var categorize = ComHelpers.GetComScope<ICategorizeProperties>(obj, out bool success);
+            if (!success)
             {
                 return null;
             }
 
-            VSSDK.PROPCAT categoryID = 0;
-            if (catObj.MapPropertyToCategory(dispid, &categoryID) != HRESULT.S_OK)
+            PROPCAT categoryId = 0;
+            if (categorize.Value->MapPropertyToCategory(dispid, &categoryId) != HRESULT.S_OK)
             {
                 return null;
             }
 
-            switch (categoryID)
+            return categoryId switch
             {
-                case VSSDK.PROPCAT.Nil:
-                    return string.Empty;
-                case VSSDK.PROPCAT.Misc:
-                    return SR.PropertyCategoryMisc;
-                case VSSDK.PROPCAT.Font:
-                    return SR.PropertyCategoryFont;
-                case VSSDK.PROPCAT.Position:
-                    return SR.PropertyCategoryPosition;
-                case VSSDK.PROPCAT.Appearance:
-                    return SR.PropertyCategoryAppearance;
-                case VSSDK.PROPCAT.Behavior:
-                    return SR.PropertyCategoryBehavior;
-                case VSSDK.PROPCAT.Data:
-                    return SR.PropertyCategoryData;
-                case VSSDK.PROPCAT.List:
-                    return SR.PropertyCategoryList;
-                case VSSDK.PROPCAT.Text:
-                    return SR.PropertyCategoryText;
-                case VSSDK.PROPCAT.Scale:
-                    return SR.PropertyCategoryScale;
-                case VSSDK.PROPCAT.DDE:
-                    return SR.PropertyCategoryDDE;
-            }
+                PROPCAT.Nil => string.Empty,
+                PROPCAT.Misc => SR.PropertyCategoryMisc,
+                PROPCAT.Font => SR.PropertyCategoryFont,
+                PROPCAT.Position => SR.PropertyCategoryPosition,
+                PROPCAT.Appearance => SR.PropertyCategoryAppearance,
+                PROPCAT.Behavior => SR.PropertyCategoryBehavior,
+                PROPCAT.Data => SR.PropertyCategoryData,
+                PROPCAT.List => SR.PropertyCategoryList,
+                PROPCAT.Text => SR.PropertyCategoryText,
+                PROPCAT.Scale => SR.PropertyCategoryScale,
+                PROPCAT.DDE => SR.PropertyCategoryDDE,
+                _ => GetCategoryName(categorize, categoryId)
+            };
 
-            return catObj.GetCategoryName(categoryID, PInvoke.GetThreadLocale(), out string categoryName).Succeeded ? categoryName : null;
+            static string? GetCategoryName(ICategorizeProperties* categorize, PROPCAT categoryId)
+            {
+                using BSTR categoryName = default;
+                return categorize->GetCategoryName(categoryId, (int)PInvoke.GetThreadLocale(), &categoryName).Succeeded
+                    ? categoryName.ToString()
+                    : null;
+            }
         }
 
         public override void SetupPropertyHandlers(Com2PropertyDescriptor[]? propDesc)

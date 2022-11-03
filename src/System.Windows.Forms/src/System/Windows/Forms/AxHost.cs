@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using Windows.Win32.System.Com;
 using Windows.Win32.System.Com.StructuredStorage;
 using Windows.Win32.System.Ole;
+using Microsoft.VisualStudio.Shell;
 using static Interop;
 
 namespace System.Windows.Forms
@@ -183,7 +184,7 @@ namespace System.Windows.Forms
         private IOleInPlaceActiveObject.Interface _iOleInPlaceActiveObject;
         private IOleInPlaceActiveObject.Interface _iOleInPlaceActiveObjectExternal;
         private IPerPropertyBrowsing.Interface _iPerPropertyBrowsing;
-        private VSSDK.ICategorizeProperties _iCategorizeProperties;
+        private ICategorizeProperties.Interface _iCategorizeProperties;
         private IPersistPropertyBag.Interface _iPersistPropBag;
         private IPersistStream.Interface _iPersistStream;
         private IPersistStreamInit.Interface _iPersistStreamInit;
@@ -2492,13 +2493,13 @@ namespace System.Windows.Forms
 
         private unsafe CategoryAttribute GetCategoryForDispid(Ole32.DispatchID dispid)
         {
-            VSSDK.ICategorizeProperties icp = GetCategorizeProperties();
+            ICategorizeProperties.Interface icp = GetCategorizeProperties();
             if (icp is null)
             {
                 return null;
             }
 
-            VSSDK.PROPCAT propcat = 0;
+            PROPCAT propcat = 0;
             HRESULT hr = icp.MapPropertyToCategory(dispid, &propcat);
             if (hr != HRESULT.S_OK || propcat == 0)
             {
@@ -3886,12 +3887,12 @@ namespace System.Windows.Forms
             return _iOleInPlaceObject;
         }
 
-        private VSSDK.ICategorizeProperties GetCategorizeProperties()
+        private ICategorizeProperties.Interface GetCategorizeProperties()
         {
             if (_iCategorizeProperties is null && !_axState[s_checkedCP] && _instance is not null)
             {
                 _axState[s_checkedCP] = true;
-                if (_instance is VSSDK.ICategorizeProperties properties)
+                if (_instance is ICategorizeProperties.Interface properties)
                 {
                     _iCategorizeProperties = properties;
                 }
