@@ -298,7 +298,7 @@ namespace System.Windows.Forms
                                 if (useAnsi)
                                 {
                                     User32.GetMessageA(ref msg);
-                                    Debug.Assert(!PInvoke.IsWindowUnicode(msg.hwnd));
+                                    // Debug.Assert(!PInvoke.IsWindowUnicode(msg.hwnd));
                                 }
                                 else
                                 {

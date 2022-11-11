@@ -262,6 +262,7 @@ HIGHCONTRASTW
 HitTestThemeBackground
 HWND_*
 IAutoComplete2
+IClassFactory
 ICM_MODE
 ICON_*
 IDC_*
