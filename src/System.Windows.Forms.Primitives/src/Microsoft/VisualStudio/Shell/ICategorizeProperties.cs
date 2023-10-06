@@ -32,26 +32,27 @@ internal unsafe struct ICategorizeProperties : IComIID
     private readonly void** _lpVtbl;
 
     /// <inheritdoc cref="IUnknown.QueryInterface(Guid*, void**)"/>
-    public HRESULT QueryInterface(Guid* riid, void** ppvObject)
+    internal HRESULT QueryInterface(Guid* riid, void** ppvObject)
     {
         fixed (ICategorizeProperties* pThis = &this)
             return ((delegate* unmanaged[Stdcall]<ICategorizeProperties*, Guid*, void**, HRESULT>)_lpVtbl[0])(pThis, riid, ppvObject);
     }
 
     /// <inheritdoc cref="IUnknown.AddRef"/>
-    public uint AddRef()
+    internal uint AddRef()
     {
         fixed (ICategorizeProperties* pThis = &this)
             return ((delegate* unmanaged[Stdcall]<ICategorizeProperties*, uint>)_lpVtbl[1])(pThis);
     }
 
     /// <inheritdoc cref="IUnknown.Release"/>
-    public uint Release()
+    internal uint Release()
     {
         fixed (ICategorizeProperties* pThis = &this)
             return ((delegate* unmanaged[Stdcall]<ICategorizeProperties*, uint>)_lpVtbl[2])(pThis);
     }
 
+    /// <inheritdoc cref="Interface.MapPropertyToCategory(int, PROPCAT*)"/>
     internal HRESULT MapPropertyToCategory(
         int dispid,
         PROPCAT* ppropcat)
@@ -60,6 +61,7 @@ internal unsafe struct ICategorizeProperties : IComIID
             return ((delegate* unmanaged[Stdcall]<ICategorizeProperties*, int, PROPCAT*, HRESULT>)_lpVtbl[2])(pThis, dispid, ppropcat);
     }
 
+    /// <inheritdoc cref="Interface.GetCategoryName(PROPCAT, int, BSTR*)"/>
     internal HRESULT GetCategoryName(
         PROPCAT propcat,
         int lcid,

@@ -289,16 +289,6 @@ internal static class CompModSwitches
         }
     }
 
-    public static TraceSwitch MSOComponentManager
-    {
-        get
-        {
-            msoComponentManager ??= new TraceSwitch("MSOComponentManager", "Debug MSO Component Manager support");
-
-            return msoComponentManager;
-        }
-    }
-
     public static TraceSwitch RichLayout
     {
         get

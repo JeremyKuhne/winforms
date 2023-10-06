@@ -4,7 +4,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Windows.Win32.System.Variant;
-using ComWrappers = Interop.WinFormsComWrappers;
 
 namespace Windows.Win32.System.Com;
 
@@ -20,15 +19,15 @@ internal unsafe partial struct IDispatch : IVTable<IDispatch, IDispatch.Vtbl>
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static HRESULT GetTypeInfoCount(IDispatch* @this, uint* pctinfo)
-        => ComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetTypeInfoCount(pctinfo));
+        => WinFormsComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetTypeInfoCount(pctinfo));
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static HRESULT GetTypeInfo(IDispatch* @this, uint iTInfo, uint lcid, ITypeInfo** ppTInfo)
-        => ComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetTypeInfo(iTInfo, lcid, ppTInfo));
+        => WinFormsComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetTypeInfo(iTInfo, lcid, ppTInfo));
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static HRESULT GetIDsOfNames(IDispatch* @this, Guid* riid, PWSTR* rgszNames, uint cNames, uint lcid, int* rgDispId)
-        => ComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetIDsOfNames(riid, rgszNames, cNames, lcid, rgDispId));
+        => WinFormsComWrappers.UnwrapAndInvoke<IDispatch, Interface>(@this, o => o.GetIDsOfNames(riid, rgszNames, cNames, lcid, rgDispId));
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static HRESULT Invoke(
@@ -41,7 +40,7 @@ internal unsafe partial struct IDispatch : IVTable<IDispatch, IDispatch.Vtbl>
         VARIANT* pVarResult,
         EXCEPINFO* pExcepInfo,
         uint* pArgErr)
-        => ComWrappers.UnwrapAndInvoke<IDispatch, Interface>(
+        => WinFormsComWrappers.UnwrapAndInvoke<IDispatch, Interface>(
             @this,
             o => o.Invoke(dispIdMember, riid, lcid, dwFlags, pDispParams, pVarResult, pExcepInfo, pArgErr));
 

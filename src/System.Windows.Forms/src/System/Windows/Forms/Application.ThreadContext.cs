@@ -17,10 +17,9 @@ public sealed partial class Application
 {
     /// <summary>
     ///  This class is the embodiment of TLS for windows forms.  We do not expose this to end users because
-    ///  TLS is really just an unfortunate artifact of using Win 32.  We want the world to be free
-    ///  threaded.
+    ///  TLS is really just an unfortunate artifact of using Win32.  We want the world to be free threaded.
     /// </summary>
-    internal sealed class ThreadContext : MarshalByRefObject, IMsoComponent, IHandle<HANDLE>
+    internal sealed unsafe class ThreadContext : MarshalByRefObject, IMsoComponent.Interface, IHandle<HANDLE>, IManagedWrapper<IMsoComponent>
     {
         private const int STATE_OLEINITIALIZED = 0x00000001;
         private const int STATE_EXTERNALOLEINIT = 0x00000002;
@@ -64,7 +63,7 @@ public sealed partial class Application
         private WeakReference<Control>? _activatingControlRef;
 
         // IMsoComponentManager stuff
-        private IMsoComponentManager? _componentManager;
+        private IMsoComponentManager.Interface? _componentManager;
         private bool _externalComponentManager;
         private bool _fetchingComponentManager;
 
@@ -116,28 +115,28 @@ public sealed partial class Application
 
         public ApplicationContext? ApplicationContext { get; private set; }
 
+        internal void EnsureComponentManagerInitialized() => _ = ComponentManager;
+
         /// <summary>
         ///  Retrieves the component manager for this process.  If there is no component manager
         ///  currently installed, we install our own.
         /// </summary>
-        internal unsafe IMsoComponentManager? ComponentManager
+        internal unsafe IMsoComponentManager.Interface? ComponentManager
         {
             get
             {
-                Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "Application.ComponentManager.Get:");
-
                 if (_componentManager is not null || _fetchingComponentManager)
                 {
                     return _componentManager;
                 }
 
                 // The CLR is a good COM citizen and will pump messages when things are waiting.
-                // This is nice; it keeps the world responsive.  But, it is also very hard for
+                // This is nice; it keeps the world responsive. But, it is also very hard for
                 // us because most of the code below causes waits, and the likelihood that
                 // a message will come in and need a component manager is very high.  Recursing
                 // here is very very bad, and will almost certainly lead to application failure
                 // later on as we come out of the recursion.  So, we guard it here and return
-                // null.  EVERYONE who accesses the component manager must handle a NULL return!
+                // null. EVERYONE who accesses the component manager must handle a NULL return!
 
                 _fetchingComponentManager = true;
 
@@ -148,16 +147,11 @@ public sealed partial class Application
                     if (_componentManager is not null)
                     {
                         _externalComponentManager = true;
-                        Debug.WriteLineIf(
-                            CompModSwitches.MSOComponentManager.TraceInfo,
-                            "Using MSO Component manager");
                     }
                     else
                     {
+                        // Use our own component manager.
                         _componentManager = new ComponentManager();
-                        Debug.WriteLineIf(
-                            CompModSwitches.MSOComponentManager.TraceInfo,
-                            "Using our own component manager");
                     }
 
                     if (_componentManager is not null)
@@ -172,7 +166,7 @@ public sealed partial class Application
 
                 return _componentManager;
 
-                unsafe static IMsoComponentManager? GetExternalComponentManager()
+                unsafe static IMsoComponentManager.Interface? GetExternalComponentManager()
                 {
                     Application.OleRequired();
                     using ComScope<ComIMessageFilter> messageFilter = new(null);
@@ -213,7 +207,7 @@ public sealed partial class Application
                         ComHelpers.TryGetObjectForIUnknown(
                             (IUnknown*)componentManagerHandle,
                             takeOwnership: true,
-                            out IMsoComponentManager? componentManager);
+                            out IMsoComponentManager.Interface? componentManager);
 
                         return componentManager;
                     }
@@ -223,7 +217,6 @@ public sealed partial class Application
 
                 void RegisterComponentManager()
                 {
-                    Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "Registering MSO component with the component manager");
                     MSOCRINFO info = new()
                     {
                         cbSize = (uint)sizeof(MSOCRINFO),
@@ -233,7 +226,7 @@ public sealed partial class Application
                     };
 
                     UIntPtr id;
-                    bool result = _componentManager.FRegisterComponent(this, &info, &id);
+                    bool result = _componentManager.FRegisterComponent(ComHelpers.GetComPointer<IMsoComponent>(this), &info, &id);
                     _componentID = id;
                     Debug.Assert(_componentID != s_invalidId, "Our ID sentinel was returned as a valid ID");
 
@@ -244,12 +237,6 @@ public sealed partial class Application
 
                     Debug.Assert(result,
                         $"Failed to register WindowsForms with the ComponentManager -- DoEvents and modal dialogs will be broken. size: {info.cbSize}");
-                    Debug.WriteLineIf(
-                        CompModSwitches.MSOComponentManager.TraceInfo,
-                        $"ComponentManager.FRegisterComponent returned {result}");
-                    Debug.WriteLineIf(
-                        CompModSwitches.MSOComponentManager.TraceInfo,
-                        $"ComponentManager.FRegisterComponent assigned a componentID == [0x{_componentID.ToUInt64():X16}]");
                 }
             }
         }
@@ -257,8 +244,7 @@ public sealed partial class Application
         internal bool CustomThreadExceptionHandlerAttached => _threadExceptionHandler is not null;
 
         /// <summary>
-        ///  Retrieves the actual parking form.  This will demand create the parking window
-        ///  if it needs to.
+        ///  Retrieves the actual parking form. This will demand create the parking window if it needs to.
         /// </summary>
         internal ParkingWindow GetParkingWindow(DPI_AWARENESS_CONTEXT context)
         {
@@ -387,13 +373,12 @@ public sealed partial class Application
 #if DEBUG
             _debugModalCounter++;
 #endif
-            // Set the ourModalLoop flag so that the "IMSOComponent.OnEnterState" is a NOOP since we started the ModalMessageLoop.
+            // Set the ourModalLoop flag so that the "IMsoComponent.OnEnterState" is a NOOP since we started the ModalMessageLoop.
             bool wasOurLoop = _ourModalLoop;
             _ourModalLoop = true;
             try
             {
-                IMsoComponentManager? cm = ComponentManager;
-                cm?.OnComponentEnterState(_componentID, msocstate.Modal, msoccontext.All, 0, null, 0);
+                ComponentManager?.OnComponentEnterState(_componentID, msocstate.Modal, msoccontext.All, 0, null, 0);
             }
             finally
             {
@@ -416,7 +401,6 @@ public sealed partial class Application
         // See also IMsoComponent.OnEnterState.
         internal void DisableWindowsForModalLoop(bool onlyWinForms, ApplicationContext? context)
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager : Entering modal state");
             ThreadWindows? old = _threadWindows;
             _threadWindows = new ThreadWindows(onlyWinForms);
             _threadWindows.Enable(false);
@@ -585,7 +569,6 @@ public sealed partial class Application
         // See also IMsoComponent.OnEnterState.
         internal void EnableWindowsForModalLoop(bool onlyWinForms, ApplicationContext? context)
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager : Leaving modal state");
             if (_threadWindows is not null)
             {
                 _threadWindows.Enable(true);
@@ -613,9 +596,8 @@ public sealed partial class Application
             _ourModalLoop = true;
             try
             {
-                // If We started the ModalMessageLoop .. this will call us back on the IMSOComponent.OnStateEnter and not do anything ...
-                IMsoComponentManager? cm = ComponentManager;
-                cm?.FOnComponentExitState(_componentID, msocstate.Modal, msoccontext.All, 0, null);
+                // If we started the ModalMessageLoop this will call us back on the IMsoComponent.OnStateEnter and not do anything.
+                ComponentManager?.FOnComponentExitState(_componentID, msocstate.Modal, msoccontext.All, 0, null);
             }
             finally
             {
@@ -679,10 +661,9 @@ public sealed partial class Application
         {
             if (activate)
             {
-                IMsoComponentManager? cm = ComponentManager;
-                if (cm is not null && cm is not Application.ComponentManager)
+                if (ComponentManager is { } manager && _externalComponentManager)
                 {
-                    cm.FOnComponentActivate(_componentID);
+                    manager.FOnComponentActivate(_componentID);
                 }
             }
         }
@@ -693,13 +674,12 @@ public sealed partial class Application
         /// </summary>
         internal unsafe void TrackInput(bool track)
         {
-            // protect against double setting, as this causes asserts in the VS component manager.
+            // Protect against double setting, as this causes asserts in the VS component manager.
             if (track != GetState(STATE_TRACKINGCOMPONENT))
             {
-                IMsoComponentManager? cm = ComponentManager;
-                if (cm is not null && cm is not Application.ComponentManager)
+                if (ComponentManager is { } manager && _externalComponentManager)
                 {
-                    cm.FSetTrackingComponent(_componentID, track);
+                    manager.FSetTrackingComponent(_componentID, track);
                     SetState(STATE_TRACKINGCOMPONENT, track);
                 }
             }
@@ -708,8 +688,7 @@ public sealed partial class Application
         /// <summary>
         ///  Retrieves a ThreadContext object for the current thread
         /// </summary>
-        internal static ThreadContext FromCurrent()
-            => t_currentThreadContext ?? new ThreadContext();
+        internal static ThreadContext FromCurrent() => t_currentThreadContext ?? new ThreadContext();
 
         /// <summary>
         ///  Retrieves a ThreadContext object for the given thread ID
@@ -769,10 +748,10 @@ public sealed partial class Application
                     return true;
                 }
 
-                using ComScope<IUnknown> component = new(null);
+                using ComScope<IMsoComponent> component = new(null);
                 if (ComponentManager.FGetActiveComponent(msogac.Active, component, null, 0))
                 {
-                    return ComHelpers.WrapsManagedObject(this, component);
+                    return ComHelpers.WrapsManagedObject(this, component.AsUnknown);
                 }
             }
 
@@ -886,8 +865,6 @@ public sealed partial class Application
 
         internal void PostQuit()
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager : Attempting to terminate message loop");
-
             // Per KB 183116: https://web.archive.org/web/20070510025823/http://support.microsoft.com/kb/183116
             //
             // WM_QUIT may be consumed by another message pump under very specific circumstances.
@@ -895,7 +872,7 @@ public sealed partial class Application
             // idle, at which point we can tear down.
             //
             // We can't follow the KB article exactly, because we don't have an HWND to PostMessage to.
-            PInvoke.PostThreadMessage(_id, (uint)PInvoke.WM_QUIT, default, default);
+            PInvoke.PostThreadMessage(_id, PInvoke.WM_QUIT, default, default);
             SetState(STATE_POSTEDQUIT, true);
         }
 
@@ -931,18 +908,14 @@ public sealed partial class Application
 
         private unsafe void RunMessageLoopInner(msoloop reason, ApplicationContext? context)
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ThreadContext.PushMessageLoop {");
-            Debug.Indent();
-
             if (reason == msoloop.ModalForm && !SystemInformation.UserInteractive)
             {
                 throw new InvalidOperationException(SR.CantShowModalOnNonInteractive);
             }
 
-            // If we've entered because of a Main message loop being pushed
-            // (different than a modal message loop or DoEVents loop)
-            // then clear the QUIT flag to allow normal processing.
-            // this flag gets set during loop teardown for another form.
+            // If we've entered because of a Main message loop being pushed (different than a modal message loop
+            // or DoEvents loop) then clear the QUIT flag to allow normal processing. This flag gets set during loop
+            // teardown for another form.
             if (reason == msoloop.Main)
             {
                 SetState(STATE_POSTEDQUIT, false);
@@ -957,16 +930,14 @@ public sealed partial class Application
 
             if (reason == msoloop.Main)
             {
-                // If someone has tried to push another main message loop on this thread,
-                // ignore it.
+                // If someone has tried to push another main message loop on this thread, ignore it.
                 if (_messageLoopCount != 1)
                 {
                     throw new InvalidOperationException(SR.CantNestMessageLoops);
                 }
 
-                ApplicationContext = context;
-
-                ApplicationContext!.ThreadExit += new EventHandler(OnAppThreadExit);
+                ApplicationContext = context.OrThrowIfNull();
+                ApplicationContext.ThreadExit += OnAppThreadExit;
 
                 if (ApplicationContext.MainForm is not null)
                 {
@@ -989,7 +960,7 @@ public sealed partial class Application
                 localModal = true;
             }
 
-            if (reason == msoloop.ModalForm || reason == msoloop.ModalAlert)
+            if (reason is msoloop.ModalForm or msoloop.ModalAlert)
             {
                 fullModal = true;
 
@@ -1000,10 +971,6 @@ public sealed partial class Application
                 // wrong thing and disabling our dialog.
 
                 bool modalEnabled = _currentForm is not null && _currentForm.Enabled;
-
-                Debug.WriteLineIf(
-                    CompModSwitches.MSOComponentManager.TraceInfo,
-                    $"[0x{_componentID.ToUInt64():X16}] Notifying component manager that we are entering a modal loop");
 
                 BeginModalMessageLoop(context);
 
@@ -1037,10 +1004,6 @@ public sealed partial class Application
 
             try
             {
-                Debug.WriteLineIf(
-                    CompModSwitches.MSOComponentManager.TraceInfo,
-                    $"[0x{_componentID.ToUInt64():X16}] Calling ComponentManager.FPushMessageLoop...");
-
                 bool result;
 
                 // Register marshaller for background tasks.  At this point,
@@ -1062,27 +1025,17 @@ public sealed partial class Application
                 {
                     result = ComponentManager!.FPushMessageLoop(_componentID, reason, null);
                 }
-                else if (reason == msoloop.DoEvents || reason == msoloop.DoEventsModal)
-                {
-                    result = LocalModalMessageLoop(null);
-                }
                 else
                 {
-                    result = LocalModalMessageLoop(_currentForm);
+                    result = reason is msoloop.DoEvents or msoloop.DoEventsModal
+                        ? LocalModalMessageLoop(null)
+                        : LocalModalMessageLoop(_currentForm);
                 }
-
-                Debug.WriteLineIf(
-                    CompModSwitches.MSOComponentManager.TraceInfo,
-                    $"[0x{_componentID.ToUInt64():X16}] ComponentManager.FPushMessageLoop returned {result}");
             }
             finally
             {
                 if (fullModal)
                 {
-                    Debug.WriteLineIf(
-                        CompModSwitches.MSOComponentManager.TraceInfo,
-                        $"[0x{_componentID.ToUInt64():X16}] Notifying component manager that we are exiting a modal loop");
-
                     EndModalMessageLoop(context);
 
                     // Again, if the hwndOwner was valid and disabled above, re-enable it.
@@ -1113,9 +1066,6 @@ public sealed partial class Application
                     RevokeComponent();
                 }
             }
-
-            Debug.Unindent();
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "}");
         }
 
         private unsafe bool LocalModalMessageLoop(Form? form)
@@ -1242,10 +1192,10 @@ public sealed partial class Application
 
             if (msg.IsKeyMessage())
             {
-                if (msg.message == (uint)PInvoke.WM_CHAR)
+                if (msg.message == PInvoke.WM_CHAR)
                 {
                     int breakLParamMask = 0x1460000; // 1 = extended keyboard, 46 = scan code
-                    if (unchecked((int)(uint)msg.wParam) == 3 && (unchecked((int)msg.lParam) & breakLParamMask) == breakLParamMask) // ctrl-brk
+                    if ((int)(uint)msg.wParam == 3 && ((int)msg.lParam & breakLParamMask) == breakLParamMask) // ctrl-brk
                     {
                         // wParam is the key character, which for ctrl-brk is the same as ctrl-C.
                         // So we need to go to the lparam to distinguish the two cases.
@@ -1317,16 +1267,13 @@ public sealed partial class Application
         }
 
         /// <summary>
-        ///  Revokes our component from the active component manager.  Does
-        ///  nothing if there is no active component manager or we are
-        ///  already invoked.
+        ///  Revokes our component from the active component manager. Does nothing if there is no active component
+        ///  manager or we are already invoked.
         /// </summary>
         private unsafe void RevokeComponent()
         {
-            if (_componentManager is not null && _componentID != s_invalidId)
+            if (_componentManager is { } msocm && _componentID != s_invalidId)
             {
-                IMsoComponentManager msocm = _componentManager;
-
                 try
                 {
                     msocm.FRevokeComponent(_componentID);
@@ -1365,16 +1312,14 @@ public sealed partial class Application
         // - When a dialog is up, VS is completely disabled, including moving and resizing VS.
         // - After doing all this, you can ctrl-shift-N start a new project and VS is enabled.
 
-        BOOL IMsoComponent.FDebugMessage(IntPtr hInst, uint msg, IntPtr wparam, IntPtr lparam)
+        BOOL IMsoComponent.Interface.FDebugMessage(HANDLE hInst, uint msg, WPARAM wparam, LPARAM lparam)
             => true;
 
-        unsafe BOOL IMsoComponent.FPreTranslateMessage(MSG* msg)
+        unsafe BOOL IMsoComponent.Interface.FPreTranslateMessage(MSG* msg)
             => PreTranslateMessage(ref Unsafe.AsRef<MSG>(msg));
 
-        void IMsoComponent.OnEnterState(msocstate uStateID, BOOL fEnter)
+        void IMsoComponent.Interface.OnEnterState(msocstate uStateID, BOOL fEnter)
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, $"ComponentManager : OnEnterState({uStateID}, {fEnter})");
-
             // Return if our (WINFORMS) Modal Loop is still running.
             if (_ourModalLoop)
             {
@@ -1395,33 +1340,31 @@ public sealed partial class Application
             }
         }
 
-        void IMsoComponent.OnAppActivate(BOOL fActive, uint dwOtherThreadID)
+        void IMsoComponent.Interface.OnAppActivate(BOOL fActive, uint dwOtherThreadID)
         {
         }
 
-        void IMsoComponent.OnLoseActivation()
+        void IMsoComponent.Interface.OnLoseActivation()
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager : Our component is losing activation.");
         }
 
-        unsafe void IMsoComponent.OnActivationChange(
-            IMsoComponent? component,
+        void IMsoComponent.Interface.OnActivationChange(
+            IMsoComponent* component,
             BOOL fSameComponent,
             MSOCRINFO* pcrinfo,
             BOOL fHostIsActivating,
-            IntPtr pchostinfo,
+            nint pchostinfo,
             uint dwReserved)
         {
-            Debug.WriteLineIf(CompModSwitches.MSOComponentManager.TraceInfo, "ComponentManager : OnActivationChange");
         }
 
-        BOOL IMsoComponent.FDoIdle(msoidlef grfidlef)
+        BOOL IMsoComponent.Interface.FDoIdle(msoidlef grfidlef)
         {
             _idleHandler?.Invoke(Thread.CurrentThread, EventArgs.Empty);
             return false;
         }
 
-        unsafe BOOL IMsoComponent.FContinueMessageLoop(
+        unsafe BOOL IMsoComponent.Interface.FContinueMessageLoop(
             msoloop uReason,
             void* pvLoopData,
             MSG* pMsgPeeked)
@@ -1432,9 +1375,6 @@ public sealed partial class Application
             // then someone ate the message.
             if (pMsgPeeked is null && GetState(STATE_POSTEDQUIT))
             {
-                Debug.WriteLineIf(
-                    CompModSwitches.MSOComponentManager.TraceInfo,
-                    "ComponentManager : Abnormal loop termination, no WM_QUIT received");
                 continueLoop = false;
             }
             else
@@ -1482,9 +1422,9 @@ public sealed partial class Application
             return continueLoop;
         }
 
-        BOOL IMsoComponent.FQueryTerminate(BOOL fPromptUser) => true;
+        BOOL IMsoComponent.Interface.FQueryTerminate(BOOL fPromptUser) => true;
 
-        void IMsoComponent.Terminate()
+        void IMsoComponent.Interface.Terminate()
         {
             if (_messageLoopCount > 0 && ComponentManager is not Application.ComponentManager)
             {
@@ -1494,7 +1434,6 @@ public sealed partial class Application
             Dispose(false);
         }
 
-        IntPtr IMsoComponent.HwndGetWindow(msocWindow dwWhich, uint dwReserved)
-            => IntPtr.Zero;
+        HWND IMsoComponent.Interface.HwndGetWindow(msocWindow dwWhich, uint dwReserved) => HWND.Null;
     }
 }

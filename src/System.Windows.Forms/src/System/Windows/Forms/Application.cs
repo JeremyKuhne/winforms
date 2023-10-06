@@ -66,14 +66,7 @@ public sealed partial class Application
     ///  for example, if being called from a windows forms control being hosted within a web browser.  The
     ///  windows forms control should not attempt to quit the application.
     /// </summary>
-    public static bool AllowQuit
-        => ThreadContext.GetAllowQuit();
-
-    /// <summary>
-    ///  Returns True if it is OK to continue idle processing. Typically called in an Application.Idle event handler.
-    /// </summary>
-    internal static bool CanContinueIdle
-        => ThreadContext.FromCurrent().ComponentManager?.FContinueIdle() ?? false;
+    public static bool AllowQuit => ThreadContext.GetAllowQuit();
 
     /// <summary>
     ///  Typically, you shouldn't need to use this directly - use RenderWithVisualStyles instead.
@@ -628,8 +621,7 @@ public sealed partial class Application
     }
 
     /// <summary>
-    ///  Occurs when the application has finished processing and is about to enter the
-    ///  idle state.
+    ///  Occurs when the application has finished processing and is about to enter the idle state.
     /// </summary>
     public static event EventHandler? Idle
     {
@@ -639,10 +631,7 @@ public sealed partial class Application
             lock (current)
             {
                 current._idleHandler += value;
-
-                // This just ensures that the component manager is hooked up.  We
-                // need it for idle time processing.
-                object? o = current.ComponentManager;
+                current.EnsureComponentManagerInitialized();
             }
         }
         remove
