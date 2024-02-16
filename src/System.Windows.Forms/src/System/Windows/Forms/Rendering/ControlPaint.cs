@@ -437,84 +437,87 @@ public static unsafe partial class ControlPaint
             }
 
             g.FillRectangle(textureBrush, clipRect);
+            return;
+        }
+
+        // Center, Stretch, Zoom
+        Rectangle imageRectangle = CalculateBackgroundImageRectangle(bounds, backgroundImage.Size, backgroundImageLayout);
+
+        // Flip the coordinates only if we don't do any layout, since otherwise the image should be at the
+        // center of the displayRectangle anyway.
+
+        if (rightToLeft == RightToLeft.Yes && backgroundImageLayout == ImageLayout.None)
+        {
+            imageRectangle.X += clipRect.Width - imageRectangle.Width;
+        }
+
+        // We fill the entire cliprect with the backcolor in case the image is transparent.
+        // Also, if gdi+ can't quite fill the rect with the image, they will interpolate the remaining
+        // pixels, and make them semi-transparent. This is another reason why we need to fill the entire rect.
+        // If we didn't where ever the image was transparent, we would get garbage.
+        using (var brush = backColor.GetCachedSolidBrushScope())
+        {
+            g.FillRectangle(brush, clipRect);
+        }
+
+        Bitmap? cachedBitmap = CachedBitmapCache.GetCachedBitmap(g, backgroundImage);
+        if (cachedBitmap is not null)
+        {
+            backgroundImage = cachedBitmap;
+        }
+
+        if (clipRect.Contains(imageRectangle))
+        {
+            //using ImageAttributes imageAttrib = new();
+            //imageAttrib.SetWrapMode(WrapMode.TileFlipXY);
+            g.DrawImage(
+                backgroundImage,
+                imageRectangle,
+                0,
+                0,
+                backgroundImage.Width,
+                backgroundImage.Height,
+                GraphicsUnit.Pixel);
+
+            return;
+        }
+
+        if (backgroundImageLayout is ImageLayout.Stretch or ImageLayout.Zoom)
+        {
+            imageRectangle.Intersect(clipRect);
+            g.DrawImage(backgroundImage, imageRectangle);
+        }
+        else if (backgroundImageLayout == ImageLayout.None)
+        {
+            imageRectangle.Offset(clipRect.Location);
+            Rectangle imageRect = imageRectangle;
+            imageRect.Intersect(clipRect);
+            Rectangle partOfImageToDraw = new(Point.Empty, imageRect.Size);
+            g.DrawImage(
+                backgroundImage,
+                imageRect,
+                partOfImageToDraw.X,
+                partOfImageToDraw.Y,
+                partOfImageToDraw.Width,
+                partOfImageToDraw.Height,
+                GraphicsUnit.Pixel);
         }
         else
         {
-            // Center, Stretch, Zoom
+            Rectangle imageRect = imageRectangle;
+            imageRect.Intersect(clipRect);
+            Rectangle partOfImageToDraw = new(
+                new Point(imageRect.X - imageRectangle.X, imageRect.Y - imageRectangle.Y),
+                imageRect.Size);
 
-            Rectangle imageRectangle = CalculateBackgroundImageRectangle(bounds, backgroundImage.Size, backgroundImageLayout);
-
-            // Flip the coordinates only if we don't do any layout, since otherwise the image should be at the
-            // center of the displayRectangle anyway.
-
-            if (rightToLeft == RightToLeft.Yes && backgroundImageLayout == ImageLayout.None)
-            {
-                imageRectangle.X += clipRect.Width - imageRectangle.Width;
-            }
-
-            // We fill the entire cliprect with the backcolor in case the image is transparent.
-            // Also, if gdi+ can't quite fill the rect with the image, they will interpolate the remaining
-            // pixels, and make them semi-transparent. This is another reason why we need to fill the entire rect.
-            // If we didn't where ever the image was transparent, we would get garbage.
-            using (var brush = backColor.GetCachedSolidBrushScope())
-            {
-                g.FillRectangle(brush, clipRect);
-            }
-
-            if (!clipRect.Contains(imageRectangle))
-            {
-                if (backgroundImageLayout is ImageLayout.Stretch or ImageLayout.Zoom)
-                {
-                    imageRectangle.Intersect(clipRect);
-                    g.DrawImage(backgroundImage, imageRectangle);
-                }
-                else if (backgroundImageLayout == ImageLayout.None)
-                {
-                    imageRectangle.Offset(clipRect.Location);
-                    Rectangle imageRect = imageRectangle;
-                    imageRect.Intersect(clipRect);
-                    Rectangle partOfImageToDraw = new(Point.Empty, imageRect.Size);
-                    g.DrawImage(
-                        backgroundImage,
-                        imageRect,
-                        partOfImageToDraw.X,
-                        partOfImageToDraw.Y,
-                        partOfImageToDraw.Width,
-                        partOfImageToDraw.Height,
-                        GraphicsUnit.Pixel);
-                }
-                else
-                {
-                    Rectangle imageRect = imageRectangle;
-                    imageRect.Intersect(clipRect);
-                    Rectangle partOfImageToDraw = new(
-                        new Point(imageRect.X - imageRectangle.X, imageRect.Y - imageRectangle.Y),
-                        imageRect.Size);
-
-                    g.DrawImage(
-                        backgroundImage,
-                        imageRect,
-                        partOfImageToDraw.X,
-                        partOfImageToDraw.Y,
-                        partOfImageToDraw.Width,
-                        partOfImageToDraw.Height,
-                        GraphicsUnit.Pixel);
-                }
-            }
-            else
-            {
-                using ImageAttributes imageAttrib = new();
-                imageAttrib.SetWrapMode(WrapMode.TileFlipXY);
-                g.DrawImage(
-                    backgroundImage,
-                    imageRectangle,
-                    0,
-                    0,
-                    backgroundImage.Width,
-                    backgroundImage.Height,
-                    GraphicsUnit.Pixel,
-                    imageAttrib);
-            }
+            g.DrawImage(
+                backgroundImage,
+                imageRect,
+                partOfImageToDraw.X,
+                partOfImageToDraw.Y,
+                partOfImageToDraw.Width,
+                partOfImageToDraw.Height,
+                GraphicsUnit.Pixel);
         }
     }
 
