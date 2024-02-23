@@ -186,3 +186,15 @@ VIEW_E_DRAW
 WIN32_ERROR
 WindowFromDC
 WPARAM
+GUID_WICPixelFormat32bppPBGRA
+D2D1CreateFactory
+ID2D1Factory
+GpBitmap
+GdipGetImagePixelFormat
+GdipGetImageBounds
+PixelFormat*
+GdipBitmapLockBits
+GdipBitmapUnlockBits
+ImageLockMode
+D2DERR_RECREATE_TARGET
+D2DERR_WRONG_STATE
