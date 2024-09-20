@@ -80,7 +80,15 @@ public unsafe partial class DataObject
                 Com.FORMATETC nativeFormat = Unsafe.As<FORMATETC, Com.FORMATETC>(ref format);
                 Com.STGMEDIUM nativeMedium = default;
                 using var nativeDataObject = _nativeDataObject.GetInterface();
-                nativeDataObject.Value->GetData(&nativeFormat, &nativeMedium).ThrowOnFailure();
+                HRESULT hr = nativeDataObject.Value->GetData(&nativeFormat, &nativeMedium);
+                hr.ThrowOnFailure();
+                if (hr != HRESULT.S_OK)
+                {
+                    // Historically we threw this as you can't return an HRESULT from this definition.
+                    // Indirectly in this case through a call through to GetDataHere.
+                    Marshal.ThrowExceptionForHR((int)HRESULT.DV_E_FORMATETC);
+                }
+
                 medium = (STGMEDIUM)nativeMedium;
                 nativeMedium.ReleaseUnknown();
             }
@@ -90,7 +98,14 @@ public unsafe partial class DataObject
                 Com.FORMATETC nativeFormat = Unsafe.As<FORMATETC, Com.FORMATETC>(ref format);
                 Com.STGMEDIUM nativeMedium = (Com.STGMEDIUM)medium;
                 using var nativeDataObject = _nativeDataObject.GetInterface();
-                nativeDataObject.Value->GetDataHere(&nativeFormat, &nativeMedium).ThrowOnFailure();
+                HRESULT hr = nativeDataObject.Value->GetDataHere(&nativeFormat, &nativeMedium);
+                hr.ThrowOnFailure();
+                if (hr != HRESULT.S_OK)
+                {
+                    // Historically we threw this as you can't return an HRESULT from this definition.
+                    Marshal.ThrowExceptionForHR((int)HRESULT.DV_E_FORMATETC);
+                }
+
                 medium = (STGMEDIUM)nativeMedium;
                 nativeMedium.ReleaseUnknown();
             }
