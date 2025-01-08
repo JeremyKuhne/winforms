@@ -50,15 +50,14 @@ public static class Clipboard
         ArgumentOutOfRangeException.ThrowIfNegative(retryTimes);
         ArgumentOutOfRangeException.ThrowIfNegative(retryDelay);
 
-        // Always wrap the data in our DataObject since we know how to retrieve our DataObject from the proxy OleGetClipboard returns.
-        DataObject wrappedData = data is DataObject { IsWrappedForClipboard: true } alreadyWrapped
-            ? alreadyWrapped
-            : new DataObject(data) { IsWrappedForClipboard = true };
-        using var dataObject = ComHelpers.GetComScope<Com.IDataObject>(wrappedData);
+        // Wrap if not already a DataObject. If the data is not IDataObject, we mark as 
+        DataObject dataObject = data as DataObject
+            ?? new DataObject(data) { OriginalIsNotIDataObject = data is not IDataObject };
+        using var iDataObject = ComHelpers.GetComScope<Com.IDataObject>(dataObject);
 
         HRESULT hr;
         int retry = retryTimes;
-        while ((hr = PInvoke.OleSetClipboard(dataObject)).Failed)
+        while ((hr = PInvoke.OleSetClipboard(iDataObject)).Failed)
         {
             if (--retry < 0)
             {
@@ -127,35 +126,19 @@ public static class Clipboard
             target = proxyDataObject.AsUnknown;
         }
 
-        if (!ComHelpers.TryGetObjectForIUnknown(target, out object? managedDataObject))
-        {
-            target->Release();
-            return null;
-        }
-
-        if (managedDataObject is not Com.IDataObject.Interface dataObject)
-        {
-            // We always wrap data set on the Clipboard in a DataObject, so if we do not have
-            // a IDataObject.Interface this means built-in com support is turned off and
-            // we have a proxy where there is no way to retrieve the original data object
-            // pointer from it likely because either the clipboard was flushed or the data on the
-            // clipboard is from another process. We need to mimic built-in com behavior and wrap the proxy ourselves.
-            // DataObject will ref count proxyDataObject properly to take ownership.
-            return new DataObject(proxyDataObject.Value);
-        }
-
-        if (dataObject is DataObject { IsWrappedForClipboard: true } wrappedData)
+        if (ComHelpers.TryUnwrapComWrapperCCW(target, out DataObject? dataObject) && !dataObject.OriginalIsNotIDataObject)
         {
             // There is a DataObject on the clipboard that we placed there. If the real data object
             // implements IDataObject, we want to unwrap it and return it. Otherwise return
             // the DataObject as is.
-            return wrappedData.TryUnwrapInnerIDataObject();
+            return dataObject.TryUnwrapInnerIDataObject();
         }
 
-        // We did not place the data on the clipboard. Fall back to old behavior.
-        return dataObject is IDataObject ido && !Marshal.IsComObject(dataObject)
-            ? ido
-            : new DataObject(dataObject);
+        // We always wrap data set on the Clipboard in a DataObject, so if we can not unwrap it, there is no way
+        // to retrieve the original data object. Putting data on the Clipboard class with a flush or from another
+        // process and we simply need to wrap the proxy in a new DataObject. DataObject will ref count
+        // proxyDataObject properly to take ownership.
+        return new DataObject(proxyDataObject.Value);
     }
 
     /// <summary>

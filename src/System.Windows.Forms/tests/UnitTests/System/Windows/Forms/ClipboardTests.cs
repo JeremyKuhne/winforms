@@ -578,7 +578,7 @@ public class ClipboardTests
 
         IDataObject? clipboardDataObject = Clipboard.GetDataObject();
         var dataObject = clipboardDataObject.Should().BeOfType<DataObject>().Subject;
-        dataObject.IsWrappedForClipboard.Should().BeTrue();
+        ((object?)dataObject.TestAccessor().Dynamic._innerData.OriginalIDataObject).Should().BeNull();
 
         Clipboard.SetDataObject(clipboardDataObject!);
         IDataObject? clipboardDataObject2 = Clipboard.GetDataObject();
@@ -874,5 +874,104 @@ public class ClipboardTests
         Action tryGetData = () => Clipboard.TryGetData("test", out uint[,]? data);
         // Can't decode the root record, thus can't validate the T.
         tryGetData.Should().Throw<NotSupportedException>();
+    }
+
+    [WinFormsFact]
+    public void Clipboard_SetData_AsciiText_AllUpper()
+    {
+        // The fact that casing on input matters is likely incorrect.
+        Clipboard.SetData("TEXT", "Hello, World!");
+        Assert.True(Clipboard.ContainsText());
+        Assert.True(Clipboard.ContainsData("TEXT"));
+        Assert.True(Clipboard.ContainsData(DataFormats.Text));
+        Assert.True(Clipboard.ContainsData(DataFormats.UnicodeText));
+
+        IDataObject? dataObject = Clipboard.GetDataObject();
+        Assert.NotNull(dataObject);
+        string[] formats = dataObject.GetFormats();
+        Assert.Equal(["System.String", "UnicodeText", "Text"], formats);
+
+        formats = dataObject.GetFormats(autoConvert: false);
+        Assert.Equal(["Text"], formats);
+
+        // CLIPBRD_E_BAD_DATA returned when trying to get clipboard data.
+        string text = Clipboard.GetText();
+        Assert.Empty(text);
+        text = Clipboard.GetText(TextDataFormat.Text);
+        Assert.Empty(text);
+        text = Clipboard.GetText(TextDataFormat.UnicodeText);
+        Assert.Empty(text);
+
+        object? data = Clipboard.GetData("System.String");
+        Assert.Null(data);
+
+        data = Clipboard.GetData("TEXT");
+        Assert.Null(data);
+    }
+
+    [WinFormsFact]
+    public void Clipboard_SetData_AsciiText_CanonicalCase()
+    {
+        Clipboard.SetData("Text", "Hello, World!");
+        Assert.True(Clipboard.ContainsText());
+        Assert.True(Clipboard.ContainsData("TEXT"));
+        Assert.True(Clipboard.ContainsData(DataFormats.Text));
+        Assert.True(Clipboard.ContainsData(DataFormats.UnicodeText));
+
+        IDataObject? dataObject = Clipboard.GetDataObject();
+        Assert.NotNull(dataObject);
+        string[] formats = dataObject.GetFormats();
+        Assert.Equal(["System.String", "UnicodeText", "Text"], formats);
+
+        formats = dataObject.GetFormats(autoConvert: false);
+        Assert.Equal(["System.String", "UnicodeText", "Text"], formats);
+
+        string text = Clipboard.GetText();
+        Assert.Equal("Hello, World!", text);
+        text = Clipboard.GetText(TextDataFormat.Text);
+        Assert.Equal("Hello, World!", text);
+        text = Clipboard.GetText(TextDataFormat.UnicodeText);
+        Assert.Equal("Hello, World!", text);
+
+        object? data = Clipboard.GetData("System.String");
+        Assert.Equal("Hello, World!", data);
+
+        data = Clipboard.GetData("TEXT");
+        MemoryStream stream = Assert.IsType<MemoryStream>(data);
+        byte[] array = stream.ToArray();
+        Assert.Equal("Hello, World!\0"u8.ToArray(), array);
+    }
+
+    [WinFormsFact]
+    public void Clipboard_SetDataObject_Text()
+    {
+        Clipboard.SetDataObject("Hello, World!");
+        Assert.True(Clipboard.ContainsText());
+        Assert.True(Clipboard.ContainsData("TEXT"));
+        Assert.True(Clipboard.ContainsData(DataFormats.Text));
+        Assert.True(Clipboard.ContainsData(DataFormats.UnicodeText));
+
+        IDataObject? dataObject = Clipboard.GetDataObject();
+        Assert.NotNull(dataObject);
+        string[] formats = dataObject.GetFormats();
+        Assert.Equal(["System.String", "UnicodeText", "Text"], formats);
+
+        formats = dataObject.GetFormats(autoConvert: false);
+        Assert.Equal(["System.String", "UnicodeText", "Text"], formats);
+
+        string text = Clipboard.GetText();
+        Assert.Equal("Hello, World!", text);
+        text = Clipboard.GetText(TextDataFormat.Text);
+        Assert.Equal("Hello, World!", text);
+        text = Clipboard.GetText(TextDataFormat.UnicodeText);
+        Assert.Equal("Hello, World!", text);
+
+        object? data = Clipboard.GetData("System.String");
+        Assert.Equal("Hello, World!", data);
+
+        data = Clipboard.GetData("TEXT");
+        MemoryStream stream = Assert.IsType<MemoryStream>(data);
+        byte[] array = stream.ToArray();
+        Assert.Equal("Hello, World!\0"u8.ToArray(), array);
     }
 }
