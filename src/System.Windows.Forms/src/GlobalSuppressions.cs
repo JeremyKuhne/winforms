@@ -3,6 +3,10 @@
 
 // Publicly shipped API
 
+
+
+
+
 [assembly: SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "Public API", Scope = "member", Target = "~M:System.Windows.Forms.ButtonBase.OnKeyDown(System.Windows.Forms.KeyEventArgs)")]
 [assembly: SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "Public API", Scope = "member", Target = "~M:System.Windows.Forms.ButtonBase.OnKeyUp(System.Windows.Forms.KeyEventArgs)")]
 [assembly: SuppressMessage("Naming", "CA1725:Parameter names should match base declaration", Justification = "Public API", Scope = "member", Target = "~M:System.Windows.Forms.ButtonBase.OnMouseDown(System.Windows.Forms.MouseEventArgs)")]
@@ -270,3 +274,7 @@
 [assembly: SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "Analyzer wrongly complains for new APIs - known issue.", Scope = "member", Target = "~M:System.Windows.Forms.TaskDialog.ShowDialogAsync(System.Windows.Forms.TaskDialogPage,System.Windows.Forms.TaskDialogStartupLocation)~System.Threading.Tasks.Task{System.Windows.Forms.TaskDialogButton}")]
 [assembly: SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "Analyzer wrongly complains for new APIs - known issue.", Scope = "member", Target = "~M:System.Windows.Forms.TaskDialog.ShowDialogAsync(System.Windows.Forms.IWin32Window,System.Windows.Forms.TaskDialogPage,System.Windows.Forms.TaskDialogStartupLocation)~System.Threading.Tasks.Task{System.Windows.Forms.TaskDialogButton}")]
 [assembly: SuppressMessage("ApiDesign", "RS0026:Do not add multiple public overloads with optional parameters", Justification = "Analyzer wrongly complains for new APIs - known issue.", Scope = "member", Target = "~M:System.Windows.Forms.TaskDialog.ShowDialogAsync(System.IntPtr,System.Windows.Forms.TaskDialogPage,System.Windows.Forms.TaskDialogStartupLocation)~System.Threading.Tasks.Task{System.Windows.Forms.TaskDialogButton}")]
+[assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>", Scope = "member", Target = "~M:System.Windows.Forms.Composition`1.NativeToWinFormsAdapter.ReadByteStreamFromHGLOBAL(Windows.Win32.Foundation.HGLOBAL,System.Boolean@)~System.IO.MemoryStream")]
+[assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>", Scope = "member", Target = "~M:System.Private.Windows.Ole.Composition`1.NativeToWinFormsAdapter.ReadByteStreamFromHGLOBAL(Windows.Win32.Foundation.HGLOBAL,System.Boolean@)~System.IO.MemoryStream")]
+[assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>", Scope = "member", Target = "~M:System.Private.Windows.Ole.Composition`2.NativeToRuntimeAdapter.EnumFormatEtc(System.Runtime.InteropServices.ComTypes.DATADIR)~System.Runtime.InteropServices.ComTypes.IEnumFORMATETC")]
+[assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>", Scope = "member", Target = "~M:System.Private.Windows.Ole.Composition`2.NativeToManagedAdapter.ReadByteStreamFromHGLOBAL(Windows.Win32.Foundation.HGLOBAL,System.Boolean@)~System.IO.MemoryStream")]

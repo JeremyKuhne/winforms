@@ -29,7 +29,7 @@ public partial class Control
 
                 try
                 {
-                    SerializationRecord rootRecord = stream.Decode();
+                    SerializationRecord rootRecord = stream.DecodeNrbf();
                     success = rootRecord.TryGetPrimitiveHashtable(out _bag!);
                 }
                 catch (Exception e) when (!e.IsCriticalException())

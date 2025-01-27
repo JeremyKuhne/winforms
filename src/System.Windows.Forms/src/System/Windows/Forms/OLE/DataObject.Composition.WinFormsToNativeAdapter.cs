@@ -1,22 +1,20 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Drawing;
-using System.Private.Windows.Ole;
+// using System.Drawing;
 using System.Runtime.Serialization;
 using System.Text;
 using Windows.Win32.System.Com;
-using Com = Windows.Win32.System.Com;
 using ComTypes = System.Runtime.InteropServices.ComTypes;
 
-namespace System.Windows.Forms;
+namespace System.Private.Windows.Ole;
 
-internal unsafe partial class Composition
+internal unsafe partial class Composition<TRuntime, TDataFormat>
 {
     /// <summary>
-    ///  Maps <see cref="IDataObject"/> to <see cref="Com.IDataObject.Interface"/>.
+    ///  Maps <see cref="IDataObject"/> to <see cref="IDataObject.Interface"/>.
     /// </summary>
-    private unsafe class ManagedToNativeAdapter : Com.IDataObject.Interface, IManagedWrapper<Com.IDataObject>
+    private unsafe class ManagedToNativeAdapter : IDataObject.Interface, IManagedWrapper<IDataObject>
     {
         private const int DATA_S_SAMEFORMATETC = 0x00040130;
 
@@ -45,9 +43,9 @@ internal unsafe partial class Composition
                 return HRESULT.E_POINTER;
             }
 
-            if (DragDropHelper.IsInDragLoop(_dataObject))
+            if (DragDropHelper<TRuntime, TDataFormat>.IsInDragLoop(_dataObject))
             {
-                string formatName = DataFormats.GetFormat(pformatetcIn->cfFormat).Name;
+                string formatName = DataFormatsCore<TDataFormat>.GetOrAddFormat(pformatetcIn->cfFormat).Name;
                 if (!_dataObject.GetDataPresent(formatName))
                 {
                     *pmedium = default;
@@ -109,7 +107,7 @@ internal unsafe partial class Composition
                 return HRESULT.DV_E_TYMED;
             }
 
-            string format = DataFormats.GetFormat(pformatetc->cfFormat).Name;
+            string format = DataFormatsCore<TDataFormat>.GetOrAddFormat(pformatetc->cfFormat).Name;
 
             if (!_dataObject.GetDataPresent(format))
             {
@@ -145,7 +143,7 @@ internal unsafe partial class Composition
 
             if (((TYMED)pformatetc->tymed).HasFlag(TYMED.TYMED_GDI))
             {
-                if (format.Equals(DataFormats.Bitmap) && data is Bitmap bitmap)
+                if (format.Equals(DataFormatNames.Bitmap) && data is Bitmap bitmap)
                 {
                     // Save bitmap
                     pmedium->u.hBitmap = GetCompatibleBitmap(bitmap);
@@ -211,7 +209,7 @@ internal unsafe partial class Composition
                 return HRESULT.S_FALSE;
             }
 
-            if (!_dataObject.GetDataPresent(DataFormats.GetFormat(pformatetc->cfFormat).Name))
+            if (!_dataObject.GetDataPresent(DataFormatsCore<TDataFormat>.GetOrAddFormat(pformatetc->cfFormat).Name))
             {
                 return HRESULT.DV_E_FORMATETC;
             }
@@ -242,9 +240,10 @@ internal unsafe partial class Composition
                 return HRESULT.E_POINTER;
             }
 
-            if (DragDropHelper.IsInDragLoopFormat(*pformatetc) || DragDropHelper.IsInDragLoop(_dataObject))
+            if (DragDropHelper<TRuntime, TDataFormat>.IsInDragLoopFormat(*pformatetc)
+                || DragDropHelper<TRuntime, TDataFormat>.IsInDragLoop(_dataObject))
             {
-                string formatName = DataFormats.GetFormat(pformatetc->cfFormat).Name;
+                string formatName = DataFormatsCore<TDataFormat>.GetOrAddFormat(pformatetc->cfFormat).Name;
                 if (_dataObject.GetDataPresent(formatName) && _dataObject.GetData(formatName) is DragDropFormat dragDropFormat)
                 {
                     dragDropFormat.RefreshData(pformatetc->cfFormat, *pmedium, !fRelease);
@@ -269,7 +268,10 @@ internal unsafe partial class Composition
 
             if (dwDirection == (uint)ComTypes.DATADIR.DATADIR_GET)
             {
-                *ppenumFormatEtc = ComHelpers.GetComPointer<IEnumFORMATETC>(new FormatEnumerator(_dataObject));
+                *ppenumFormatEtc = ComHelpers.GetComPointer<IEnumFORMATETC>(new FormatEnumerator(
+                    _dataObject,
+                    (format) => DataFormatsCore<TDataFormat>.GetOrAddFormat(format).Id));
+
                 return HRESULT.S_OK;
             }
 
@@ -324,7 +326,7 @@ internal unsafe partial class Composition
 #pragma warning disable SYSLIB0050 // Type or member is obsolete
             _ when format == DataFormatNames.Serializable || data is ISerializable || data.GetType().IsSerializable
 #pragma warning restore
-                => SaveObjectToHGLOBAL(ref medium.hGlobal, data, DataObject.RestrictDeserializationToSafeTypes(format)),
+                => SaveObjectToHGLOBAL(ref medium.hGlobal, data, DataFormatNames.RestrictDeserializationToSafeTypes(format)),
             _ => HRESULT.E_UNEXPECTED
         };
 
@@ -334,7 +336,7 @@ internal unsafe partial class Composition
             stream.Write(s_serializedObjectID);
 
             // Throws in case of serialization failure.
-            BinaryFormatUtilities.WriteObjectToStream(stream, data, restrictSerialization);
+            BinaryFormatUtilities<TRuntime>.WriteObjectToStream(stream, data, restrictSerialization);
 
             return SaveStreamToHGLOBAL(ref hglobal, stream);
         }

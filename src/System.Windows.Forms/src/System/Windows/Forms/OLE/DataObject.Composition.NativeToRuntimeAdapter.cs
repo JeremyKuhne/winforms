@@ -7,9 +7,9 @@ using System.Runtime.InteropServices.ComTypes;
 using Com = Windows.Win32.System.Com;
 using ComTypes = System.Runtime.InteropServices.ComTypes;
 
-namespace System.Windows.Forms;
+namespace System.Private.Windows.Ole;
 
-internal unsafe partial class Composition
+internal unsafe partial class Composition<TRuntime, TDataFormat>
 {
     /// <summary>
     ///  Maps native pointer <see cref="Com.IDataObject"/> to <see cref="ComTypes.IDataObject"/>.

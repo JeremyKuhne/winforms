@@ -25,7 +25,7 @@ public abstract unsafe partial class AxHost
             long position = stream.Position;
             try
             {
-                SerializationRecord rootRecord = stream.Decode();
+                SerializationRecord rootRecord = stream.DecodeNrbf();
                 if (rootRecord.TryGetPrimitiveHashtable(out _bag!))
                 {
                     return;

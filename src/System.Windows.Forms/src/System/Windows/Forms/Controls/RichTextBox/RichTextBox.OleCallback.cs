@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Private.Windows.Ole;
 using Windows.Win32.System.Com;
 using Windows.Win32.System.Com.StructuredStorage;
 using Windows.Win32.System.Ole;
@@ -25,7 +26,7 @@ public partial class RichTextBox
         private void ClearDropDescription()
         {
             _lastDragEventArgs = null;
-            DragDropHelper.ClearDropDescription(_lastDataObject);
+            DragDropHelper<WinFormsRuntime, DataFormats.Format>.ClearDropDescription(_lastDataObject);
         }
 
         public HRESULT GetNewStorage(IStorage** lplpstg)
@@ -163,7 +164,7 @@ public partial class RichTextBox
                 if (CanShowImage(e))
                 {
                     UpdateDropDescription(e);
-                    DragDropHelper.DragEnter(_owner.HWND, e);
+                    DragDropHelper<WinFormsRuntime, DataFormats.Format>.DragEnter(_owner.HWND, e);
                 }
             }
             else
@@ -171,8 +172,8 @@ public partial class RichTextBox
                 if (e.DropImageType > DropImageType.Invalid)
                 {
                     ClearDropDescription();
-                    DragDropHelper.Drop(e);
-                    DragDropHelper.DragLeave();
+                    DragDropHelper<WinFormsRuntime, DataFormats.Format>.Drop(e);
+                    DragDropHelper<WinFormsRuntime, DataFormats.Format>.DragLeave();
                 }
 
                 _owner.OnDragDrop(e);
@@ -258,7 +259,7 @@ public partial class RichTextBox
                     if (CanShowImage(e))
                     {
                         UpdateDropDescription(e);
-                        DragDropHelper.DragOver(e);
+                        DragDropHelper<WinFormsRuntime, DataFormats.Format>.DragOver(e);
                     }
                 }
             }
@@ -291,7 +292,7 @@ public partial class RichTextBox
             if (!e.Equals(_lastDragEventArgs))
             {
                 _lastDragEventArgs = e.Clone();
-                DragDropHelper.SetDropDescription(_lastDragEventArgs);
+                DragDropHelper<WinFormsRuntime, DataFormats.Format>.SetDropDescription(_lastDragEventArgs);
             }
         }
     }

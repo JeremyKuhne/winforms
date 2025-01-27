@@ -1,13 +1,17 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Private.Windows.Ole;
+using Windows.Win32.System.Ole;
+using Com = Windows.Win32.System.Com;
+
 namespace System.Windows.Forms;
 
 /// <summary>
 ///  Provides data for the <see cref="Control.DragDrop"/>, <see cref="Control.DragEnter"/>,
 ///  or <see cref="Control.DragOver"/> event.
 /// </summary>
-public class DragEventArgs : EventArgs
+public class DragEventArgs : EventArgs, IDragEvent
 {
     /// <summary>
     ///  Initializes a new instance of the <see cref="DragEventArgs"/> class.
@@ -54,19 +58,17 @@ public class DragEventArgs : EventArgs
     /// </summary>
     public IDataObject? Data { get; }
 
+    object? IDragEvent.Data => Data;
+
     /// <summary>
     ///  Gets the current state of the SHIFT, CTRL, and ALT keys.
     /// </summary>
     public int KeyState { get; }
 
-    /// <summary>
-    ///  Gets the x-coordinate of the mouse pointer.
-    /// </summary>
+    /// <inheritdoc cref="IDragEvent.X"/>
     public int X { get; }
 
-    /// <summary>
-    ///  Gets the y-coordinate of the mouse pointer.
-    /// </summary>
+    /// <inheritdoc cref="IDragEvent.Y"/>
     public int Y { get; }
 
     /// <summary>
@@ -80,10 +82,14 @@ public class DragEventArgs : EventArgs
     /// </summary>
     public DragDropEffects Effect { get; set; }
 
+    DROPEFFECT IDragEvent.Effect => (DROPEFFECT)Effect;
+
     /// <summary>
     ///  Gets or sets the drop description image type.
     /// </summary>
     public DropImageType DropImageType { get; set; }
+
+    DROPIMAGETYPE IDragEvent.DropImageType => (DROPIMAGETYPE)DropImageType;
 
     /// <summary>
     ///  Gets or sets the drop description text such as "Move to %1".
@@ -130,5 +136,25 @@ public class DragEventArgs : EventArgs
             && dragEventArgs.DropImageType == DropImageType
             && dragEventArgs.Message == Message
             && dragEventArgs.MessageReplacementToken == MessageReplacementToken;
+    }
+
+    /// <summary>
+    ///  Notifies the drag-image manager that the drop target has been entered, and provides it with the information
+    ///  needed to display the drag image.
+    /// </summary>
+    internal void DragEnter(HWND targetWindowHandle)
+    {
+        if (Data is not Com.IDataObject.Interface dataObject)
+        {
+            Debug.Fail("Expected data object to implement Com.IDataObject.Interface.");
+            return;
+        }
+
+        Point point = new(X, Y);
+        DragDropHelper<WinFormsRuntime, DataFormats.Format>.DragEnter(
+            targetWindowHandle,
+            dataObject,
+            ref point,
+            (DROPEFFECT)(uint)Effect);
     }
 }
