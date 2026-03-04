@@ -25,6 +25,10 @@
     <RootNamespace />
     <HasNoPublicIntellisense>true</HasNoPublicIntellisense>
     <EnableXlfLocalization>false</EnableXlfLocalization>
+    <DefineConstants>$(DefineConstants);OLE_JSON</DefineConstants>
+
+    <!-- Exclude Framework folder from non .NET Framework builds -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/Framework/**/*</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

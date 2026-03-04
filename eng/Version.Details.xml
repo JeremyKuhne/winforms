@@ -72,6 +72,10 @@ Note: if the Uri is a new place, you will need to add a subscription from that p
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>c4217eea0ad09ef217a7eeef066831806e936e55</Sha>
     </Dependency>
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="11.0.0-preview.2.26111.109">
+      <Uri>https://github.com/dotnet/dotnet</Uri>
+      <Sha>c4217eea0ad09ef217a7eeef066831806e936e55</Sha>
+    </Dependency>
     <Dependency Name="System.Formats.Nrbf" Version="11.0.0-preview.2.26111.109">
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>c4217eea0ad09ef217a7eeef066831806e936e55</Sha>

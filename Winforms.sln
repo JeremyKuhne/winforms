@@ -139,12 +139,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eng", "eng", "{8B4B1E09-B3C
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
+		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
 		eng\Localize\LocProject.json = eng\Localize\LocProject.json
 		NuGet.Config = NuGet.Config
 		eng\packageContent.targets = eng\packageContent.targets
 		eng\Publishing.props = eng\Publishing.props
 		start-vs.cmd = start-vs.cmd
+		eng\Version.Details.props = eng\Version.Details.props
+		eng\Version.Details.xml = eng\Version.Details.xml
 		eng\Versions.props = eng\Versions.props
 	EndProjectSection
 EndProject
@@ -205,6 +208,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Async", "Async", "{7BFA3A16
 	ProjectSection(SolutionItems) = preProject
 		.github\copilot\Async\invokeAsync_generate_test_instructions.md = .github\copilot\Async\invokeAsync_generate_test_instructions.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Private.Windows.Core", "src\System.Private.Windows.Core\src\Microsoft.Private.Windows.Core.csproj", "{36A02BBB-B60B-5F23-6AF0-F41561A9275C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1058,6 +1063,22 @@ Global
 		{442C867C-51C0-8CE5-F067-DF065008E3DA}.Release|x64.Build.0 = Release|Any CPU
 		{442C867C-51C0-8CE5-F067-DF065008E3DA}.Release|x86.ActiveCfg = Release|Any CPU
 		{442C867C-51C0-8CE5-F067-DF065008E3DA}.Release|x86.Build.0 = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|arm64.Build.0 = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|x64.Build.0 = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Debug|x86.Build.0 = Debug|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|arm64.ActiveCfg = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|arm64.Build.0 = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|x64.ActiveCfg = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|x64.Build.0 = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|x86.ActiveCfg = Release|Any CPU
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1124,6 +1145,7 @@ Global
 		{442C867C-51C0-8CE5-F067-DF065008E3DA} = {77FEDB47-F7F6-490D-AF7C-ABB4A9E0B9D7}
 		{D619FF8C-D99A-48AB-B16B-2F0E819B46D5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{7BFA3A16-A19A-4FCE-AE1E-D1187BD92D4C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{36A02BBB-B60B-5F23-6AF0-F41561A9275C} = {77FEDB47-F7F6-490D-AF7C-ABB4A9E0B9D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B1B0433-F612-4E5A-BE7E-FCF5B9F6E136}

@@ -6,7 +6,7 @@ using Windows.Win32.System.Memory;
 
 namespace System.IO;
 
-internal static class StreamExtensions
+internal static partial class StreamExtensions
 {
     /// <summary>
     ///  Get a <see cref="IStream"/> wrapper around the given <paramref name="stream"/>. Use the return value

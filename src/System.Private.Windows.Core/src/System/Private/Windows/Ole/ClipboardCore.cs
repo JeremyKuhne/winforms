@@ -30,12 +30,20 @@ internal static unsafe class ClipboardCore<TOleServices>
         int retryTimes = OleRetryCount,
         int retryDelay = OleRetryDelay)
     {
+#if NET
         TOleServices.EnsureThreadState();
+#else
+        CoreContext.EnsureThreadState();
+#endif
 
         HRESULT result;
         int retryCount = retryTimes;
 
+#if NET
         while ((result = TOleServices.OleSetClipboard(null)).Failed)
+#else
+        while ((result = CoreContext.OleSetClipboard(null)).Failed)
+#endif
         {
             if (--retryCount < 0)
             {
@@ -56,12 +64,20 @@ internal static unsafe class ClipboardCore<TOleServices>
         int retryTimes = OleRetryCount,
         int retryDelay = OleRetryDelay)
     {
+#if NET
         TOleServices.EnsureThreadState();
+#else
+        CoreContext.EnsureThreadState();
+#endif
 
         HRESULT result;
         int retryCount = retryTimes;
 
+#if NET
         while ((result = TOleServices.OleFlushClipboard()).Failed)
+#else
+        while ((result = CoreContext.OleFlushClipboard()).Failed)
+#endif
         {
             if (--retryCount < 0)
             {
@@ -88,7 +104,11 @@ internal static unsafe class ClipboardCore<TOleServices>
         int retryTimes = OleRetryCount,
         int retryDelay = OleRetryDelay)
     {
+#if NET
         TOleServices.EnsureThreadState();
+#else
+        CoreContext.EnsureThreadState();
+#endif
 
         ArgumentOutOfRangeException.ThrowIfNegative(retryTimes);
         ArgumentOutOfRangeException.ThrowIfNegative(retryDelay);
@@ -97,7 +117,11 @@ internal static unsafe class ClipboardCore<TOleServices>
 
         HRESULT result;
         int retryCount = retryTimes;
+#if NET
         while ((result = TOleServices.OleSetClipboard(iDataObject)).Failed)
+#else
+        while ((result = CoreContext.OleSetClipboard(iDataObject)).Failed)
+#endif
         {
             if (--retryCount < 0)
             {
@@ -110,7 +134,11 @@ internal static unsafe class ClipboardCore<TOleServices>
         if (copy)
         {
             retryCount = retryTimes;
+#if NET
             while ((result = TOleServices.OleFlushClipboard()).Failed)
+#else
+            while ((result = CoreContext.OleFlushClipboard()).Failed)
+#endif
             {
                 if (--retryCount < 0)
                 {
@@ -137,7 +165,11 @@ internal static unsafe class ClipboardCore<TOleServices>
         int retryTimes = OleRetryCount,
         int retryDelay = OleRetryDelay)
     {
+#if NET
         TOleServices.EnsureThreadState();
+#else
+        CoreContext.EnsureThreadState();
+#endif
 
         proxyDataObject = new(null);
         originalObject = null;
@@ -145,7 +177,11 @@ internal static unsafe class ClipboardCore<TOleServices>
         int retryCount = retryTimes;
         HRESULT result;
 
+#if NET
         while ((result = TOleServices.OleGetClipboard(proxyDataObject)).Failed)
+#else
+        while ((result = CoreContext.OleGetClipboard(proxyDataObject)).Failed)
+#endif
         {
             if (--retryCount < 0)
             {
@@ -155,6 +191,13 @@ internal static unsafe class ClipboardCore<TOleServices>
             Thread.Sleep(millisecondsTimeout: retryDelay);
         }
 
+#if NETFRAMEWORK
+        // We don't have ComWrappers on .NET Framework, use built-in COM interop to get an RCW, which will be castable
+        // to the original object if it came from a .NET interop generated CCW.
+        using var unknown = proxyDataObject.Query<IUnknown>();
+        originalObject = Marshal.GetObjectForIUnknown((nint)unknown.Value);
+        return result;
+#else
         // OleGetClipboard always returns a proxy. The proxy forwards all IDataObject method calls to the real data object,
         // without giving out the real data object. If the data placed on the clipboard is not one of our CCWs or the clipboard
         // has been flushed, a wrapper around the proxy for us to use will be given. However, if the data placed on
@@ -171,6 +214,7 @@ internal static unsafe class ClipboardCore<TOleServices>
         }
 
         return result;
+#endif
     }
 
     /// <summary>
@@ -242,7 +286,11 @@ internal static unsafe class ClipboardCore<TOleServices>
 
             // Original data given wasn't an IDataObject, give the proxy value back.
             // (Creating the DataObject will add a reference to the proxy.)
+#if NET
             dataObject = TDataObject.Create(proxyDataObject.Value);
+#else
+            dataObject = CoreContext.CreateManagedDataObject<TDataObject, TIDataObject>(proxyDataObject.Value);
+#endif
         }
 
         return result;
@@ -286,13 +334,21 @@ internal static unsafe class ClipboardCore<TOleServices>
                 or DataFormatNames.FileNameAnsi
                 or DataFormatNames.FileNameUnicode => typeof(string[]) == type,
 
+#if NET
             _ => TOleServices.IsValidTypeForFormat(type, format)
+#else
+            _ => CoreContext.IsValidTypeForFormat(type, format)
+#endif
         };
     }
 
     internal static void SetFileDropList(StringCollection filePaths)
     {
+#if NET
         IComVisibleDataObject dataObject = TOleServices.CreateDataObject();
+#else
+        IComVisibleDataObject dataObject = CoreContext.CreateDataObject();
+#endif
         dataObject.SetFileDropList(filePaths);
         SetData(dataObject, copy: true);
     }

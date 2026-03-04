@@ -3,9 +3,12 @@
 
 using System.Private.Windows.Nrbf;
 using System.Reflection.Metadata;
-using System.Text.Json;
 using Windows.Win32.System.Com;
 using ComTypes = System.Runtime.InteropServices.ComTypes;
+
+#if NET
+using System.Text.Json;
+#endif
 
 namespace System.Private.Windows.Ole;
 
@@ -56,7 +59,11 @@ internal sealed unsafe partial class Composition<TOleServices, TNrbfSerializer, 
         }
         else if (data is TIDataObject iDataObject)
         {
+#if NET
             return Create(TDataObject.Wrap(iDataObject));
+#else
+            return Create(CoreContext.WrapDataObject<TDataObject, TIDataObject>(iDataObject));
+#endif
         }
         else if (data is ComTypes.IDataObject comDataObject)
         {
@@ -96,6 +103,7 @@ internal sealed unsafe partial class Composition<TOleServices, TNrbfSerializer, 
         return new(nativeToWinForms, runtimeToNative, runtimeDataObject);
     }
 
+#if NET
     /// <summary>
     ///  Stores the data in the specified format using the <see cref="JsonSerializer"/>.
     /// </summary>
@@ -130,6 +138,7 @@ internal sealed unsafe partial class Composition<TOleServices, TNrbfSerializer, 
             autoConvert: false,
             DataObjectCore<TDataObject>.TryJsonSerialize(format, data));
     }
+#endif
 
     #region IDataObjectInternal
     public object? GetData(string format, bool autoConvert)
@@ -137,7 +146,11 @@ internal sealed unsafe partial class Composition<TOleServices, TNrbfSerializer, 
         object? result = ManagedDataObject.GetData(format, autoConvert);
 
         // Avoid exposing our internal JsonData<T>
-        return result is IJsonData json ? json.Deserialize() : result;
+        return
+#if NET
+            result is IJsonData json ? json.Deserialize() :
+#endif
+            result;
     }
 
     public object? GetData(string format) => ManagedDataObject.GetData(format);
@@ -151,7 +164,7 @@ internal sealed unsafe partial class Composition<TOleServices, TNrbfSerializer, 
     public void SetData(string format, object? data) => ManagedDataObject.SetData(format, data);
     public void SetData(Type format, object? data) => ManagedDataObject.SetData(format, data);
     public void SetData(object? data) => ManagedDataObject.SetData(data);
-    #endregion
+#endregion
 
     #region ITypedDataObject
     public bool TryGetData<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(

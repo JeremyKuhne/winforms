@@ -204,14 +204,14 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
 
         if (medium.hGlobal.IsNull)
         {
-            throw new Win32Exception(Marshal.GetLastSystemError(), SR.ExternalException);
+            throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
         void* basePtr = PInvokeCore.GlobalLock(medium.hGlobal);
         if (basePtr is null)
         {
             PInvokeCore.GlobalFree(medium.hGlobal);
-            throw new Win32Exception(Marshal.GetLastSystemError(), SR.ExternalException);
+            throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
         *(BOOL*)basePtr = value;
@@ -362,14 +362,14 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
 
         if (medium.hGlobal.IsNull)
         {
-            throw new Win32Exception(Marshal.GetLastSystemError(), SR.ExternalException);
+            throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
         void* basePtr = PInvokeCore.GlobalLock(medium.hGlobal);
         if (basePtr is null)
         {
             PInvokeCore.GlobalFree(medium.hGlobal);
-            throw new Win32Exception(Marshal.GetLastSystemError(), SR.ExternalException);
+            throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
         DROPDESCRIPTION* pDropDescription = (DROPDESCRIPTION*)basePtr;

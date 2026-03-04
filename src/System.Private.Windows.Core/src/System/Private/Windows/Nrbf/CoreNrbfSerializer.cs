@@ -16,17 +16,31 @@ internal class CoreNrbfSerializer : INrbfSerializer
 {
     private static Dictionary<TypeName, Type>? s_knownTypes;
 
-    public static bool TryWriteObject(Stream stream, object value) =>
+    public
+#if NET
+        static
+#endif
+        bool TryWriteObject(Stream stream, object value) =>
         BinaryFormatWriter.TryWriteFrameworkObject(stream, value)
+#if NET
         || BinaryFormatWriter.TryWriteJsonData(stream, value)
+#endif
         || BinaryFormatWriter.TryWriteDrawingPrimitivesObject(stream, value);
 
-    public static bool TryGetObject(SerializationRecord record, [NotNullWhen(true)] out object? value) =>
+    public
+#if NET
+        static
+#endif
+        bool TryGetObject(SerializationRecord record, [NotNullWhen(true)] out object? value) =>
         record.TryGetFrameworkObject(out value)
         // While these shouldn't normally be in a ResX file, it doesn't hurt to read them and simplifies the code.
         || record.TryGetDrawingPrimitivesObject(out value);
 
-    public static bool TryBindToType(TypeName typeName, [NotNullWhen(true)] out Type? type)
+    public
+#if NET
+        static
+#endif
+    bool TryBindToType(TypeName typeName, [NotNullWhen(true)] out Type? type)
     {
         // As these are all common .NET types, we'll match just by their full name and ignore assembly details.
         // This will handle version to version changes and allow compat with .NET Framework serialization.
@@ -99,7 +113,11 @@ internal class CoreNrbfSerializer : INrbfSerializer
         return s_knownTypes.TryGetValue(typeName, out type);
     }
 
-    public static bool IsFullySupportedType(Type type) =>
+    public
+#if NET
+        static
+#endif
+    bool IsFullySupportedType(Type type) =>
         // Do not include NotSupportedException, Hashtable, or ArrayList here. See interface docs for details.
         type == typeof(byte)
             || type == typeof(sbyte)

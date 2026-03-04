@@ -85,6 +85,9 @@ internal static unsafe partial class ComHelpers
         }
 
         IUnknown* ccw = null;
+
+        // On .NET Framework we only have the legacy COM interop.
+#if NET
         if (@object is IManagedWrapper)
         {
             // One of our classes that we can generate a CCW for.
@@ -96,6 +99,7 @@ internal static unsafe partial class ComHelpers
             ccw = (IUnknown*)unknown;
         }
         else
+#endif
         {
             // Fall back to COM interop if possible. Note that this will use the globally registered ComWrappers
             // if that exists (so it won't always fall into legacy COM interop).
@@ -128,6 +132,7 @@ internal static unsafe partial class ComHelpers
         return (T*)ppvObject;
     }
 
+#if NET
     /// <summary>
     ///  Attempts to unwrap a ComWrapper CCW as a particular managed object.
     /// </summary>
@@ -151,6 +156,7 @@ internal static unsafe partial class ComHelpers
         @interface = default;
         return false;
     }
+#endif
 
     /// <inheritdoc cref="TryGetObjectForIUnknown{TObject}(IUnknown*, bool, out TObject)"/>
     internal static bool TryGetObjectForIUnknown<TObject, TInterface>(
@@ -232,6 +238,9 @@ internal static unsafe partial class ComHelpers
         }
     }
 
+#if NET
+    // This could be checked on .NET Framework, but would require it be typed so you can cast the RCW out to compare it.
+
     /// <summary>
     ///  Returns <see langword="true"/> if the given <paramref name="object"/>
     ///  is projected as the given <paramref name="comPointer"/>.
@@ -256,6 +265,7 @@ internal static unsafe partial class ComHelpers
         using ComScope<IUnknown> ccw = new((IUnknown*)(void*)Marshal.GetIUnknownForObject(@object));
         return ccw.Value == unknown;
     }
+#endif
 
     /// <inheritdoc cref="GetObjectForIUnknown(IUnknown*)"/>
     internal static object GetObjectForIUnknown<TInterface>(TInterface* comPointer)
@@ -292,6 +302,9 @@ internal static unsafe partial class ComHelpers
             throw new ArgumentNullException(nameof(unknown));
         }
 
+#if NETFRAMEWORK
+        return Marshal.GetObjectForIUnknown((nint)unknown);
+#else
         // If it is a ComWrappers object we need to simply pull out the original object.
         if (ComWrappers.TryGetObject((nint)unknown, out object? obj))
         {
@@ -307,14 +320,17 @@ internal static unsafe partial class ComHelpers
             // Analogous to ComInterfaceMarshaller<object>.ConvertToManaged(unknown), but we need our own strategy.
             return WinFormsComStrategy.Instance.GetOrCreateObjectForComInstance((nint)unknown, CreateObjectFlags.Unwrap);
         }
+#endif
     }
 
+#if NET
     /// <summary>
     ///  <see cref="IUnknown"/> vtable population hook for CsWin32's generated <see cref="IVTable"/> implementation.
     /// </summary>
     static partial void PopulateIUnknownImpl<TComInterface>(IUnknown.Vtbl* vtable)
         where TComInterface : unmanaged =>
         WinFormsComWrappers.PopulateIUnknownVTable(vtable);
+#endif
 
     /// <summary>
     ///  Find the given interface's <see cref="ITypeInfo"/> from the specified type library.
