@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -514,7 +514,7 @@ public class ListViewTests
 
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.BackColor = Color.FromArgb(0xFF, 0x12, 0x34, 0x56);
-        Assert.Equal(0x563412, (int)PInvokeCore.SendMessage(control, PInvoke.LVM_GETBKCOLOR));
+        Assert.Equal(0x563412, (int)PInvoke.SendMessage(control, PInvoke.LVM_GETBKCOLOR));
     }
 
     [WinFormsFact]
@@ -1376,7 +1376,7 @@ public class ListViewTests
 
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.ForeColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.LVM_GETTEXTCOLOR));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.LVM_GETTEXTCOLOR));
     }
 
     [WinFormsFact]
@@ -1846,7 +1846,7 @@ public class ListViewTests
             BackColor = Color.FromArgb(0xFF, 0x12, 0x34, 0x56)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x563412, (int)PInvokeCore.SendMessage(control, PInvoke.LVM_GETBKCOLOR));
+        Assert.Equal(0x563412, (int)PInvoke.SendMessage(control, PInvoke.LVM_GETBKCOLOR));
     }
 
     [WinFormsFact]
@@ -1857,7 +1857,7 @@ public class ListViewTests
             ForeColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.LVM_GETTEXTCOLOR));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.LVM_GETTEXTCOLOR));
     }
 
     [WinFormsTheory]
@@ -1868,7 +1868,7 @@ public class ListViewTests
         {
             ShowGroups = showGroups
         };
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+        Assert.Equal(0, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
     }
 
     public static IEnumerable<object[]> Handle_GetWithGroups_TestData()
@@ -1930,7 +1930,7 @@ public class ListViewTests
                 listView.Groups.Add(group1);
                 listView.Groups.Add(group2);
 
-                Assert.Equal(2, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(2, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
 
                 LVGROUP lvgroup1 = new()
                 {
@@ -1941,7 +1941,7 @@ public class ListViewTests
                     pszFooter = footerBuffer,
                     cchFooter = 256,
                 };
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup1));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup1));
                 Assert.Equal("ListViewGroup", new string(lvgroup1.pszHeader));
                 Assert.Empty(new string(lvgroup1.pszFooter));
                 Assert.True(lvgroup1.iGroupId >= 0);
@@ -1956,7 +1956,7 @@ public class ListViewTests
                     pszFooter = footerBuffer,
                     cchFooter = 256,
                 };
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 1, ref lvgroup2));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 1, ref lvgroup2));
                 Assert.Equal(expectedHeaderText, new string(lvgroup2.pszHeader));
                 Assert.Equal(expectedFooterText, new string(lvgroup2.pszFooter));
                 Assert.True(lvgroup2.iGroupId > 0);
@@ -1976,7 +1976,7 @@ public class ListViewTests
         Assert.NotEqual(IntPtr.Zero, control.Handle);
 
         nint expected = unchecked((nint)0xFFFFFFFF);
-        Assert.Equal(expected, (nint)PInvokeCore.SendMessage(control, PInvoke.LVM_GETTEXTBKCOLOR));
+        Assert.Equal(expected, (nint)PInvoke.SendMessage(control, PInvoke.LVM_GETTEXTBKCOLOR));
     }
 
     [WinFormsFact]
@@ -1985,7 +1985,7 @@ public class ListViewTests
         using ListView control = new();
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         int version = Application.UseVisualStyles ? 6 : 5;
-        Assert.Equal(version, (int)PInvokeCore.SendMessage(control, PInvoke.CCM_GETVERSION));
+        Assert.Equal(version, (int)PInvoke.SendMessage(control, PInvoke.CCM_GETVERSION));
     }
 
     public static IEnumerable<object[]> Handle_CustomGetVersion_TestData()
@@ -4483,7 +4483,7 @@ public class ListViewTests
         control.Items.Add(new ListViewItem());
         control.Items.Add(new ListViewItem());
         control.CreateControl();
-        PInvokeCore.SendMessage(control, PInvokeCore.WM_KEYDOWN);
+        PInvoke.SendMessage(control, PInvoke.WM_KEYDOWN);
         Assert.Empty(control.SelectedItems);
     }
 
@@ -5449,17 +5449,17 @@ public class ListViewTests
         Point subItemLocation = listView.Items[0].SubItems[subItemIndex].Bounds.Location + new Size(1, 1);
         // The mouse down handler will wait for mouse up event, so we need to put it on the message queue
         // before invoking mouse down.
-        PInvokeCore.PostMessage(listView, PInvokeCore.WM_LBUTTONUP, 0, PARAM.FromPoint(subItemLocation));
-        PInvokeCore.SendMessage(listView, PInvokeCore.WM_LBUTTONDOWN, 1, PARAM.FromPoint(subItemLocation));
+        PInvoke.PostMessage(listView, PInvoke.WM_LBUTTONUP, 0, PARAM.FromPoint(subItemLocation));
+        PInvoke.SendMessage(listView, PInvoke.WM_LBUTTONDOWN, 1, PARAM.FromPoint(subItemLocation));
 
         // Start editing immediately (if it was queued).
-        PInvokeCore.SendMessage(listView, PInvokeCore.WM_TIMER, (WPARAM)(nint)listView.TestAccessor.Dynamic.LVLABELEDITTIMER);
+        PInvoke.SendMessage(listView, PInvoke.WM_TIMER, (WPARAM)(nint)listView.TestAccessor.Dynamic.LVLABELEDITTIMER);
 
-        nint editControlHandle = PInvokeCore.SendMessage(listView, PInvoke.LVM_GETEDITCONTROL);
+        nint editControlHandle = PInvoke.SendMessage(listView, PInvoke.LVM_GETEDITCONTROL);
 
         // End the edit because this more closely resembles real live usage. Additionally
         // when edit box is open, the native ListView will move focus to items being removed.
-        PInvokeCore.SendMessage(listView, PInvoke.LVM_CANCELEDITLABEL);
+        PInvoke.SendMessage(listView, PInvoke.LVM_CANCELEDITLABEL);
 
         if (isEditControlCreated)
         {
@@ -5488,7 +5488,7 @@ public class ListViewTests
         // lParam = repeatCount | (scanCode << 16)
         nint keyCode = (nint)key;
         nint lParam = 0x00000001 | keyCode << 16;
-        PInvokeCore.SendMessage(listView, PInvokeCore.WM_KEYUP, (WPARAM)keyCode, (LPARAM)lParam);
+        PInvoke.SendMessage(listView, PInvoke.WM_KEYUP, (WPARAM)keyCode, (LPARAM)lParam);
 
         Assert.True(listView.IsHandleCreated);
     }

@@ -23,7 +23,7 @@ public unsafe class DragDropFormatTests
     {
         FORMATETC formatEtc = new()
         {
-            cfFormat = (short)PInvokeCore.RegisterClipboardFormat("InShellDragLoop"),
+            cfFormat = (short)PInvoke.RegisterClipboardFormat("InShellDragLoop"),
             dwAspect = DVASPECT.DVASPECT_CONTENT,
             lindex = -1,
             ptd = nint.Zero,
@@ -34,7 +34,7 @@ public unsafe class DragDropFormatTests
         {
             pUnkForRelease = null,
             tymed = TYMED.TYMED_HGLOBAL,
-            unionmember = PInvokeCore.GlobalAlloc(
+            unionmember = PInvoke.GlobalAlloc(
                 GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT,
                 BOOL.Size)
         };
@@ -46,7 +46,7 @@ public unsafe class DragDropFormatTests
         IStream.Interface iStream = new ComManagedStream(memoryStream);
         formatEtc = new()
         {
-            cfFormat = (short)PInvokeCore.RegisterClipboardFormat("DragContext"),
+            cfFormat = (short)PInvoke.RegisterClipboardFormat("DragContext"),
             dwAspect = DVASPECT.DVASPECT_CONTENT,
             lindex = -1,
             ptd = nint.Zero,
@@ -73,7 +73,7 @@ public unsafe class DragDropFormatTests
         {
             dragDropFormat = new DragDropFormat((ushort)formatEtc.cfFormat, (Com.STGMEDIUM)medium, copyData: false);
             dragDropFormat.Dispose();
-            int handleSize = (int)PInvokeCore.GlobalSize(dragDropFormat.Medium.hGlobal);
+            int handleSize = (int)PInvoke.GlobalSize(dragDropFormat.Medium.hGlobal);
             Assert.Equal(0, handleSize);
             Assert.Equal(nint.Zero, (nint)dragDropFormat.Medium.pUnkForRelease);
             Assert.Equal(Com.TYMED.TYMED_NULL, dragDropFormat.Medium.tymed);
@@ -142,7 +142,7 @@ public unsafe class DragDropFormatTests
                     hGlobal = dragDropFormat.Medium.tymed switch
                     {
                         Com.TYMED.TYMED_HGLOBAL or Com.TYMED.TYMED_FILE or Com.TYMED.TYMED_ENHMF or Com.TYMED.TYMED_GDI or Com.TYMED.TYMED_MFPICT
-                        => (HGLOBAL)(nint)PInvokeCore.OleDuplicateData(
+                        => (HGLOBAL)(nint)PInvoke.OleDuplicateData(
                             (HANDLE)(nint)dragDropFormat.Medium.hGlobal,
                             (CLIPBOARD_FORMAT)formatEtc.cfFormat,
                             GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT),
@@ -184,12 +184,12 @@ public unsafe class DragDropFormatTests
     {
         try
         {
-            void* basePtr = PInvokeCore.GlobalLock(handle);
+            void* basePtr = PInvoke.GlobalLock(handle);
             *(BOOL*)basePtr = (BOOL)inDragLoop;
         }
         finally
         {
-            PInvokeCore.GlobalUnlock(handle);
+            PInvoke.GlobalUnlock(handle);
         }
     }
 }

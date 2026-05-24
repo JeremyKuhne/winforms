@@ -1,9 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
 using System.Windows.Forms;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 
@@ -18,7 +17,7 @@ internal class DialogHostForm : Form
 {
     protected override void WndProc(ref Message m)
     {
-        if (m.MsgInternal == PInvokeCore.WM_ENTERIDLE && m.WParamInternal == (uint)MSGF.DIALOGBOX)
+        if (m.MsgInternal == PInvoke.WM_ENTERIDLE && m.WParamInternal == (uint)MSGF.DIALOGBOX)
         {
             OnDialogIdle((HWND)m.LParamInternal);
         }
@@ -28,11 +27,11 @@ internal class DialogHostForm : Form
 
     protected virtual void OnDialogIdle(HWND dialogHandle)
     {
-        PInvokeCore.PostMessage(dialogHandle, PInvokeCore.WM_CLOSE);
+        PInvoke.PostMessage(dialogHandle, PInvoke.WM_CLOSE);
     }
 
     protected static unsafe void Accept(HWND handle)
     {
-        PInvokeCore.SendMessage(handle, PInvokeCore.WM_COMMAND, (WPARAM)(nint)MESSAGEBOX_RESULT.IDOK);
+        PInvoke.SendMessage(handle, PInvoke.WM_COMMAND, (WPARAM)(nint)MESSAGEBOX_RESULT.IDOK);
     }
 }

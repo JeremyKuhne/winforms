@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -438,11 +438,11 @@ internal partial class OleDragDropHandler
         using CreatePenScope pen = new(backColor, 2);
 
         using SetRop2Scope rop2Scope = new(dc, rop2);
-        using SelectObjectScope brushSelection = new(dc, PInvokeCore.GetStockObject(GET_STOCK_OBJECT_FLAGS.NULL_BRUSH));
+        using SelectObjectScope brushSelection = new(dc, PInvoke.GetStockObject(GET_STOCK_OBJECT_FLAGS.NULL_BRUSH));
         using SelectObjectScope penSelection = new(dc, pen);
 
-        PInvokeCore.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(graphicsColor));
-        PInvokeCore.Rectangle(dc, rectangle.X, rectangle.Y, rectangle.Right, rectangle.Bottom);
+        PInvoke.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(graphicsColor));
+        PInvoke.Rectangle(dc, rectangle.X, rectangle.Y, rectangle.Right, rectangle.Bottom);
         // ------ Duplicate code----------------------------------------------------------
     }
 
@@ -488,7 +488,7 @@ internal partial class OleDragDropHandler
         // ensure that the drag can proceed without leaving artifacts lying around. We should be calling LockWindowUpdate,
         // but that causes a horrible flashing because GDI+ uses direct draw.
         MSG msg = default;
-        while (PInvokeCore.PeekMessage(&msg, HWND.Null, PInvokeCore.WM_PAINT, PInvokeCore.WM_PAINT, PEEK_MESSAGE_REMOVE_TYPE.PM_REMOVE))
+        while (PInvoke.PeekMessage(&msg, HWND.Null, PInvoke.WM_PAINT, PInvoke.WM_PAINT, PEEK_MESSAGE_REMOVE_TYPE.PM_REMOVE))
         {
             PInvoke.TranslateMessage(msg);
             PInvoke.DispatchMessage(&msg);
@@ -752,7 +752,7 @@ internal partial class OleDragDropHandler
                                 if (updateLocation)
                                 {
                                     oldDesignerControl = Destination.GetDesignerControl();
-                                    PInvokeCore.SendMessage(oldDesignerControl, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+                                    PInvoke.SendMessage(oldDesignerControl, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
                                 }
 
                                 Point dropPt = Destination.GetDesignerControl().PointToClient(new Point(de.X, de.Y));
@@ -800,7 +800,7 @@ internal partial class OleDragDropHandler
                                 if (oldDesignerControl is not null)
                                 {
                                     // ((ComponentDataObject)dataObj).ShowControls();
-                                    PInvokeCore.SendMessage(oldDesignerControl, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                                    PInvoke.SendMessage(oldDesignerControl, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                                     oldDesignerControl.Invalidate(true);
                                 }
 

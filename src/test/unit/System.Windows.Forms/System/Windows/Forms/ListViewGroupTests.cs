@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -219,7 +219,7 @@ public class ListViewGroupTests
                 groupImageList.Images.Add(new Bitmap(20, 20));
                 listView.GroupImageList = groupImageList;
                 Assert.Equal(groupImageList.Handle,
-                    PInvokeCore.SendMessage(listView, PInvoke.LVM_SETIMAGELIST, (WPARAM)PInvoke.LVSIL_GROUPHEADER, groupImageList.Handle));
+                    PInvoke.SendMessage(listView, PInvoke.LVM_SETIMAGELIST, (WPARAM)PInvoke.LVSIL_GROUPHEADER, groupImageList.Handle));
 
                 ListViewGroup group = new();
                 listView.Groups.Add(group);
@@ -227,14 +227,14 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.TitleImageIndex = value.Index;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
                 LVGROUP lvgroup = new()
                 {
                     cbSize = (uint)sizeof(LVGROUP),
                     mask = LVGROUP_MASK.LVGF_TITLEIMAGE | LVGROUP_MASK.LVGF_GROUPID,
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(value.Expected, lvgroup.iTitleImage);
                 Assert.True(lvgroup.iGroupId >= 0);
             }
@@ -359,7 +359,7 @@ public class ListViewGroupTests
                 groupImageList.Images.Add(value.Key, new Bitmap(10, 10));
                 listView.GroupImageList = groupImageList;
                 Assert.Equal(groupImageList.Handle,
-                    PInvokeCore.SendMessage(listView, PInvoke.LVM_SETIMAGELIST, (WPARAM)PInvoke.LVSIL_GROUPHEADER, groupImageList.Handle));
+                    PInvoke.SendMessage(listView, PInvoke.LVM_SETIMAGELIST, (WPARAM)PInvoke.LVSIL_GROUPHEADER, groupImageList.Handle));
 
                 ListViewGroup group = new();
                 listView.Groups.Add(group);
@@ -367,14 +367,14 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.TitleImageKey = value.Key;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
                 LVGROUP lvgroup = new()
                 {
                     cbSize = (uint)sizeof(LVGROUP),
                     mask = LVGROUP_MASK.LVGF_TITLEIMAGE | LVGROUP_MASK.LVGF_GROUPID
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(value.ExpectedIndex, lvgroup.iTitleImage);
                 Assert.True(lvgroup.iGroupId >= 0);
             }
@@ -504,7 +504,7 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.Subtitle = value;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
 
                 LVGROUP lvgroup = new()
                 {
@@ -514,7 +514,7 @@ public class ListViewGroupTests
                     cchSubtitle = 256
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(expected, new string(lvgroup.pszSubtitle));
                 Assert.True(lvgroup.iGroupId >= 0);
             }
@@ -617,7 +617,7 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.Footer = value;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
                 LVGROUP lvgroup = new()
                 {
                     cbSize = (uint)sizeof(LVGROUP),
@@ -626,7 +626,7 @@ public class ListViewGroupTests
                     cchFooter = 256
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(expected, new string(lvgroup.pszFooter));
                 Assert.True(lvgroup.iGroupId >= 0);
                 Assert.Equal(LIST_VIEW_GROUP_ALIGN_FLAGS.LVGA_HEADER_LEFT | LIST_VIEW_GROUP_ALIGN_FLAGS.LVGA_FOOTER_LEFT, lvgroup.uAlign);
@@ -760,7 +760,7 @@ public class ListViewGroupTests
             Assert.NotEqual(IntPtr.Zero, listView.Handle);
             group1.FooterAlignment = value;
 
-            Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+            Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
             char* buffer = stackalloc char[256];
             LVGROUP lvgroup = new()
             {
@@ -770,7 +770,7 @@ public class ListViewGroupTests
                 cchFooter = 256
             };
 
-            Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+            Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
             Assert.Equal(footer, new string(lvgroup.pszFooter));
             Assert.True(lvgroup.iGroupId >= 0);
             Assert.Equal(expectedAlign, (int)lvgroup.uAlign);
@@ -878,7 +878,7 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.Header = value;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
 
                 LVGROUP lvgroup = new()
                 {
@@ -888,7 +888,7 @@ public class ListViewGroupTests
                     cchHeader = 256
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(expected, new string(lvgroup.pszHeader));
                 Assert.True(lvgroup.iGroupId >= 0);
                 Assert.Equal(LIST_VIEW_GROUP_ALIGN_FLAGS.LVGA_HEADER_LEFT | LIST_VIEW_GROUP_ALIGN_FLAGS.LVGA_FOOTER_LEFT, lvgroup.uAlign);
@@ -1012,7 +1012,7 @@ public class ListViewGroupTests
             Assert.NotEqual(IntPtr.Zero, listView.Handle);
             group1.HeaderAlignment = value;
 
-            Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+            Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
             char* buffer = stackalloc char[256];
             LVGROUP lvgroup = new()
             {
@@ -1022,7 +1022,7 @@ public class ListViewGroupTests
                 cchHeader = 256
             };
 
-            Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+            Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
             Assert.Equal(header, new string(lvgroup.pszHeader));
             Assert.True(lvgroup.iGroupId >= 0);
             Assert.Equal(expectedAlign, (int)lvgroup.uAlign);
@@ -1135,7 +1135,7 @@ public class ListViewGroupTests
                 group.CollapsedState = (ListViewGroupCollapsedState)data[0];
                 ListViewGroupCollapsedState expectedCollapsedState = (ListViewGroupCollapsedState)data[1];
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
                 LVGROUP lvgroup = new()
                 {
                     cbSize = (uint)sizeof(LVGROUP),
@@ -1143,7 +1143,7 @@ public class ListViewGroupTests
                     stateMask = LIST_VIEW_GROUP_STATE_FLAGS.LVGS_COLLAPSIBLE | LIST_VIEW_GROUP_STATE_FLAGS.LVGS_COLLAPSED
                 };
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.True(lvgroup.iGroupId >= 0);
                 Assert.Equal(expectedCollapsedState, group.CollapsedState);
                 if (expectedCollapsedState == ListViewGroupCollapsedState.Default)
@@ -1283,7 +1283,7 @@ public class ListViewGroupTests
                 Assert.NotEqual(IntPtr.Zero, listView.Handle);
                 group.TaskLink = value;
 
-                Assert.Equal(1, (int)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
+                Assert.Equal(1, (int)PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPCOUNT));
                 LVGROUP lvgroup = new()
                 {
                     cbSize = (uint)sizeof(LVGROUP),
@@ -1292,7 +1292,7 @@ public class ListViewGroupTests
                     cchTask = 256
                 };
 
-                Assert.Equal(1, PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
+                Assert.Equal(1, PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPINFOBYINDEX, 0, ref lvgroup));
                 Assert.Equal(expected, new string(lvgroup.pszTask));
                 Assert.True(lvgroup.iGroupId >= 0);
             }

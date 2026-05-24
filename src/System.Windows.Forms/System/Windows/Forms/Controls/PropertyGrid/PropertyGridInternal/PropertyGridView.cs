@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -178,7 +178,7 @@ internal sealed partial class PropertyGridView :
                 return false;
             }
 
-            return PInvokeCore.SendMessage(EditTextBox, PInvokeCore.EM_CANUNDO) != 0;
+            return PInvoke.SendMessage(EditTextBox, PInvoke.EM_CANUNDO) != 0;
         }
     }
 
@@ -361,7 +361,7 @@ internal sealed partial class PropertyGridView :
     internal bool DrawValuesRightToLeft
         => _editTextBox is not null
             && _editTextBox.IsHandleCreated
-            && ((WINDOW_EX_STYLE)PInvokeCore.GetWindowLong(_editTextBox, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE)).HasFlag(WINDOW_EX_STYLE.WS_EX_RTLREADING);
+            && ((WINDOW_EX_STYLE)PInvoke.GetWindowLong(_editTextBox, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE)).HasFlag(WINDOW_EX_STYLE.WS_EX_RTLREADING);
 
     internal DropDownHolder? DropDownControlHolder => _dropDownHolder;
 
@@ -1083,7 +1083,7 @@ internal sealed partial class PropertyGridView :
     {
         if (CanUndo && EditTextBox.Visible)
         {
-            PInvokeCore.SendMessage(EditTextBox, PInvokeCore.WM_UNDO);
+            PInvoke.SendMessage(EditTextBox, PInvoke.WM_UNDO);
         }
     }
 
@@ -1473,7 +1473,7 @@ internal sealed partial class PropertyGridView :
         // It is unknown why this control was created as a top-level control. Windows does not recommend this way of setting parent.
         // We are not touching this for this release. We may revisit it in next release.
 
-        PInvokeCore.SetWindowLong(_dropDownHolder, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, this);
+        PInvoke.SetWindowLong(_dropDownHolder, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, this);
         _dropDownHolder.SetBounds(location.X, location.Y, size.Width, size.Height);
         PInvoke.ShowWindow(_dropDownHolder, SHOW_WINDOW_CMD.SW_SHOWNA);
         EditTextBox.Filter = true;
@@ -1517,12 +1517,12 @@ internal sealed partial class PropertyGridView :
     private bool FilterEditWndProc(ref Message m)
     {
         // If it's the TAB key, we keep it since we'll give them focus with it.
-        if (_dropDownHolder?.Visible == true && m.MsgInternal == PInvokeCore.WM_KEYDOWN && (Keys)(nint)m.WParamInternal != Keys.Tab)
+        if (_dropDownHolder?.Visible == true && m.MsgInternal == PInvoke.WM_KEYDOWN && (Keys)(nint)m.WParamInternal != Keys.Tab)
         {
             Control? control = _dropDownHolder.Component;
             if (control is not null)
             {
-                m.ResultInternal = PInvokeCore.SendMessage(control, m.MsgInternal, m.WParamInternal, m.LParamInternal);
+                m.ResultInternal = PInvoke.SendMessage(control, m.MsgInternal, m.WParamInternal, m.LParamInternal);
                 return true;
             }
         }
@@ -2559,7 +2559,7 @@ internal sealed partial class PropertyGridView :
         if (_dropDownHolder is not null && _dropDownHolder.Visible)
         {
             bool found = false;
-            for (HWND hwnd = PInvokeCore.GetForegroundWindow(); !hwnd.IsNull; hwnd = PInvoke.GetParent(hwnd))
+            for (HWND hwnd = PInvoke.GetForegroundWindow(); !hwnd.IsNull; hwnd = PInvoke.GetParent(hwnd))
             {
                 if (hwnd == _dropDownHolder.Handle)
                 {
@@ -2630,7 +2630,7 @@ internal sealed partial class PropertyGridView :
                     Math.Abs(screenPoint.Y - _rowSelectPos.Y) < SystemInformation.DoubleClickSize.Height)
                 {
                     DoubleClickRow(_selectedRow, toggleExpand: false, RowValue);
-                    PInvokeCore.SendMessage(EditTextBox, PInvokeCore.WM_LBUTTONUP, (WPARAM)0, (LPARAM)e.Location);
+                    PInvoke.SendMessage(EditTextBox, PInvoke.WM_LBUTTONUP, (WPARAM)0, (LPARAM)e.Location);
                     EditTextBox.SelectAll();
                 }
 
@@ -3111,7 +3111,7 @@ internal sealed partial class PropertyGridView :
 
             // Ensure that tooltips don't display when host application is not foreground app.
             // Assume that we don't want to display the tooltips
-            if (PInvoke.IsChild(PInvokeCore.GetForegroundWindow(), this))
+            if (PInvoke.IsChild(PInvoke.GetForegroundWindow(), this))
             {
                 // Don't show the tips if a dropdown is showing
                 if (_dropDownHolder is null || _dropDownHolder.Component is null || rowMoveCurrent == _selectedRow)
@@ -3475,8 +3475,8 @@ internal sealed partial class PropertyGridView :
 
             Point editPoint = PointToScreen(_lastMouseDown);
             editPoint = EditTextBox.PointToClient(editPoint);
-            PInvokeCore.SendMessage(EditTextBox, PInvokeCore.WM_LBUTTONDOWN, 0, PARAM.FromPoint(editPoint));
-            PInvokeCore.SendMessage(EditTextBox, PInvokeCore.WM_LBUTTONUP, (WPARAM)0, (LPARAM)editPoint);
+            PInvoke.SendMessage(EditTextBox, PInvoke.WM_LBUTTONDOWN, 0, PARAM.FromPoint(editPoint));
+            PInvoke.SendMessage(EditTextBox, PInvoke.WM_LBUTTONUP, (WPARAM)0, (LPARAM)editPoint);
         }
 
         if (setSelectTime)
@@ -3818,7 +3818,7 @@ internal sealed partial class PropertyGridView :
 
         RECT rect = itemRect;
 
-        PInvokeCore.SendMessage(toolTip, PInvoke.TTM_ADJUSTRECT, (WPARAM)1, ref rect);
+        PInvoke.SendMessage(toolTip, PInvoke.TTM_ADJUSTRECT, (WPARAM)1, ref rect);
 
         // Now offset it back to screen coords.
         Point location = parent.PointToScreen(new(rect.left, rect.top));
@@ -4933,11 +4933,11 @@ internal sealed partial class PropertyGridView :
         // which usually discards the message by returning 1 to GetMessage(). But this won't occur until after the
         // error dialog gets closed, which is much too late.
         MSG mouseMessage = default;
-        while (PInvokeCore.PeekMessage(
+        while (PInvoke.PeekMessage(
             &mouseMessage,
             HWND.Null,
-            PInvokeCore.WM_MOUSEFIRST,
-            PInvokeCore.WM_MOUSELAST,
+            PInvoke.WM_MOUSEFIRST,
+            PInvoke.WM_MOUSELAST,
             PEEK_MESSAGE_REMOVE_TYPE.PM_REMOVE))
         {
             // No-op.
@@ -5006,11 +5006,11 @@ internal sealed partial class PropertyGridView :
         // which usually discards the message by returning 1 to GetMessage(). But this won't occur until after the
         // error dialog gets closed, which is much too late.
         MSG mouseMsg = default;
-        while (PInvokeCore.PeekMessage(
+        while (PInvoke.PeekMessage(
             &mouseMsg,
             HWND.Null,
-            PInvokeCore.WM_MOUSEFIRST,
-            PInvokeCore.WM_MOUSELAST,
+            PInvoke.WM_MOUSEFIRST,
+            PInvoke.WM_MOUSELAST,
             PEEK_MESSAGE_REMOVE_TYPE.PM_REMOVE))
         {
             // No-op.
@@ -5328,13 +5328,13 @@ internal sealed partial class PropertyGridView :
     {
         switch (m.Msg)
         {
-            case (int)PInvokeCore.WM_SYSCOLORCHANGE:
+            case (int)PInvoke.WM_SYSCOLORCHANGE:
                 Invalidate();
                 break;
 
             // If we get focus in the error state, make sure we push it back to the
             // Edit or bad bad things can happen with our state.
-            case (int)PInvokeCore.WM_SETFOCUS:
+            case (int)PInvoke.WM_SETFOCUS:
                 if (!InPropertySet && EditTextBox.Visible && (_errorState != ErrorState.None || !CommitEditTextBox()))
                 {
                     base.WndProc(ref m);
@@ -5344,18 +5344,18 @@ internal sealed partial class PropertyGridView :
 
                 break;
 
-            case (int)PInvokeCore.WM_IME_STARTCOMPOSITION:
+            case (int)PInvoke.WM_IME_STARTCOMPOSITION:
                 EditTextBox.Focus();
                 EditTextBox.Clear();
-                PInvokeCore.PostMessage(EditTextBox, PInvokeCore.WM_IME_STARTCOMPOSITION);
+                PInvoke.PostMessage(EditTextBox, PInvoke.WM_IME_STARTCOMPOSITION);
                 return;
 
-            case (int)PInvokeCore.WM_IME_COMPOSITION:
+            case (int)PInvoke.WM_IME_COMPOSITION:
                 EditTextBox.Focus();
-                PInvokeCore.PostMessage(EditTextBox, PInvokeCore.WM_IME_COMPOSITION, m.WParamInternal, m.LParamInternal);
+                PInvoke.PostMessage(EditTextBox, PInvoke.WM_IME_COMPOSITION, m.WParamInternal, m.LParamInternal);
                 return;
 
-            case (int)PInvokeCore.WM_GETDLGCODE:
+            case (int)PInvoke.WM_GETDLGCODE:
 
                 uint flags = PInvoke.DLGC_WANTCHARS | PInvoke.DLGC_WANTARROWS;
 
@@ -5373,7 +5373,7 @@ internal sealed partial class PropertyGridView :
                 m.ResultInternal = (LRESULT)(nint)flags;
                 return;
 
-            case (int)PInvokeCore.WM_MOUSEMOVE:
+            case (int)PInvoke.WM_MOUSEMOVE:
 
                 // Check if it's the same position, of so eat the message.
                 if (m.LParamInternal == _lastMouseMove)
@@ -5384,7 +5384,7 @@ internal sealed partial class PropertyGridView :
                 _lastMouseMove = (int)m.LParamInternal;
                 break;
 
-            case (int)PInvokeCore.WM_NOTIFY:
+            case (int)PInvoke.WM_NOTIFY:
                 if (WmNotify(ref m))
                 {
                     return;

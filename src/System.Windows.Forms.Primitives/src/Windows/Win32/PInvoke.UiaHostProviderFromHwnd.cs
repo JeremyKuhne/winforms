@@ -1,19 +1,22 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.UI.Accessibility;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="UiaHostProviderFromHwnd(HWND, IRawElementProviderSimple**)"/>
-    public static unsafe HRESULT UiaHostProviderFromHwnd<T>(T hwnd, out IRawElementProviderSimple* ppProvider) where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        IRawElementProviderSimple* provider;
-        HRESULT result = UiaHostProviderFromHwnd(hwnd.Handle, &provider);
-        GC.KeepAlive(hwnd.Wrapper);
-        ppProvider = provider;
-        return result;
+        /// <inheritdoc cref="PInvoke.UiaHostProviderFromHwnd(HWND, IRawElementProviderSimple**)"/>
+        public static unsafe HRESULT UiaHostProviderFromHwnd<T>(T hwnd, out IRawElementProviderSimple* ppProvider) where T : IHandle<HWND>
+        {
+            IRawElementProviderSimple* provider;
+            HRESULT result = PInvoke.UiaHostProviderFromHwnd(hwnd.Handle, &provider);
+            GC.KeepAlive(hwnd.Wrapper);
+            ppProvider = provider;
+            return result;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -7,7 +7,7 @@ internal readonly partial struct HRGN
 {
     public unsafe RECT[] GetRegionRects()
     {
-        uint regionDataSize = PInvokeCore.GetRegionData(this, 0, lpRgnData: null);
+        uint regionDataSize = PInvoke.GetRegionData(this, 0, lpRgnData: null);
         if (regionDataSize == 0)
         {
             return [];
@@ -17,7 +17,7 @@ internal readonly partial struct HRGN
 
         fixed (byte* b = buffer)
         {
-            if (PInvokeCore.GetRegionData(this, regionDataSize, (RGNDATA*)b) != regionDataSize)
+            if (PInvoke.GetRegionData(this, regionDataSize, (RGNDATA*)b) != regionDataSize)
             {
                 return [];
             }

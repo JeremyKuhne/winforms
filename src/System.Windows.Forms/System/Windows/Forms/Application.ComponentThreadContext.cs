@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
@@ -306,7 +306,7 @@ public sealed partial class Application
                     {
                         break;
                     }
-                    else if (!PInvokeCore.PeekMessage(&msg, HWND.Null, 0, 0, PEEK_MESSAGE_REMOVE_TYPE.PM_NOREMOVE))
+                    else if (!PInvoke.PeekMessage(&msg, HWND.Null, 0, 0, PEEK_MESSAGE_REMOVE_TYPE.PM_NOREMOVE))
                     {
                         PInvoke.WaitMessage();
                     }
@@ -425,7 +425,7 @@ public sealed partial class Application
                     case msoloop.FocusWait:
 
                         // For focus wait, check to see if we are now the active application.
-                        PInvokeCore.GetWindowThreadProcessId(PInvoke.GetActiveWindow(), out uint pid);
+                        PInvoke.GetWindowThreadProcessId(PInvoke.GetActiveWindow(), out uint pid);
                         if (pid == PInvoke.GetCurrentProcessId())
                         {
                             continueLoop = false;
@@ -451,7 +451,7 @@ public sealed partial class Application
                     case msoloop.DoEventsModal:
                         // For DoEvents, just see if there are more messages on the queue.
                         MSG temp = default;
-                        if (!PInvokeCore.PeekMessage(&temp, HWND.Null, 0, 0, PEEK_MESSAGE_REMOVE_TYPE.PM_NOREMOVE))
+                        if (!PInvoke.PeekMessage(&temp, HWND.Null, 0, 0, PEEK_MESSAGE_REMOVE_TYPE.PM_NOREMOVE))
                         {
                             continueLoop = false;
                         }

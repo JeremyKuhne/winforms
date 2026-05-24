@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -331,7 +331,7 @@ public unsafe partial class WebBrowserBase : Control
             MSG msg = new()
             {
                 hwnd = HWND.Null,
-                message = PInvokeCore.WM_SYSKEYDOWN,
+                message = PInvoke.WM_SYSKEYDOWN,
                 wParam = (WPARAM)char.ToUpper(charCode, CultureInfo.CurrentCulture),
                 lParam = 0x20180001,
                 time = PInvoke.GetTickCount()
@@ -365,25 +365,25 @@ public unsafe partial class WebBrowserBase : Control
         switch (m.MsgInternal)
         {
             // Things we explicitly ignore and pass to the ActiveX's windproc
-            case PInvokeCore.WM_ERASEBKGND:
+            case PInvoke.WM_ERASEBKGND:
             case MessageId.WM_REFLECT_NOTIFYFORMAT:
-            case PInvokeCore.WM_SETCURSOR:
-            case PInvokeCore.WM_SYSCOLORCHANGE:
-            case PInvokeCore.WM_LBUTTONDBLCLK:
-            case PInvokeCore.WM_LBUTTONUP:
-            case PInvokeCore.WM_MBUTTONDBLCLK:
-            case PInvokeCore.WM_MBUTTONUP:
-            case PInvokeCore.WM_RBUTTONDBLCLK:
-            case PInvokeCore.WM_RBUTTONUP:
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_SETCURSOR:
+            case PInvoke.WM_SYSCOLORCHANGE:
+            case PInvoke.WM_LBUTTONDBLCLK:
+            case PInvoke.WM_LBUTTONUP:
+            case PInvoke.WM_MBUTTONDBLCLK:
+            case PInvoke.WM_MBUTTONUP:
+            case PInvoke.WM_RBUTTONDBLCLK:
+            case PInvoke.WM_RBUTTONUP:
+            case PInvoke.WM_CONTEXTMENU:
             //
             // Some of the MSComCtl controls respond to this message to do some
             // custom painting. So, we should just pass this message through.
-            case PInvokeCore.WM_DRAWITEM:
+            case PInvoke.WM_DRAWITEM:
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_COMMAND:
+            case PInvoke.WM_COMMAND:
                 if (!ReflectMessage(m.LParamInternal, ref m))
                 {
                     DefWndProc(ref m);
@@ -391,16 +391,16 @@ public unsafe partial class WebBrowserBase : Control
 
                 break;
 
-            case PInvokeCore.WM_HELP:
+            case PInvoke.WM_HELP:
                 // We want to both fire the event, and let the ActiveX have the message...
                 base.WndProc(ref m);
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_LBUTTONDOWN:
-            case PInvokeCore.WM_MBUTTONDOWN:
-            case PInvokeCore.WM_RBUTTONDOWN:
-            case PInvokeCore.WM_MOUSEACTIVATE:
+            case PInvoke.WM_LBUTTONDOWN:
+            case PInvoke.WM_MBUTTONDOWN:
+            case PInvoke.WM_RBUTTONDOWN:
+            case PInvoke.WM_MOUSEACTIVATE:
                 if (!DesignMode)
                 {
                     if (_containingControl is not null && _containingControl.ActiveControl != this)
@@ -412,7 +412,7 @@ public unsafe partial class WebBrowserBase : Control
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_DESTROY:
+            case PInvoke.WM_DESTROY:
                 //
                 // If we are currently in a state of InPlaceActive or above,
                 // we should first reparent the ActiveX control to our parking
@@ -528,7 +528,7 @@ public unsafe partial class WebBrowserBase : Control
     protected override void OnFontChanged(EventArgs e)
     {
         base.OnFontChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_FONT);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_FONT);
     }
 
     //
@@ -538,7 +538,7 @@ public unsafe partial class WebBrowserBase : Control
     protected override void OnForeColorChanged(EventArgs e)
     {
         base.OnForeColorChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_FORECOLOR);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_FORECOLOR);
     }
 
     //
@@ -548,7 +548,7 @@ public unsafe partial class WebBrowserBase : Control
     protected override void OnBackColorChanged(EventArgs e)
     {
         base.OnBackColorChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_BACKCOLOR);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_BACKCOLOR);
     }
 
     //
@@ -832,7 +832,7 @@ public unsafe partial class WebBrowserBase : Control
             // First, create the ActiveX control
             Debug.Assert(_activeXInstance is null, "activeXInstance must be null");
 
-            HRESULT hr = PInvokeCore.CoCreateInstance(
+            HRESULT hr = PInvoke.CoCreateInstance(
                 in _clsid,
                 null,
                 CLSCTX.CLSCTX_INPROC_SERVER,

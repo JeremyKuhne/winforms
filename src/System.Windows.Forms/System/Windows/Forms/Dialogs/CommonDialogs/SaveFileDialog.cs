@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -139,7 +139,7 @@ public sealed partial class SaveFileDialog : FileDialog
 
     private protected override unsafe bool RunFileDialog(OPENFILENAME* ofn)
     {
-        bool result = PInvoke.GetSaveFileName(ofn);
+        bool result = PInvokeForms.GetSaveFileName(ofn);
 
         if (!result)
         {
@@ -163,7 +163,7 @@ public sealed partial class SaveFileDialog : FileDialog
 
     private protected override unsafe ComScope<IFileDialog> CreateVistaDialog()
     {
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             CLSID.FileSaveDialog,
             pUnkOuter: null,
             CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER | CLSCTX.CLSCTX_REMOTE_SERVER,

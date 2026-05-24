@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Variant;
@@ -31,7 +31,7 @@ internal unsafe partial struct SAFEARRAY
             lLbound = 0
         };
 
-        return PInvokeCore.SafeArrayCreate(arrayType, 1, &saBound);
+        return PInvoke.SafeArrayCreate(arrayType, 1, &saBound);
     }
 
     public VARENUM VarType
@@ -61,7 +61,7 @@ internal unsafe partial struct SAFEARRAY
             VARENUM vt = VT_EMPTY;
             fixed (SAFEARRAY* pThis = &this)
             {
-                PInvokeCore.SafeArrayGetVartype(pThis, &vt).ThrowOnFailure();
+                PInvoke.SafeArrayGetVartype(pThis, &vt).ThrowOnFailure();
                 return vt;
             }
         }

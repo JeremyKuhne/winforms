@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -32,9 +32,9 @@ internal static partial class DeviceContextExtensions
     {
         using SelectObjectScope penScope = new(hdc, hpen);
         using SetRop2Scope ropScope = new(hdc, R2_MODE.R2_COPYPEN);
-        using SelectObjectScope brushScope = new(hdc, PInvokeCore.GetStockObject(GET_STOCK_OBJECT_FLAGS.NULL_BRUSH));
+        using SelectObjectScope brushScope = new(hdc, PInvoke.GetStockObject(GET_STOCK_OBJECT_FLAGS.NULL_BRUSH));
 
-        PInvokeCore.Rectangle(hdc, left, top, right, bottom);
+        PInvoke.Rectangle(hdc, left, top, right, bottom);
     }
 
     internal static void FillRectangle(this DeviceContextHdcScope hdc, Rectangle rectangle, HBRUSH hbrush) =>

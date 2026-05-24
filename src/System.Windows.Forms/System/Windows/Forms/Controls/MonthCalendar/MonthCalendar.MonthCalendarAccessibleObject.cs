@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Variant;
@@ -249,7 +249,7 @@ public partial class MonthCalendar
                 iRow = rowIndex
             };
 
-            bool success = PInvokeCore.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != 0;
+            bool success = PInvoke.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != 0;
 
             return success ? new((DateTime)gridInfo.stStart, (DateTime)gridInfo.stEnd) : null;
         }
@@ -271,7 +271,7 @@ public partial class MonthCalendar
                 iRow = rowIndex
             };
 
-            bool success = PInvokeCore.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != 0;
+            bool success = PInvoke.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != 0;
 
             return success ? owner.RectangleToScreen(gridInfo.rc) : default;
         }
@@ -299,7 +299,7 @@ public partial class MonthCalendar
                     cchName = (UIntPtr)name.Length - 1
                 };
 
-                PInvokeCore.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo);
+                PInvoke.SendMessage(owner, PInvoke.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo);
             }
 
             string text = string.Empty;
@@ -398,7 +398,7 @@ public partial class MonthCalendar
                 pt = point
             };
 
-            PInvokeCore.SendMessage(owner, PInvoke.MCM_HITTEST, 0, ref hitTestInfo);
+            PInvoke.SendMessage(owner, PInvoke.MCM_HITTEST, 0, ref hitTestInfo);
 
             return hitTestInfo;
         }

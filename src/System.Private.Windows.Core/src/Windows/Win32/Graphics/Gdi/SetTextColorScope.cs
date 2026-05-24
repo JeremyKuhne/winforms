@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -24,11 +24,11 @@ internal readonly ref struct SetTextColorScope
 
     /// <summary>
     ///  Sets text color <paramref name="color"/> in the given <paramref name="hdc"/> using
-    ///  <see cref="PInvokeCore.SetTextColor(HDC, COLORREF)"/>.
+    ///  <see cref="PInvoke.SetTextColor(HDC, COLORREF)"/>.
     /// </summary>
     public SetTextColorScope(HDC hdc, COLORREF color)
     {
-        _previousColor = PInvokeCore.SetTextColor(hdc, color);
+        _previousColor = PInvoke.SetTextColor(hdc, color);
 
         // If we didn't actually change the color, don't keep the HDC so we skip putting back the same state.
         _hdc = color == _previousColor ? default : hdc;
@@ -38,7 +38,7 @@ internal readonly ref struct SetTextColorScope
     {
         if (!_hdc.IsNull)
         {
-            PInvokeCore.SetTextColor(_hdc, _previousColor);
+            PInvoke.SetTextColor(_hdc, _previousColor);
         }
 
 #if DEBUG

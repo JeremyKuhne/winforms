@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -24,11 +24,11 @@ internal readonly ref struct SetTextAlignmentScope
 
     /// <summary>
     ///  Sets <paramref name="ta"/> in the given <paramref name="hdc"/>
-    ///  using <see cref="PInvokeCore.SetTextAlign(HDC, TEXT_ALIGN_OPTIONS)"/>.
+    ///  using <see cref="PInvoke.SetTextAlign(HDC, TEXT_ALIGN_OPTIONS)"/>.
     /// </summary>
     public SetTextAlignmentScope(HDC hdc, TEXT_ALIGN_OPTIONS ta)
     {
-        _previousTa = (TEXT_ALIGN_OPTIONS)PInvokeCore.SetTextAlign(hdc, ta);
+        _previousTa = (TEXT_ALIGN_OPTIONS)PInvoke.SetTextAlign(hdc, ta);
 
         // If we didn't actually change the TA, don't keep the HDC so we skip putting back the same state.
         _hdc = _previousTa == ta ? default : hdc;
@@ -38,7 +38,7 @@ internal readonly ref struct SetTextAlignmentScope
     {
         if (!_hdc.IsNull)
         {
-            PInvokeCore.SetTextAlign(_hdc, _previousTa);
+            PInvoke.SetTextAlign(_hdc, _previousTa);
         }
 
 #if DEBUG

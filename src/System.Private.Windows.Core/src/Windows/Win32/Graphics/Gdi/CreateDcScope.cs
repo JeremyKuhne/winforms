@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -22,7 +22,7 @@ internal readonly ref struct CreateDcScope
     public HDC HDC { get; }
 
     /// <summary>
-    ///  Creates a compatible HDC for <paramref name="hdc"/> using <see cref="PInvokeCore.CreateCompatibleDC(HDC)"/>.
+    ///  Creates a compatible HDC for <paramref name="hdc"/> using <see cref="PInvoke.CreateCompatibleDC(HDC)"/>.
     /// </summary>
     /// <remarks>
     ///  <para>
@@ -31,7 +31,7 @@ internal readonly ref struct CreateDcScope
     /// </remarks>
     public CreateDcScope(HDC hdc)
     {
-        HDC = PInvokeCore.CreateCompatibleDC(hdc);
+        HDC = PInvoke.CreateCompatibleDC(hdc);
     }
 
     public unsafe CreateDcScope(
@@ -44,8 +44,8 @@ internal readonly ref struct CreateDcScope
         fixed (char* device = deviceName)
         {
             HDC = informationOnly
-                ? PInvokeCore.CreateICW(driver, device, null, lpInitData)
-                : PInvokeCore.CreateDCW(driver, device, null, lpInitData);
+                ? PInvoke.CreateICW(driver, device, null, lpInitData)
+                : PInvoke.CreateDCW(driver, device, null, lpInitData);
         }
     }
 
@@ -60,7 +60,7 @@ internal readonly ref struct CreateDcScope
     {
         if (!HDC.IsNull)
         {
-            PInvokeCore.DeleteDC(HDC);
+            PInvoke.DeleteDC(HDC);
         }
 
 #if DEBUG

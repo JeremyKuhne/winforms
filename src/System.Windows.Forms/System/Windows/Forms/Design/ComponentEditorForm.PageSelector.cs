@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -66,7 +66,7 @@ public partial class ComponentEditorForm
                 unchecked(0x5555)
             };
 
-            HBITMAP hbitmapTemp = PInvokeCore.CreateBitmap(8, 8, 1, 1, patternBits);
+            HBITMAP hbitmapTemp = PInvoke.CreateBitmap(8, 8, 1, 1, patternBits);
             Debug.Assert(
                 !hbitmapTemp.IsNull,
                 "could not create dither bitmap. Page selector UI will not be correct");
@@ -79,7 +79,7 @@ public partial class ComponentEditorForm
                     !_hbrushDither.IsNull,
                     "Unable to created dithered brush. Page selector UI will not be correct");
 
-                PInvokeCore.DeleteObject(hbitmapTemp);
+                PInvoke.DeleteObject(hbitmapTemp);
             }
         }
 
@@ -109,11 +109,11 @@ public partial class ComponentEditorForm
             if (((state & STATE_SELECTED) != 0) && !_hbrushDither.IsNull)
             {
                 FillRectDither(dc, rcIn);
-                PInvokeCore.SetBkMode(dc, BACKGROUND_MODE.TRANSPARENT);
+                PInvoke.SetBkMode(dc, BACKGROUND_MODE.TRANSPARENT);
             }
             else
             {
-                PInvokeCore.SetBkColor(dc, backColor);
+                PInvoke.SetBkColor(dc, backColor);
                 PInvoke.ExtTextOut(dc, 0, 0, ETO_OPTIONS.ETO_CLIPPED | ETO_OPTIONS.ETO_OPAQUE, &rc, lpString: null, 0, lpDx: null);
             }
 
@@ -128,7 +128,7 @@ public partial class ComponentEditorForm
             rc2.top = rc.top + (((rc.bottom - rc.top) - size.Height) >> 1);
             rc2.bottom = rc2.top + size.Height;
             rc2.right = rc.right;
-            PInvokeCore.SetTextColor(dc, textColor);
+            PInvoke.SetTextColor(dc, textColor);
 
             fixed (char* t = itemText)
             {
@@ -142,7 +142,7 @@ public partial class ComponentEditorForm
 
             if (imageList is not null)
             {
-                PInvoke.ImageList.Draw(
+                PInvokeForms.ImageList.Draw(
                     imageList,
                     imageIndex,
                     dc,
@@ -157,7 +157,7 @@ public partial class ComponentEditorForm
                 COLORREF savedColor;
 
                 // top left
-                savedColor = PInvokeCore.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlLightLight));
+                savedColor = PInvoke.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlLightLight));
                 rc2.left = rc.left;
                 rc2.top = rc.top;
                 rc2.bottom = rc.top + 1;
@@ -168,7 +168,7 @@ public partial class ComponentEditorForm
                 PInvoke.ExtTextOut(dc, 0, 0, ETO_OPTIONS.ETO_OPAQUE, &rc2, lpString: null, 0, lpDx: null);
 
                 // bottom right
-                PInvokeCore.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlDark));
+                PInvoke.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlDark));
                 rc2.left = rc.left;
                 rc2.right = rc.right;
                 rc2.top = rc.bottom - 1;
@@ -178,7 +178,7 @@ public partial class ComponentEditorForm
                 rc2.top = rc.top;
                 PInvoke.ExtTextOut(dc, 0, 0, ETO_OPTIONS.ETO_OPAQUE, &rc2, lpString: null, 0, lpDx: null);
 
-                PInvokeCore.SetBkColor(dc, savedColor);
+                PInvoke.SetBkColor(dc, savedColor);
             }
         }
 
@@ -186,9 +186,9 @@ public partial class ComponentEditorForm
         {
             base.OnHandleCreated(e);
 
-            int itemHeight = (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
+            int itemHeight = (int)PInvoke.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
             itemHeight += 2 * PADDING_VERT;
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)itemHeight);
+            PInvoke.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)itemHeight);
 
             if (_hbrushDither.IsNull)
             {
@@ -252,23 +252,23 @@ public partial class ComponentEditorForm
 
             if (!RecreatingHandle && !_hbrushDither.IsNull)
             {
-                PInvokeCore.DeleteObject(_hbrushDither);
+                PInvoke.DeleteObject(_hbrushDither);
                 _hbrushDither = default;
             }
         }
 
         private void FillRectDither(HDC dc, RECT rc)
         {
-            HGDIOBJ hbrushOld = PInvokeCore.SelectObject(dc, _hbrushDither);
+            HGDIOBJ hbrushOld = PInvoke.SelectObject(dc, _hbrushDither);
 
             if (!hbrushOld.IsNull)
             {
-                COLORREF oldTextColor = PInvokeCore.SetTextColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlLightLight));
-                COLORREF oldBackColor = PInvokeCore.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Control));
+                COLORREF oldTextColor = PInvoke.SetTextColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlLightLight));
+                COLORREF oldBackColor = PInvoke.SetBkColor(dc, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Control));
 
                 PInvoke.PatBlt(dc, rc.left, rc.top, rc.Width, rc.Height, ROP_CODE.PATCOPY);
-                PInvokeCore.SetTextColor(dc, oldTextColor);
-                PInvokeCore.SetBkColor(dc, oldBackColor);
+                PInvoke.SetTextColor(dc, oldTextColor);
+                PInvoke.SetBkColor(dc, oldBackColor);
             }
         }
 

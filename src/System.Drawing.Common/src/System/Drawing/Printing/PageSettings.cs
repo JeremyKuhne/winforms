@@ -42,7 +42,7 @@ public unsafe class PageSettings : ICloneable
             HGLOBAL modeHandle = (HGLOBAL)_printerSettings.GetHdevmode();
             Rectangle pageBounds = GetBounds(modeHandle);
 
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
             return pageBounds;
         }
     }
@@ -67,8 +67,8 @@ public unsafe class PageSettings : ICloneable
         {
             using var hdc = _printerSettings.CreateDeviceContext(this);
 
-            int dpiX = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-            int hardMarginX_DU = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX);
+            int dpiX = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+            int hardMarginX_DU = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX);
             return hardMarginX_DU * 100 / dpiX;
         }
     }
@@ -82,8 +82,8 @@ public unsafe class PageSettings : ICloneable
         {
             using var hdc = _printerSettings.CreateDeviceContext(this);
 
-            int dpiY = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
-            int hardMarginY_DU = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY);
+            int dpiY = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+            int hardMarginY_DU = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY);
             return hardMarginY_DU * 100 / dpiY;
         }
     }
@@ -94,7 +94,7 @@ public unsafe class PageSettings : ICloneable
     public bool Landscape
     {
         get => _landscape.IsDefault
-            ? _printerSettings.GetModeField(ModeField.Orientation, (short)PInvokeCore.DMORIENT_PORTRAIT) == PInvokeCore.DMORIENT_LANDSCAPE
+            ? _printerSettings.GetModeField(ModeField.Orientation, (short)PInvoke.DMORIENT_PORTRAIT) == PInvoke.DMORIENT_LANDSCAPE
             : (bool)_landscape;
         set => _landscape = value;
     }
@@ -130,12 +130,12 @@ public unsafe class PageSettings : ICloneable
             }
 
             HGLOBAL modeHandle = (HGLOBAL)_printerSettings.GetHdevmode();
-            DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(modeHandle);
+            DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(modeHandle);
 
             PaperSource result = PaperSourceFromMode(devmode);
 
-            PInvokeCore.GlobalUnlock(modeHandle);
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalUnlock(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
 
             return result;
         }
@@ -152,23 +152,23 @@ public unsafe class PageSettings : ICloneable
             RectangleF printableArea = default;
             using var hdc = _printerSettings.CreateInformationContext(this);
 
-            int dpiX = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-            int dpiY = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+            int dpiX = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+            int dpiY = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
             if (!Landscape)
             {
                 // Need to convert the printable area to 100th of an inch from the device units
-                printableArea.X = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX) * 100 / dpiX;
-                printableArea.Y = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY) * 100 / dpiY;
-                printableArea.Width = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.HORZRES) * 100 / dpiX;
-                printableArea.Height = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.VERTRES) * 100 / dpiY;
+                printableArea.X = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX) * 100 / dpiX;
+                printableArea.Y = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY) * 100 / dpiY;
+                printableArea.Width = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.HORZRES) * 100 / dpiX;
+                printableArea.Height = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.VERTRES) * 100 / dpiY;
             }
             else
             {
                 // Need to convert the printable area to 100th of an inch from the device units
-                printableArea.Y = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX) * 100 / dpiX;
-                printableArea.X = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY) * 100 / dpiY;
-                printableArea.Height = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.HORZRES) * 100 / dpiX;
-                printableArea.Width = (float)PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.VERTRES) * 100 / dpiY;
+                printableArea.Y = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX) * 100 / dpiX;
+                printableArea.X = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY) * 100 / dpiY;
+                printableArea.Height = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.HORZRES) * 100 / dpiX;
+                printableArea.Width = (float)PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.VERTRES) * 100 / dpiY;
             }
 
             return printableArea;
@@ -188,11 +188,11 @@ public unsafe class PageSettings : ICloneable
             }
 
             HGLOBAL modeHandle = (HGLOBAL)_printerSettings.GetHdevmode();
-            DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(modeHandle);
+            DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(modeHandle);
             PrinterResolution result = PrinterResolutionFromMode(devmode);
 
-            PInvokeCore.GlobalUnlock(modeHandle);
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalUnlock(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
 
             return result;
         }
@@ -228,7 +228,7 @@ public unsafe class PageSettings : ICloneable
             throw new ArgumentNullException(nameof(hdevmode));
         }
 
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock((HGLOBAL)hdevmode);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock((HGLOBAL)hdevmode);
 
         if (_color.IsNotDefault && devmode->dmFields.HasFlag(DEVMODE_FIELD_FLAGS.DM_COLOR))
         {
@@ -237,7 +237,7 @@ public unsafe class PageSettings : ICloneable
 
         if (_landscape.IsNotDefault && devmode->dmFields.HasFlag(DEVMODE_FIELD_FLAGS.DM_ORIENTATION))
         {
-            devmode->dmOrientation = _landscape.IsTrue ? (short)PInvokeCore.DMORIENT_LANDSCAPE : (short)PInvokeCore.DMORIENT_PORTRAIT;
+            devmode->dmOrientation = _landscape.IsTrue ? (short)PInvoke.DMORIENT_LANDSCAPE : (short)PInvoke.DMORIENT_PORTRAIT;
         }
 
         if (_paperSize is not null)
@@ -324,7 +324,7 @@ public unsafe class PageSettings : ICloneable
             {
                 int result = PInvoke.DocumentProperties(
                     HWND.Null,
-                    HANDLE.Null,
+                    default(global::Windows.Win32.Graphics.Printing.PRINTER_HANDLE),
                     n,
                     devmode,
                     devmode,
@@ -332,12 +332,12 @@ public unsafe class PageSettings : ICloneable
 
                 if (result < 0)
                 {
-                    PInvokeCore.GlobalFree((HGLOBAL)hdevmode);
+                    PInvoke.GlobalFree((HGLOBAL)hdevmode);
                 }
             }
         }
 
-        PInvokeCore.GlobalUnlock((HGLOBAL)hdevmode);
+        PInvoke.GlobalUnlock((HGLOBAL)hdevmode);
     }
 
     private short ExtraBytes
@@ -345,12 +345,12 @@ public unsafe class PageSettings : ICloneable
         get
         {
             HGLOBAL modeHandle = _printerSettings.GetHdevmodeInternal();
-            DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(modeHandle);
+            DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(modeHandle);
 
             short result = devmode is null ? default : (short)devmode->dmDriverExtra;
 
-            PInvokeCore.GlobalUnlock(modeHandle);
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalUnlock(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
 
             return result;
         }
@@ -364,7 +364,7 @@ public unsafe class PageSettings : ICloneable
             : new Rectangle(0, 0, size.Width, size.Height);
 
         bool IsLandscape(HGLOBAL modeHandle) => _landscape.IsDefault
-            ? _printerSettings.GetModeField(ModeField.Orientation, (short)PInvokeCore.DMORIENT_PORTRAIT, modeHandle) == PInvokeCore.DMORIENT_LANDSCAPE
+            ? _printerSettings.GetModeField(ModeField.Orientation, (short)PInvoke.DMORIENT_PORTRAIT, modeHandle) == PInvoke.DMORIENT_LANDSCAPE
             : (bool)_landscape;
     }
 
@@ -382,15 +382,15 @@ public unsafe class PageSettings : ICloneable
             ownHandle = true;
         }
 
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(modeHandle);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(modeHandle);
 
         PaperSize result = PaperSizeFromMode(devmode);
 
-        PInvokeCore.GlobalUnlock(modeHandle);
+        PInvoke.GlobalUnlock(modeHandle);
 
         if (ownHandle)
         {
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
         }
 
         return result;
@@ -476,7 +476,7 @@ public unsafe class PageSettings : ICloneable
             throw new ArgumentException(SR.Format(SR.InvalidPrinterHandle, hdevmode));
         }
 
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock((HGLOBAL)hdevmode);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock((HGLOBAL)hdevmode);
 
         if (devmode->dmFields.HasFlag(DEVMODE_FIELD_FLAGS.DM_COLOR))
         {
@@ -485,14 +485,14 @@ public unsafe class PageSettings : ICloneable
 
         if (devmode->dmFields.HasFlag(DEVMODE_FIELD_FLAGS.DM_ORIENTATION))
         {
-            _landscape = devmode->dmOrientation == PInvokeCore.DMORIENT_LANDSCAPE;
+            _landscape = devmode->dmOrientation == PInvoke.DMORIENT_LANDSCAPE;
         }
 
         _paperSize = PaperSizeFromMode(devmode);
         _paperSource = PaperSourceFromMode(devmode);
         _printerResolution = PrinterResolutionFromMode(devmode);
 
-        PInvokeCore.GlobalUnlock((HGLOBAL)hdevmode);
+        PInvoke.GlobalUnlock((HGLOBAL)hdevmode);
     }
 
     public override string ToString() =>

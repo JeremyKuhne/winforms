@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -30,8 +30,8 @@ public class ErrorProviderTests
         Assert.Same(provider.Icon, provider.Icon);
         Assert.Null(provider.Site);
         Assert.Null(provider.Tag);
-        Assert.Equal(provider.Icon.Width, PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
-        Assert.Equal(provider.Icon.Height, PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYSMICON));
+        Assert.Equal(provider.Icon.Width, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
+        Assert.Equal(provider.Icon.Height, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYSMICON));
     }
 
     [WinFormsFact]

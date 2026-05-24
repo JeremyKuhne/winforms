@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -24,13 +24,13 @@ public static class GdiPlusHandlesTests
             using Bitmap bmp = new(100, 100);
             using Icon ico = new(Helpers.GetTestBitmapPath("16x16_one_entry_4bit.ico"));
 
-            using GetDcScope hdc = new(PInvokeCore.GetForegroundWindow());
+            using GetDcScope hdc = new(PInvoke.GetForegroundWindow());
             using Graphics graphicsFromHdc = Graphics.FromHdc(hdc);
 
             using Process currentProcess = Process.GetCurrentProcess();
             HANDLE processHandle = new(currentProcess.Handle);
 
-            uint initialHandles = PInvokeCore.GetGuiResources(processHandle, GET_GUI_RESOURCES_FLAGS.GR_GDIOBJECTS);
+            uint initialHandles = PInvoke.GetGuiResources(processHandle, GET_GUI_RESOURCES_FLAGS.GR_GDIOBJECTS);
             ValidateNoWin32Error(initialHandles);
 
             for (int i = 0; i < 5000; i++)
@@ -38,7 +38,7 @@ public static class GdiPlusHandlesTests
                 graphicsFromHdc.DrawIcon(ico, 100, 100);
             }
 
-            uint finalHandles = PInvokeCore.GetGuiResources(processHandle, GET_GUI_RESOURCES_FLAGS.GR_GDIOBJECTS);
+            uint finalHandles = PInvoke.GetGuiResources(processHandle, GET_GUI_RESOURCES_FLAGS.GR_GDIOBJECTS);
             ValidateNoWin32Error(finalHandles);
 
             Assert.InRange(finalHandles, initialHandles - HandleThreshold, initialHandles + HandleThreshold);

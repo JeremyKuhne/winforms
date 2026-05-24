@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -51,7 +51,7 @@ internal class LabelEditNativeWindow : NativeWindow
             PInvoke.GetModuleHandle((PCWSTR)null),
             functionPointer,
             (uint)Environment.ProcessId,
-            PInvokeCore.GetCurrentThreadId(),
+            PInvoke.GetCurrentThreadId(),
             PInvoke.WINEVENT_INCONTEXT);
 
         _textSelectionChangedHook = PInvoke.SetWinEventHook(
@@ -60,7 +60,7 @@ internal class LabelEditNativeWindow : NativeWindow
             PInvoke.GetModuleHandle((PCWSTR)null),
             functionPointer,
             (uint)Environment.ProcessId,
-            PInvokeCore.GetCurrentThreadId(),
+            PInvoke.GetCurrentThreadId(),
             PInvoke.WINEVENT_INCONTEXT);
 
         _winEventHooksInstalled = true;
@@ -183,7 +183,7 @@ internal class LabelEditNativeWindow : NativeWindow
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_GETOBJECT:
+            case PInvoke.WM_GETOBJECT:
                 WmGetObject(ref m);
                 return;
             default:

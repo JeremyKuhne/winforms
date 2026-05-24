@@ -3,14 +3,17 @@
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="DrawMenuBar(HWND)"/>
-    public static BOOL DrawMenuBar<T>(T hWnd)
-        where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        BOOL result = DrawMenuBar(hWnd.Handle);
-        GC.KeepAlive(hWnd.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.DrawMenuBar(HWND)"/>
+        public static BOOL DrawMenuBar<T>(T hWnd)
+            where T : IHandle<HWND>
+        {
+            BOOL result = PInvoke.DrawMenuBar(hWnd.Handle);
+            GC.KeepAlive(hWnd.Wrapper);
+            return result;
+        }
     }
 }

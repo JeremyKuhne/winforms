@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
 
 /// <summary>
-///  Helper to scope lifetime of an <see cref="Gdi.HDC"/> retrieved via <see cref="PInvokeCore.GetDC(HWND)"/> and
-///  <see cref="PInvokeCore.GetDCEx(HWND, HRGN, GET_DCX_FLAGS)"/>. Releases the <see cref="Gdi.HDC"/> (if any)
+///  Helper to scope lifetime of an <see cref="Gdi.HDC"/> retrieved via <see cref="PInvoke.GetDC(HWND)"/> and
+///  <see cref="PInvoke.GetDCEx(HWND, HRGN, GET_DCX_FLAGS)"/>. Releases the <see cref="Gdi.HDC"/> (if any)
 ///  when disposed.
 /// </summary>
 /// <remarks>
@@ -22,11 +22,11 @@ internal readonly ref struct GetDcScope
     public GetDcScope(HWND hwnd)
     {
         HWND = hwnd;
-        HDC = PInvokeCore.GetDC(hwnd);
+        HDC = PInvoke.GetDC(hwnd);
     }
 
     /// <summary>
-    ///  Creates a <see cref="Gdi.HDC"/> using <see cref="PInvokeCore.GetDCEx(HWND, HRGN, GET_DCX_FLAGS)"/>.
+    ///  Creates a <see cref="Gdi.HDC"/> using <see cref="PInvoke.GetDCEx(HWND, HRGN, GET_DCX_FLAGS)"/>.
     /// </summary>
     /// <remarks>
     ///  <para>
@@ -40,7 +40,7 @@ internal readonly ref struct GetDcScope
     public GetDcScope(HWND hwnd, HRGN hrgnClip, GET_DCX_FLAGS flags)
     {
         HWND = hwnd;
-        HDC = PInvokeCore.GetDCEx(hwnd, hrgnClip, flags);
+        HDC = PInvoke.GetDCEx(hwnd, hrgnClip, flags);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ internal readonly ref struct GetDcScope
     /// </summary>
     /// <remarks>
     ///  <para>
-    ///   <see cref="PInvokeCore.CreateDCW(PCWSTR, PCWSTR, PCWSTR, DEVMODEW*)" /> is the
+    ///   <see cref="PInvoke.CreateDCW(PCWSTR, PCWSTR, PCWSTR, DEVMODEW*)" /> is the
     ///   API to get the DC for the entire desktop.
     ///  </para>
     /// </remarks>
@@ -63,7 +63,7 @@ internal readonly ref struct GetDcScope
     {
         if (!HDC.IsNull)
         {
-            PInvokeCore.ReleaseDC(HWND, HDC);
+            PInvoke.ReleaseDC(HWND, HDC);
         }
     }
 }

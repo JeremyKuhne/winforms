@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.GdiPlus;
@@ -9,39 +9,39 @@ internal enum PixelFormat
     ///  Specifies that pixel data contains color indexed values which means they are an index to colors in the
     ///  system color table, as opposed to individual color values.
     /// </summary>
-    Indexed = (int)PInvokeCore.PixelFormatIndexed,
+    Indexed = (int)PInvoke.PixelFormatIndexed,
 
     /// <summary>
     ///  Specifies that pixel data contains GDI colors.
     /// </summary>
-    Gdi = (int)PInvokeCore.PixelFormatGDI,
+    Gdi = (int)PInvoke.PixelFormatGDI,
 
     /// <summary>
     ///  Specifies that pixel data contains alpha values that are not pre-multiplied.
     /// </summary>
-    Alpha = (int)PInvokeCore.PixelFormatAlpha,
+    Alpha = (int)PInvoke.PixelFormatAlpha,
 
     /// <summary>
     ///  Specifies that pixel format contains pre-multiplied alpha values.
     /// </summary>
-    PAlpha = (int)PInvokeCore.PixelFormatPAlpha,
+    PAlpha = (int)PInvoke.PixelFormatPAlpha,
 
     /// <summary>
     ///  Specifies that pixel format contains extended color values of 16 bits per channel.
     /// </summary>
-    Extended = (int)PInvokeCore.PixelFormatExtended,
+    Extended = (int)PInvoke.PixelFormatExtended,
 
-    Canonical = (int)PInvokeCore.PixelFormatCanonical,
+    Canonical = (int)PInvoke.PixelFormatCanonical,
 
     /// <summary>
     ///  Specifies that pixel format is undefined.
     /// </summary>
-    Undefined = (int)PInvokeCore.PixelFormatUndefined,
+    Undefined = (int)PInvoke.PixelFormatUndefined,
 
     /// <summary>
     ///  Specifies that pixel format doesn't matter.
     /// </summary>
-    DontCare = (int)PInvokeCore.PixelFormatDontCare,
+    DontCare = (int)PInvoke.PixelFormatDontCare,
 
     /// <summary>
     ///  Specifies that pixel format is 1 bit per pixel indexed color. The color table therefore has two colors in it.

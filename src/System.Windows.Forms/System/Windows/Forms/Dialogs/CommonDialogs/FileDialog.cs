@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -151,7 +151,7 @@ public abstract partial class FileDialog : CommonDialog
         set => SetOption(OFN_NODEREFERENCELINKS, !value);
     }
 
-    private protected string DialogCaption => PInvokeCore.GetWindowText(_dialogHWnd);
+    private protected string DialogCaption => PInvoke.GetWindowText(_dialogHWnd);
 
     /// <summary>
     ///  Gets or sets a string containing the file name selected in the file dialog box.
@@ -491,7 +491,7 @@ public abstract partial class FileDialog : CommonDialog
     /// </summary>
     protected override unsafe IntPtr HookProc(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
     {
-        if (msg != (int)PInvokeCore.WM_NOTIFY)
+        if (msg != (int)PInvoke.WM_NOTIFY)
         {
             return IntPtr.Zero;
         }
@@ -503,12 +503,12 @@ public abstract partial class FileDialog : CommonDialog
 
             switch (notify->hdr.code)
             {
-                case PInvoke.CDN_INITDONE:
+                case PInvokeForms.CDN_INITDONE:
                     MoveToScreenCenter(_dialogHWnd);
                     break;
-                case PInvoke.CDN_SELCHANGE:
+                case PInvokeForms.CDN_SELCHANGE:
                     // Get the buffer size required to store the selected file names.
-                    int sizeNeeded = (int)PInvokeCore.SendMessage(_dialogHWnd, PInvoke.CDM_GETSPEC);
+                    int sizeNeeded = (int)PInvoke.SendMessage(_dialogHWnd, PInvoke.CDM_GETSPEC);
                     if (sizeNeeded > notify->lpOFN->nMaxFile)
                     {
                         // A bigger buffer is required.
@@ -527,13 +527,13 @@ public abstract partial class FileDialog : CommonDialog
 
                     _ignoreSecondFileOkNotification = false;
                     break;
-                case PInvoke.CDN_SHAREVIOLATION:
+                case PInvokeForms.CDN_SHAREVIOLATION:
                     // When the selected file is locked for writing,
                     // we get this notification followed by *two* CDN_FILEOK notifications.
                     _ignoreSecondFileOkNotification = true;  // We want to ignore the second CDN_FILEOK
                     _okNotificationCount = 0;                // to avoid a second prompt by PromptFileOverwrite.
                     break;
-                case PInvoke.CDN_FILEOK:
+                case PInvokeForms.CDN_FILEOK:
                     if (_ignoreSecondFileOkNotification)
                     {
                         // We got a CDN_SHAREVIOLATION notification and want to ignore the second CDN_FILEOK notification
@@ -546,14 +546,14 @@ public abstract partial class FileDialog : CommonDialog
                         {
                             // This is the second CDN_FILEOK, so we want to ignore it.
                             _ignoreSecondFileOkNotification = false;
-                            PInvokeCore.SetWindowLong((HWND)hWnd, 0, -1);
+                            PInvoke.SetWindowLong((HWND)hWnd, 0, -1);
                             return -1;
                         }
                     }
 
                     if (!DoFileOk(notify->lpOFN))
                     {
-                        PInvokeCore.SetWindowLong((HWND)hWnd, 0, -1);
+                        PInvoke.SetWindowLong((HWND)hWnd, 0, -1);
                         return -1;
                     }
 

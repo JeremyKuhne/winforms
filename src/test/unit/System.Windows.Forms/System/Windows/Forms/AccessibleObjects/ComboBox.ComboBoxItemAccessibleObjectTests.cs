@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -267,7 +267,7 @@ public class ComboBox_ComboBoxItemAccessibleObjectTests
 
         itemAccessibleObject.ScrollIntoView();
 
-        int actual = (int)PInvokeCore.SendMessage(comboBox, PInvoke.CB_GETTOPINDEX);
+        int actual = (int)PInvoke.SendMessage(comboBox, PInvoke.CB_GETTOPINDEX);
 
         Assert.Equal(0, actual); // ScrollIntoView didn't scroll to the tested item because the ComboBox is disabled
     }
@@ -341,7 +341,7 @@ public class ComboBox_ComboBoxItemAccessibleObjectTests
         else
         {
             // Scroll to the bottom and test the method when scrolling up
-            PInvokeCore.SendMessage(comboBox, PInvoke.CB_SETTOPINDEX, (WPARAM)(itemsCount - 1));
+            PInvoke.SendMessage(comboBox, PInvoke.CB_SETTOPINDEX, (WPARAM)(itemsCount - 1));
 
             if (dropDownRect.IntersectsWith(itemAccessibleObject.Bounds))
             {
@@ -357,7 +357,7 @@ public class ComboBox_ComboBoxItemAccessibleObjectTests
 
         itemAccessibleObject.ScrollIntoView();
 
-        int actual = (int)PInvokeCore.SendMessage(comboBox, PInvoke.CB_GETTOPINDEX);
+        int actual = (int)PInvoke.SendMessage(comboBox, PInvoke.CB_GETTOPINDEX);
 
         Assert.Equal(expected, actual);
     }

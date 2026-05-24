@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms;
@@ -20,7 +20,7 @@ public partial class ComboBox
             Debug.Assert(!s_acWindows.ContainsKey(acHandle));
             AssignHandle(acHandle);
             s_acWindows.Add(acHandle, this);
-            PInvokeCore.EnumChildWindows(new HandleRef<HWND>(this, acHandle), RegisterACWindowRecursive);
+            PInvoke.EnumChildWindows(new HandleRef<HWND>(this, acHandle), RegisterACWindowRecursive);
         }
 
         private static BOOL RegisterACWindowRecursive(HWND handle)
@@ -68,7 +68,7 @@ public partial class ComboBox
                 s_inWndProcCnt--;
             }
 
-            if (m.MsgInternal == PInvokeCore.WM_NCDESTROY)
+            if (m.MsgInternal == PInvoke.WM_NCDESTROY)
             {
                 Debug.Assert(s_acWindows.ContainsKey(HWND));
                 s_acWindows.Remove(HWND);   // so we do not leak ac windows.

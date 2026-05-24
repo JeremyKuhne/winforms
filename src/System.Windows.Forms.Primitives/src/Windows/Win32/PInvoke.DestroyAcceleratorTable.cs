@@ -1,16 +1,19 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="DestroyAcceleratorTable(HACCEL)"/>
-    public static BOOL DestroyAcceleratorTable<T>(T hAccel)
-         where T : IHandle<HACCEL>
+    extension(PInvoke)
     {
-        BOOL result = DestroyAcceleratorTable(hAccel.Handle);
-        GC.KeepAlive(hAccel.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.DestroyAcceleratorTable(HACCEL)"/>
+        public static BOOL DestroyAcceleratorTable<T>(T hAccel)
+             where T : IHandle<HACCEL>
+        {
+            BOOL result = PInvoke.DestroyAcceleratorTable(hAccel.Handle);
+            GC.KeepAlive(hAccel.Wrapper);
+            return result;
+        }
     }
 }

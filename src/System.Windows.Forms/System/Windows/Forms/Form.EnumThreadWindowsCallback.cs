@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms;
@@ -22,7 +22,7 @@ public partial class Form
 
         internal BOOL Callback(HWND hwnd)
         {
-            HWND parent = (HWND)PInvokeCore.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
+            HWND parent = (HWND)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
             if (parent == _formHandle)
             {
                 // Enumerated window is owned by this Form.
@@ -41,7 +41,7 @@ public partial class Form
             {
                 foreach (HWND hwnd in _ownedWindows)
                 {
-                    nint oldValue = PInvokeCore.SetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, 0);
+                    nint oldValue = PInvoke.SetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, 0);
                     Debug.Assert(oldValue == (nint)_formHandle.Value);
                 }
             }
@@ -54,7 +54,7 @@ public partial class Form
             {
                 foreach (HWND hwnd in _ownedWindows)
                 {
-                    PInvokeCore.SetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, ownerHwnd);
+                    PInvoke.SetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, ownerHwnd);
                 }
             }
         }

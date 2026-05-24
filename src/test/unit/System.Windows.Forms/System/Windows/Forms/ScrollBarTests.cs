@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -2696,7 +2696,7 @@ public class ScrollBarTests
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_ERASEBKGND,
+            Msg = (int)PInvoke.WM_ERASEBKGND,
             Result = 250
         };
         control.WndProc(ref m);
@@ -2707,7 +2707,7 @@ public class ScrollBarTests
 
     public static IEnumerable<object[]> WndProc_Scroll_TestData()
     {
-        foreach (MessageId msg in new MessageId[] { MessageId.WM_REFLECT | PInvokeCore.WM_HSCROLL, MessageId.WM_REFLECT | PInvokeCore.WM_VSCROLL })
+        foreach (MessageId msg in new MessageId[] { MessageId.WM_REFLECT | PInvoke.WM_HSCROLL, MessageId.WM_REFLECT | PInvoke.WM_VSCROLL })
         {
             yield return new object[] { msg, RightToLeft.No, 100, ScrollEventType.SmallIncrement, 91, ScrollEventType.SmallIncrement };
             yield return new object[] { msg, RightToLeft.No, 99, ScrollEventType.SmallIncrement, 91, ScrollEventType.SmallIncrement };
@@ -2862,7 +2862,7 @@ public class ScrollBarTests
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_SIZE,
+            Msg = (int)PInvoke.WM_SIZE,
             Result = 250
         };
         control.WndProc(ref m);
@@ -2884,7 +2884,7 @@ public class ScrollBarTests
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_SIZE,
+            Msg = (int)PInvoke.WM_SIZE,
             Result = 250
         };
         control.WndProc(ref m);
@@ -2916,7 +2916,7 @@ public class ScrollBarTests
         };
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEHOVER,
+            Msg = (int)PInvoke.WM_MOUSEHOVER,
             Result = 250
         };
         control.WndProc(ref m);

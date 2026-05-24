@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -45,7 +45,7 @@ public class ToolStripItemDpiTests : ControlTestBase
 
             form.Show();
 
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED_BEFOREPARENT, toolStrip, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED_BEFOREPARENT, toolStrip, newDpi);
             float factor = (float)newDpi / form.DeviceDpi;
 
             Assert.Equal((float)initialFont.Size * factor, toolStrip.Font.Size, precision: 1);

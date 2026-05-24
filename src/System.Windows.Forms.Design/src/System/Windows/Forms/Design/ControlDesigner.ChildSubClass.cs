@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms.Design;
@@ -32,12 +32,12 @@ public partial class ControlDesigner
                 return;
             }
 
-            if (m.MsgInternal == PInvokeCore.WM_DESTROY)
+            if (m.MsgInternal == PInvoke.WM_DESTROY)
             {
                 _designer.RemoveSubclassedWindow(m.HWnd);
             }
 
-            if (m.MsgInternal == PInvokeCore.WM_PARENTNOTIFY && m.WParamInternal.LOWORD == PInvokeCore.WM_CREATE)
+            if (m.MsgInternal == PInvoke.WM_PARENTNOTIFY && m.WParamInternal.LOWORD == PInvoke.WM_CREATE)
             {
                 _designer.HookChildHandles((HWND)(nint)m.LParamInternal); // they will get removed from the collection just above
             }

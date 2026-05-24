@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -14,7 +14,7 @@ public class ExceptionHandlingTests
         control.CreateControl();
         Action action = () =>
         {
-            PInvokeCore.PostMessage(control, 9876);
+            PInvoke.PostMessage(control, 9876);
             Application.DoEvents();
         };
 

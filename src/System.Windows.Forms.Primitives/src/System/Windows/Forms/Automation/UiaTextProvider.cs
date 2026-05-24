@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -73,10 +73,10 @@ internal abstract unsafe class UiaTextProvider : ITextProvider.Interface, ITextP
     public abstract void SetSelection(int start, int end);
 
     public static WINDOW_EX_STYLE GetWindowExStyle(IHandle<HWND> hWnd) =>
-        (WINDOW_EX_STYLE)PInvokeCore.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        (WINDOW_EX_STYLE)PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
 
     public static WINDOW_STYLE GetWindowStyle(IHandle<HWND> hWnd) =>
-        (WINDOW_STYLE)PInvokeCore.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        (WINDOW_STYLE)PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
 
     public static SafeArrayScope<double> RectListToDoubleArray(List<Rectangle> rectArray)
     {

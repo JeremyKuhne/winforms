@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -200,7 +200,7 @@ public partial class ListBox : ListControl
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
     [DefaultValue(BorderStyle.Fixed3D)]
-    [DispId(PInvokeCore.DISPID_BORDERSTYLE)]
+    [DispId(PInvoke.DISPID_BORDERSTYLE)]
     [SRDescription(nameof(SR.ListBoxBorderDescr))]
     public BorderStyle BorderStyle
     {
@@ -254,7 +254,7 @@ public partial class ListBox : ListControl
                 }
                 else if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.LB_SETCOLUMNWIDTH, (WPARAM)_columnWidth);
+                    PInvoke.SendMessage(this, PInvoke.LB_SETCOLUMNWIDTH, (WPARAM)_columnWidth);
                 }
             }
         }
@@ -418,7 +418,7 @@ public partial class ListBox : ListControl
         }
     }
 
-    internal int FocusedIndex => IsHandleCreated ? (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETCARETINDEX) : -1;
+    internal int FocusedIndex => IsHandleCreated ? (int)PInvoke.SendMessage(this, PInvoke.LB_GETCARETINDEX) : -1;
 
     // The scroll bars don't display properly when the IntegralHeight == false
     // and the control is resized before the font size is change and the new font size causes
@@ -593,7 +593,7 @@ public partial class ListBox : ListControl
                 if (_drawMode == DrawMode.OwnerDrawFixed && IsHandleCreated)
                 {
                     BeginUpdate();
-                    PInvokeCore.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, 0, value);
+                    PInvoke.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, 0, value);
 
                     // Changing the item height might require a resize for IntegralHeight list boxes
                     if (IntegralHeight)
@@ -834,7 +834,7 @@ public partial class ListBox : ListControl
 
             if (current == SelectionMode.One && IsHandleCreated)
             {
-                return (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETCURSEL);
+                return (int)PInvoke.SendMessage(this, PInvoke.LB_GETCURSEL);
             }
 
             if (_itemsCollection is not null && SelectedItems.Count > 0)
@@ -1112,12 +1112,12 @@ public partial class ListBox : ListControl
     [SRDescription(nameof(SR.ListBoxTopIndexDescr))]
     public int TopIndex
     {
-        get => IsHandleCreated ? (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETTOPINDEX) : _topIndex;
+        get => IsHandleCreated ? (int)PInvoke.SendMessage(this, PInvoke.LB_GETTOPINDEX) : _topIndex;
         set
         {
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.LB_SETTOPINDEX, (WPARAM)value);
+                PInvoke.SendMessage(this, PInvoke.LB_SETTOPINDEX, (WPARAM)value);
             }
             else
             {
@@ -1420,7 +1420,7 @@ public partial class ListBox : ListControl
 
         if (IsHandleCreated)
         {
-            int height = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETITEMHEIGHT, (WPARAM)index);
+            int height = (int)PInvoke.SendMessage(this, PInvoke.LB_GETITEMHEIGHT, (WPARAM)index);
             if (height == -1)
             {
                 throw new Win32Exception();
@@ -1441,7 +1441,7 @@ public partial class ListBox : ListControl
     {
         CheckIndex(index);
         RECT rect = default;
-        if (PInvokeCore.SendMessage(this, PInvoke.LB_GETITEMRECT, (uint)index, ref rect) == 0)
+        if (PInvoke.SendMessage(this, PInvoke.LB_GETITEMRECT, (uint)index, ref rect) == 0)
         {
             return Rectangle.Empty;
         }
@@ -1475,7 +1475,7 @@ public partial class ListBox : ListControl
     {
         if (IsHandleCreated)
         {
-            int selection = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETSEL, (WPARAM)index);
+            int selection = (int)PInvoke.SendMessage(this, PInvoke.LB_GETSEL, (WPARAM)index);
             if (selection == -1)
             {
                 throw new Win32Exception();
@@ -1509,10 +1509,10 @@ public partial class ListBox : ListControl
     {
         // NT4 SP6A : SendMessage Fails. So First check whether the point is in Client Co-ordinates and then
         // call SendMessage.
-        PInvokeCore.GetClientRect(this, out RECT r);
+        PInvoke.GetClientRect(this, out RECT r);
         if (r.left <= x && x < r.right && r.top <= y && y < r.bottom)
         {
-            int index = (int)PInvokeCore.SendMessage(this, PInvoke.LB_ITEMFROMPOINT, 0, PARAM.FromLowHigh(x, y));
+            int index = (int)PInvoke.SendMessage(this, PInvoke.LB_ITEMFROMPOINT, 0, PARAM.FromLowHigh(x, y));
             if (PARAM.HIWORD(index) == 0)
             {
                 // Inside ListBox client area
@@ -1529,7 +1529,7 @@ public partial class ListBox : ListControl
     private int NativeAdd(object item)
     {
         Debug.Assert(IsHandleCreated, "Shouldn't be calling Native methods before the handle is created.");
-        int insertIndex = (int)PInvokeCore.SendMessage(this, PInvoke.LB_ADDSTRING, 0, GetItemText(item));
+        int insertIndex = (int)PInvoke.SendMessage(this, PInvoke.LB_ADDSTRING, 0, GetItemText(item));
         if (insertIndex == PInvoke.LB_ERRSPACE)
         {
             throw new OutOfMemoryException();
@@ -1553,7 +1553,7 @@ public partial class ListBox : ListControl
     private void NativeClear()
     {
         Debug.Assert(IsHandleCreated, "Shouldn't be calling Native methods before the handle is created.");
-        PInvokeCore.SendMessage(this, PInvoke.LB_RESETCONTENT);
+        PInvoke.SendMessage(this, PInvoke.LB_RESETCONTENT);
     }
 
     /// <summary>
@@ -1562,7 +1562,7 @@ public partial class ListBox : ListControl
     [SkipLocalsInit]
     internal unsafe string NativeGetItemText(int index)
     {
-        int maxLength = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETTEXTLEN, (WPARAM)index);
+        int maxLength = (int)PInvoke.SendMessage(this, PInvoke.LB_GETTEXTLEN, (WPARAM)index);
         if (maxLength == PInvoke.LB_ERR)
         {
             return string.Empty;
@@ -1571,7 +1571,7 @@ public partial class ListBox : ListControl
         using BufferScope<char> buffer = new(stackalloc char[128], minimumLength: maxLength + 1);
         fixed (char* b = buffer)
         {
-            int actualLength = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETTEXT, (WPARAM)index, (LPARAM)b);
+            int actualLength = (int)PInvoke.SendMessage(this, PInvoke.LB_GETTEXT, (WPARAM)index, (LPARAM)b);
             Debug.Assert(actualLength != PInvoke.LB_ERR, "Should have validated the index above");
             return actualLength == PInvoke.LB_ERR ? string.Empty : buffer[..Math.Min(maxLength, actualLength)].ToString();
         }
@@ -1584,7 +1584,7 @@ public partial class ListBox : ListControl
     private int NativeInsert(int index, object item)
     {
         Debug.Assert(IsHandleCreated, "Shouldn't be calling Native methods before the handle is created.");
-        int insertIndex = (int)PInvokeCore.SendMessage(this, PInvoke.LB_INSERTSTRING, (uint)index, GetItemText(item));
+        int insertIndex = (int)PInvoke.SendMessage(this, PInvoke.LB_INSERTSTRING, (uint)index, GetItemText(item));
 
         if (insertIndex == PInvoke.LB_ERRSPACE)
         {
@@ -1611,8 +1611,8 @@ public partial class ListBox : ListControl
     {
         Debug.Assert(IsHandleCreated, "Shouldn't be calling Native methods before the handle is created.");
 
-        bool selected = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETSEL, (WPARAM)index) > 0;
-        PInvokeCore.SendMessage(this, PInvoke.LB_DELETESTRING, (WPARAM)index);
+        bool selected = (int)PInvoke.SendMessage(this, PInvoke.LB_GETSEL, (WPARAM)index) > 0;
+        PInvoke.SendMessage(this, PInvoke.LB_DELETESTRING, (WPARAM)index);
 
         // If the item currently selected is removed then we should fire a SelectionChanged event
         // as the next time selected index returns -1.
@@ -1634,11 +1634,11 @@ public partial class ListBox : ListControl
 
         if (_selectionMode == SelectionMode.One)
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETCURSEL, (WPARAM)(value ? index : -1));
+            PInvoke.SendMessage(this, PInvoke.LB_SETCURSEL, (WPARAM)(value ? index : -1));
         }
         else
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETSEL, (WPARAM)(BOOL)value, (LPARAM)index);
+            PInvoke.SendMessage(this, PInvoke.LB_SETSEL, (WPARAM)(BOOL)value, (LPARAM)index);
         }
     }
 
@@ -1661,7 +1661,7 @@ public partial class ListBox : ListControl
         switch (_selectionMode)
         {
             case SelectionMode.One:
-                int index = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETCURSEL);
+                int index = (int)PInvoke.SendMessage(this, PInvoke.LB_GETCURSEL);
                 if (index >= 0)
                 {
                     SelectedItems.SetSelected(index, true);
@@ -1671,13 +1671,13 @@ public partial class ListBox : ListControl
 
             case SelectionMode.MultiSimple:
             case SelectionMode.MultiExtended:
-                int count = (int)PInvokeCore.SendMessage(this, PInvoke.LB_GETSELCOUNT);
+                int count = (int)PInvoke.SendMessage(this, PInvoke.LB_GETSELCOUNT);
                 if (count > 0)
                 {
                     int[] result = new int[count];
                     fixed (int* pResult = result)
                     {
-                        PInvokeCore.SendMessage(this, PInvoke.LB_GETSELITEMS, (WPARAM)count, (LPARAM)pResult);
+                        PInvoke.SendMessage(this, PInvoke.LB_GETSELITEMS, (WPARAM)count, (LPARAM)pResult);
                     }
 
                     foreach (int i in result)
@@ -1742,21 +1742,21 @@ public partial class ListBox : ListControl
         base.OnHandleCreated(e);
 
         // Get the current locale to set the Scrollbars
-        PInvokeCore.SendMessage(this, PInvoke.LB_SETLOCALE, (WPARAM)PInvokeCore.GetThreadLocale());
+        PInvoke.SendMessage(this, PInvoke.LB_SETLOCALE, (WPARAM)PInvoke.GetThreadLocale());
 
         if (_columnWidth != 0)
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETCOLUMNWIDTH, (WPARAM)_columnWidth);
+            PInvoke.SendMessage(this, PInvoke.LB_SETCOLUMNWIDTH, (WPARAM)_columnWidth);
         }
 
         if (_drawMode == DrawMode.OwnerDrawFixed)
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
+            PInvoke.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
         }
 
         if (_topIndex != 0)
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETTOPINDEX, (WPARAM)_topIndex);
+            PInvoke.SendMessage(this, PInvoke.LB_SETTOPINDEX, (WPARAM)_topIndex);
         }
 
         if (UseCustomTabOffsets && CustomTabOffsets is not null)
@@ -1767,7 +1767,7 @@ public partial class ListBox : ListControl
 
             fixed (int* pOffsets = offsets)
             {
-                PInvokeCore.SendMessage(this, PInvoke.LB_SETTABSTOPS, (WPARAM)wpar, (LPARAM)pOffsets);
+                PInvoke.SendMessage(this, PInvoke.LB_SETTABSTOPS, (WPARAM)wpar, (LPARAM)pOffsets);
             }
         }
 
@@ -2113,7 +2113,7 @@ public partial class ListBox : ListControl
 
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.LB_SETCURSEL, (WPARAM)DataManager.Position);
+                PInvoke.SendMessage(this, PInvoke.LB_SETCURSEL, (WPARAM)DataManager.Position);
             }
 
             // if the list changed and we still did not fire the
@@ -2252,7 +2252,7 @@ public partial class ListBox : ListControl
                 width = MaxItemWidth;
             }
 
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETHORIZONTALEXTENT, (WPARAM)width);
+            PInvoke.SendMessage(this, PInvoke.LB_SETHORIZONTALEXTENT, (WPARAM)width);
         }
     }
 
@@ -2309,7 +2309,7 @@ public partial class ListBox : ListControl
             CustomTabOffsets.CopyTo(offsets, 0);
             fixed (int* pOffsets = offsets)
             {
-                PInvokeCore.SendMessage(this, PInvoke.LB_SETTABSTOPS, (WPARAM)wpar, (nint)pOffsets);
+                PInvoke.SendMessage(this, PInvoke.LB_SETTABSTOPS, (WPARAM)wpar, (nint)pOffsets);
             }
 
             Invalidate();
@@ -2407,14 +2407,14 @@ public partial class ListBox : ListControl
             case MessageId.WM_REFLECT_MEASUREITEM:
                 WmReflectMeasureItem(ref m);
                 break;
-            case PInvokeCore.WM_PRINT:
+            case PInvoke.WM_PRINT:
                 WmPrint(ref m);
                 break;
-            case PInvokeCore.WM_LBUTTONDOWN:
+            case PInvoke.WM_LBUTTONDOWN:
                 _selectedItems?.Dirty();
                 base.WndProc(ref m);
                 break;
-            case PInvokeCore.WM_LBUTTONUP:
+            case PInvoke.WM_LBUTTONUP:
                 Point point = PARAM.ToPoint(m.LParamInternal);
                 bool captured = Capture;
                 if (captured && PInvoke.WindowFromPoint(PointToScreen(point)) == HWND)
@@ -2456,7 +2456,7 @@ public partial class ListBox : ListControl
                 _doubleClickFired = false;
                 break;
 
-            case PInvokeCore.WM_RBUTTONUP:
+            case PInvoke.WM_RBUTTONUP:
                 if (Capture && PInvoke.WindowFromPoint(PointToScreen((Point)m.LParamInternal)) == HWND)
                 {
                     _selectedItems?.Dirty();
@@ -2465,7 +2465,7 @@ public partial class ListBox : ListControl
                 base.WndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_LBUTTONDBLCLK:
+            case PInvoke.WM_LBUTTONDBLCLK:
                 // The ListBox gets  WM_LBUTTONDOWN - WM_LBUTTONUP -WM_LBUTTONDBLCLK - WM_LBUTTONUP sequence for
                 // doubleClick. The first WM_LBUTTONUP, resets the flag for double click so its necessary for us
                 // to set it again.
@@ -2473,7 +2473,7 @@ public partial class ListBox : ListControl
                 base.WndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_WINDOWPOSCHANGED:
+            case PInvoke.WM_WINDOWPOSCHANGED:
                 base.WndProc(ref m);
                 if (_integralHeight && _fontIsChanged)
                 {

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
@@ -413,7 +413,7 @@ public static class TestHelpers
     /// <returns>Whether or not the key(s) were pressed on the process</returns>
     /// <seealso cref="Process.MainWindowHandle"/>
     /// <seealso cref="PInvoke.SetForegroundWindow{T}(T)"/>
-    /// <seealso cref="PInvokeCore.GetForegroundWindow()"/>
+    /// <seealso cref="PInvoke.GetForegroundWindow()"/>
     /// <seealso cref="SendKeys.SendWait(string)"/>
     /// <seealso cref="Thread.Sleep(int)"/>
     internal static bool SendKeysToProcess(Process process, string keys, bool switchToMainWindow = true)
@@ -440,11 +440,11 @@ public static class TestHelpers
             PInvoke.SetForegroundWindow(mainWindowHandle);
         }
 
-        HWND foregroundWindow = PInvokeCore.GetForegroundWindow();
+        HWND foregroundWindow = PInvoke.GetForegroundWindow();
 
-        string windowTitle = PInvokeCore.GetWindowText(foregroundWindow);
+        string windowTitle = PInvoke.GetWindowText(foregroundWindow);
 
-        if (PInvokeCore.GetWindowThreadProcessId(foregroundWindow, out uint processId) == 0 ||
+        if (PInvoke.GetWindowThreadProcessId(foregroundWindow, out uint processId) == 0 ||
             processId != process.Id)
         {
             Debug.WriteLine($"ForegroundWindow doesn't belong the test process! The current window is {windowTitle}.");

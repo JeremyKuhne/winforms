@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -2509,7 +2509,7 @@ internal class ToolStripDesigner : ControlDesigner
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_CONTEXTMENU:
                 if (GetHitTest(PARAM.ToPoint(m.LParamInternal)))
                 {
                     return;
@@ -2517,8 +2517,8 @@ internal class ToolStripDesigner : ControlDesigner
 
                 base.WndProc(ref m);
                 break;
-            case PInvokeCore.WM_LBUTTONDOWN:
-            case PInvokeCore.WM_RBUTTONDOWN:
+            case PInvoke.WM_LBUTTONDOWN:
+            case PInvoke.WM_RBUTTONDOWN:
                 // commit any InSitu if any...
                 Commit();
                 base.WndProc(ref m);

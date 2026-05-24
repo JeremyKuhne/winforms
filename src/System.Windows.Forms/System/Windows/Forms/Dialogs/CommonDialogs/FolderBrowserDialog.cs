@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -287,7 +287,7 @@ public sealed class FolderBrowserDialog : CommonDialog
         {
             // Creating the Vista dialog can fail on Windows Server Core, even if the
             // Server Core App Compatibility FOD is installed.
-            PInvokeCore.CoCreateInstance(
+            PInvoke.CoCreateInstance(
                 CLSID.FileOpenDialog,
                 pUnkOuter: null,
                 CLSCTX.CLSCTX_INPROC_SERVER | CLSCTX.CLSCTX_LOCAL_SERVER | CLSCTX.CLSCTX_REMOTE_SERVER,
@@ -495,13 +495,13 @@ public sealed class FolderBrowserDialog : CommonDialog
                 if (instance._initialDirectory.Length != 0)
                 {
                     // Try to expand the folder specified by initialDir
-                    PInvokeCore.SendMessage(hwnd, PInvoke.BFFM_SETEXPANDED, (WPARAM)(BOOL)true, instance._initialDirectory);
+                    PInvoke.SendMessage(hwnd, PInvoke.BFFM_SETEXPANDED, (WPARAM)(BOOL)true, instance._initialDirectory);
                 }
 
                 if (instance.SelectedPath.Length != 0)
                 {
                     // Try to select the folder specified by selectedPath
-                    PInvokeCore.SendMessage(hwnd, PInvoke.BFFM_SETSELECTIONW, (WPARAM)(BOOL)true, instance.SelectedPath);
+                    PInvoke.SendMessage(hwnd, PInvoke.BFFM_SETSELECTIONW, (WPARAM)(BOOL)true, instance.SelectedPath);
                 }
 
                 break;
@@ -511,11 +511,11 @@ public sealed class FolderBrowserDialog : CommonDialog
                 if (selectedPidl is not null)
                 {
                     // Try to retrieve the path from the IDList
-                    using BufferScope<char> buffer = new(stackalloc char[(int)PInvokeCore.MAX_PATH + 1]);
+                    using BufferScope<char> buffer = new(stackalloc char[(int)PInvoke.MAX_PATH + 1]);
                     fixed (char* b = buffer)
                     {
                         bool isFileSystemFolder = PInvoke.SHGetPathFromIDListEx(selectedPidl, b, (uint)buffer.Length, GPFIDL_FLAGS.GPFIDL_UNCPRINTER);
-                        PInvokeCore.SendMessage(hwnd, PInvoke.BFFM_ENABLEOK, 0, (nint)(BOOL)isFileSystemFolder);
+                        PInvoke.SendMessage(hwnd, PInvoke.BFFM_ENABLEOK, 0, (nint)(BOOL)isFileSystemFolder);
                     }
                 }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -334,7 +334,7 @@ public sealed partial class MultilineStringEditor
                     return string.Empty;
                 }
 
-                string windowText = PInvokeCore.GetWindowText(this);
+                string windowText = PInvoke.GetWindowText(this);
                 if (!_ctrlEnterPressed)
                 {
                     return windowText;
@@ -405,7 +405,7 @@ public sealed partial class MultilineStringEditor
             base.WndProc(ref m);
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_PAINT:
+                case PInvoke.WM_PAINT:
                     {
                         if (ShouldShowWatermark)
                         {

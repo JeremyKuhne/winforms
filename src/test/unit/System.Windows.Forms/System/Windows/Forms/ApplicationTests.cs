@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -51,14 +51,14 @@ public class ApplicationTests
                     Assert.Same(value, Application.CurrentCulture);
                     Assert.Same(value, Thread.CurrentThread.CurrentCulture);
                     Assert.Same(value, CultureInfo.CurrentCulture);
-                    Assert.Equal(expectedLcid, PInvokeCore.GetThreadLocale());
+                    Assert.Equal(expectedLcid, PInvoke.GetThreadLocale());
 
                     // Set same.
                     Application.CurrentCulture = value;
                     Assert.Same(value, Application.CurrentCulture);
                     Assert.Same(value, Thread.CurrentThread.CurrentCulture);
                     Assert.Same(value, CultureInfo.CurrentCulture);
-                    Assert.Equal(expectedLcid, PInvokeCore.GetThreadLocale());
+                    Assert.Equal(expectedLcid, PInvoke.GetThreadLocale());
                 }
                 finally
                 {

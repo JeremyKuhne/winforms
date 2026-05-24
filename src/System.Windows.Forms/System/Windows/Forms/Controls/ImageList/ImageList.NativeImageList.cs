@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -72,7 +72,7 @@ public sealed partial class ImageList
                     return;
                 }
 
-                PInvoke.ImageList.Destroy(this);
+                PInvokeForms.ImageList.Destroy(this);
                 HIMAGELIST = HIMAGELIST.Null;
             }
 

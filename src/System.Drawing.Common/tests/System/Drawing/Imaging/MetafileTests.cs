@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // Copyright (C) 2005-2006 Novell, Inc (http://www.novell.com)
@@ -1022,13 +1022,13 @@ public class MetafileTests
     public unsafe void CreateFromNativeHandle_Success()
     {
         // Create a memory metafile from the screen DC
-        HDC hdc = PInvokeCore.CreateEnhMetaFile(HDC.Null, default, null, default(PCWSTR));
+        HDC hdc = PInvoke.CreateEnhMetaFile(HDC.Null, default, null, default(PCWSTR));
         using CreatePenScope pen = new(Color.Blue);
         using CreateBrushScope brush = new(Color.Green);
         using SelectObjectScope penScope = new(hdc, pen);
         using SelectObjectScope brushScope = new(hdc, brush);
-        PInvokeCore.Rectangle(hdc, 10, 10, 100, 100);
-        HENHMETAFILE hemf = PInvokeCore.CloseEnhMetaFile(hdc);
+        PInvoke.Rectangle(hdc, 10, 10, 100, 100);
+        HENHMETAFILE hemf = PInvoke.CloseEnhMetaFile(hdc);
 
         Metafile metafile = new(henhmetafile: (nint)hemf.Value, deleteEmf: true);
         metafile.Size.Should().Be(new Size(90, 90));

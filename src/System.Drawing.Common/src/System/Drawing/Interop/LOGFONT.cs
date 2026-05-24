@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
@@ -28,14 +28,14 @@ unsafe struct LOGFONT
     public byte lfClipPrecision;
     public byte lfQuality;
     public byte lfPitchAndFamily;
-    private fixed char _lfFaceName[(int)PInvokeCore.LF_FACESIZE];
+    private fixed char _lfFaceName[(int)PInvoke.LF_FACESIZE];
 
     internal readonly bool IsGdiVerticalFont => _lfFaceName[0] == '@';
 
 #if NET7_0_OR_GREATER
     [UnscopedRef]
 #endif
-    public Span<char> lfFaceName => MemoryMarshal.CreateSpan(ref _lfFaceName[0], (int)PInvokeCore.LF_FACESIZE);
+    public Span<char> lfFaceName => MemoryMarshal.CreateSpan(ref _lfFaceName[0], (int)PInvoke.LF_FACESIZE);
 
     internal readonly string AsString()
 #pragma warning disable format

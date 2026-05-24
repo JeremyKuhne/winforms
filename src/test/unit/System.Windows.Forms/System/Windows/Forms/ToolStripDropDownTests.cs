@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -4867,7 +4867,7 @@ public class ToolStripDropDownTests
         };
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEHOVER,
+            Msg = (int)PInvoke.WM_MOUSEHOVER,
             Result = 250
         };
         control.WndProc(ref m);

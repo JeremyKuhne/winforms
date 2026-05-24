@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
@@ -60,41 +60,41 @@ public partial class ColorEditor
         {
             switch ((MessageId)msg)
             {
-                case PInvokeCore.WM_INITDIALOG:
+                case PInvoke.WM_INITDIALOG:
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_HUE,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_SAT,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_LUM,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_RED,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_GREEN,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     PInvoke.SendDlgItemMessage(
                         (HWND)hwnd,
                         (int)PInvoke.COLOR_BLUE,
-                        PInvokeCore.EM_SETMARGINS,
+                        PInvoke.EM_SETMARGINS,
                         (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN),
                         0);
                     HWND hwndCtl = PInvoke.GetDlgItem((HWND)hwnd, (int)PInvoke.COLOR_MIX);
@@ -114,7 +114,7 @@ public partial class ColorEditor
                     Color = Color.Empty;
                     break;
 
-                case PInvokeCore.WM_COMMAND:
+                case PInvoke.WM_COMMAND:
                     if (PARAM.LOWORD(wParam) == (int)PInvoke.COLOR_ADD)
                     {
                         BOOL success = false;
@@ -128,9 +128,9 @@ public partial class ColorEditor
                         Debug.Assert(!success, "Couldn't find dialog member COLOR_BLUE");
 
                         Color = Color.FromArgb(red, green, blue);
-                        PInvokeCore.PostMessage(
+                        PInvoke.PostMessage(
                             (HWND)hwnd,
-                            PInvokeCore.WM_COMMAND,
+                            PInvoke.WM_COMMAND,
                             (WPARAM)PARAM.FromLowHigh((int)MESSAGEBOX_RESULT.IDOK, 0),
                             (LPARAM)PInvoke.GetDlgItem((HWND)hwnd, (int)MESSAGEBOX_RESULT.IDOK));
                         break;

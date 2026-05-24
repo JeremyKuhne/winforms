@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -399,11 +399,11 @@ public class ByteViewer : TableLayoutPanel
         int bufferSize;
         fixed (byte* pDataBuff = _dataBuf)
         {
-            bufferSize = PInvokeCore.MultiByteToWideChar(PInvokeCore.CP_ACP, 0, (PCSTR)pDataBuff, _dataBuf.Length, null, 0);
+            bufferSize = PInvoke.MultiByteToWideChar(PInvoke.CP_ACP, 0, (PCSTR)pDataBuff, _dataBuf.Length, null, 0);
             charsBuffer.EnsureCapacity(bufferSize + 1);
             fixed (char* pText = charsBuffer)
             {
-                size = PInvokeCore.MultiByteToWideChar(PInvokeCore.CP_ACP, 0, (PCSTR)pDataBuff, bufferSize, pText, bufferSize);
+                size = PInvoke.MultiByteToWideChar(PInvoke.CP_ACP, 0, (PCSTR)pDataBuff, bufferSize, pText, bufferSize);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -118,7 +118,7 @@ public partial class ErrorProvider
             _tipWindow = new NativeWindow();
             _tipWindow.CreateHandle(cparams);
 
-            PInvokeCore.SendMessage(
+            PInvoke.SendMessage(
                 _tipWindow,
                 PInvoke.TTM_SETMAXTIPWIDTH,
                 (WPARAM)0,
@@ -128,7 +128,7 @@ public partial class ErrorProvider
                 HWND.HWND_TOP,
                 0, 0, 0, 0,
                 SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE);
-            PInvokeCore.SendMessage(_tipWindow, PInvoke.TTM_SETDELAYTIME, (WPARAM)PInvoke.TTDT_INITIAL);
+            PInvoke.SendMessage(_tipWindow, PInvoke.TTM_SETDELAYTIME, (WPARAM)PInvoke.TTDT_INITIAL);
 
             return true;
         }
@@ -163,12 +163,12 @@ public partial class ErrorProvider
             if (_parent.IsMirrored)
             {
                 // Mirror the DC
-                PInvokeCore.SetMapMode(hdc, HDC_MAP_MODE.MM_ANISOTROPIC);
+                PInvoke.SetMapMode(hdc, HDC_MAP_MODE.MM_ANISOTROPIC);
                 SIZE originalExtents = default;
                 PInvoke.GetViewportExtEx(hdc, &originalExtents);
                 PInvoke.SetViewportExtEx(hdc, -originalExtents.Width, originalExtents.Height, lpsz: null);
                 Point originalOrigin = default;
-                PInvokeCore.GetViewportOrgEx(hdc, &originalOrigin);
+                PInvoke.GetViewportOrgEx(hdc, &originalOrigin);
                 PInvoke.SetViewportOrgEx(hdc, originalOrigin.X + _windowBounds.Width - 1, originalOrigin.Y, lppt: null);
             }
         }
@@ -187,7 +187,7 @@ public partial class ErrorProvider
             {
                 ControlItem item = _items[i];
                 Rectangle bounds = item.GetIconBounds(_provider.Region.Size);
-                PInvokeCore.DrawIconEx(
+                PInvoke.DrawIconEx(
                     hdc,
                     bounds.X - _windowBounds.X,
                     bounds.Y - _windowBounds.Y,
@@ -392,7 +392,7 @@ public partial class ErrorProvider
         /// </summary>
         private void WmGetObject(ref Message m)
         {
-            if (m.Msg == (int)PInvokeCore.WM_GETOBJECT && m.LParamInternal == PInvoke.UiaRootObjectId)
+            if (m.Msg == (int)PInvoke.WM_GETOBJECT && m.LParamInternal == PInvoke.UiaRootObjectId)
             {
                 // If the requested object identifier is UiaRootObjectId,
                 // we should return an UI Automation provider using the UiaReturnRawElementProvider function.
@@ -416,10 +416,10 @@ public partial class ErrorProvider
         {
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_GETOBJECT:
+                case PInvoke.WM_GETOBJECT:
                     WmGetObject(ref m);
                     break;
-                case PInvokeCore.WM_NOTIFY:
+                case PInvoke.WM_NOTIFY:
                     NMHDR* nmhdr = (NMHDR*)(nint)m.LParamInternal;
                     if (nmhdr->code is PInvoke.TTN_SHOW or PInvoke.TTN_POP)
                     {
@@ -427,9 +427,9 @@ public partial class ErrorProvider
                     }
 
                     break;
-                case PInvokeCore.WM_ERASEBKGND:
+                case PInvoke.WM_ERASEBKGND:
                     break;
-                case PInvokeCore.WM_PAINT:
+                case PInvoke.WM_PAINT:
                     OnPaint();
                     break;
                 default:

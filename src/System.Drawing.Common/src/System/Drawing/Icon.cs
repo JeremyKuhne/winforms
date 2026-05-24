@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Buffers;
@@ -84,7 +84,7 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         if (_iconData is null)
         {
             _iconSize = original.Size;
-            _handle = PInvokeCore.CopyIcon(original, _iconSize.Width, _iconSize.Height);
+            _handle = PInvoke.CopyIcon(original, _iconSize.Width, _iconSize.Height);
         }
         else
         {
@@ -165,7 +165,7 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         // look at the code it might be hard coded to 128 chars for some cases. Leaving the
         // historical MAX_PATH as a minimum to be safe.
 
-        char[] buffer = ArrayPool<char>.Shared.Rent(Math.Max((int)PInvokeCore.MAX_PATH, filePath.Length));
+        char[] buffer = ArrayPool<char>.Shared.Rent(Math.Max((int)PInvoke.MAX_PATH, filePath.Length));
         filePath.CopyTo(0, buffer, 0, filePath.Length);
         buffer[filePath.Length] = '\0';
 
@@ -198,22 +198,22 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
                 return _iconSize;
             }
 
-            ICONINFO info = PInvokeCore.GetIconInfo(this);
+            ICONINFO info = PInvoke.GetIconInfo(this);
             BITMAP bitmap = default;
 
             if (!info.hbmColor.IsNull)
             {
-                PInvokeCore.GetObject(
+                PInvoke.GetObject(
                     info.hbmColor,
                     sizeof(BITMAP),
                     &bitmap);
 
-                PInvokeCore.DeleteObject(info.hbmColor);
+                PInvoke.DeleteObject(info.hbmColor);
                 _iconSize = new Size(bitmap.bmWidth, bitmap.bmHeight);
             }
             else if (!info.hbmMask.IsNull)
             {
-                PInvokeCore.GetObject(
+                PInvoke.GetObject(
                     info.hbmMask,
                     sizeof(BITMAP),
                     &bitmap);
@@ -223,7 +223,7 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
 
             if (!info.hbmMask.IsNull)
             {
-                PInvokeCore.DeleteObject(info.hbmMask);
+                PInvoke.DeleteObject(info.hbmMask);
             }
 
             return _iconSize;
@@ -249,7 +249,7 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
     {
         if (_ownHandle)
         {
-            PInvokeCore.DestroyIcon(_handle);
+            PInvoke.DestroyIcon(_handle);
             _handle = HICON.Null;
             GC.KeepAlive(this);
         }
@@ -333,8 +333,8 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         using RegionScope clippingRegion = new(hdc);
         try
         {
-            PInvokeCore.IntersectClipRect(hdc, targetX, targetY, targetX + clipWidth, targetY + clipHeight);
-            PInvokeCore.DrawIconEx(
+            PInvoke.IntersectClipRect(hdc, targetX, targetY, targetX + clipWidth, targetY + clipHeight);
+            PInvoke.DrawIconEx(
                 hdc,
                 targetX - imageX,
                 targetY - imageY,
@@ -345,7 +345,7 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         finally
         {
             // We need to delete the region handle after restoring the region as GDI+ uses a copy of the handle.
-            PInvokeCore.SelectClipRgn(hdc, clippingRegion);
+            PInvoke.SelectClipRgn(hdc, clippingRegion);
         }
     }
 
@@ -420,19 +420,19 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         // Get the correct width and height.
         if (width == 0)
         {
-            width = PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON);
+            width = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON);
         }
 
         if (height == 0)
         {
-            height = PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYICON);
+            height = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYICON);
         }
 
         if (s_bitDepth == 0)
         {
             using var hdc = GetDcScope.ScreenDC;
-            s_bitDepth = PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
-            s_bitDepth *= PInvokeCore.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PLANES);
+            s_bitDepth = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
+            s_bitDepth *= PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.PLANES);
 
             // If the bit depth is 8, make it 4 because windows does not
             // choose a 256 color icon if the display is running in 256 color mode
@@ -661,14 +661,14 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
         else if (_bestBitDepth is 0 or 32)
         {
             // This may be a 32bpp icon or an icon without any data.
-            ICONINFO info = PInvokeCore.GetIconInfo(this);
+            ICONINFO info = PInvoke.GetIconInfo(this);
             BITMAP bmp = default;
 
             try
             {
                 if (!info.hbmColor.IsNull)
                 {
-                    PInvokeCore.GetObject(info.hbmColor, sizeof(BITMAP), &bmp);
+                    PInvoke.GetObject(info.hbmColor, sizeof(BITMAP), &bmp);
                     if (bmp.bmBitsPixel == 32)
                     {
                         Bitmap? tmpBitmap = null;
@@ -715,12 +715,12 @@ public sealed unsafe partial class Icon : MarshalByRefObject, ICloneable, IDispo
             {
                 if (!info.hbmColor.IsNull)
                 {
-                    PInvokeCore.DeleteObject(info.hbmColor);
+                    PInvoke.DeleteObject(info.hbmColor);
                 }
 
                 if (!info.hbmMask.IsNull)
                 {
-                    PInvokeCore.DeleteObject(info.hbmMask);
+                    PInvoke.DeleteObject(info.hbmMask);
                 }
             }
         }

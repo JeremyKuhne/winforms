@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -488,7 +488,7 @@ public class MessageBox
             // Right after the dialog box is closed, Windows sends WM_SETFOCUS back to the previously active control
             // but since we have disabled this thread main window the message is lost. So we have to send it again after
             // we enable the main window.
-            PInvokeCore.SendMessage(handle, PInvokeCore.WM_SETFOCUS);
+            PInvoke.SendMessage(handle, PInvoke.WM_SETFOCUS);
         }
     }
 }

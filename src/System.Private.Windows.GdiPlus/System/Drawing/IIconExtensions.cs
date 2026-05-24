@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -18,7 +18,7 @@ public static unsafe class IIconExtensions
 
         Size size = icon.Size;
         desc.Anonymous.icon.hicon = copy ?
-            (HICON)PInvokeCore.CopyImage(
+            (HICON)PInvoke.CopyImage(
                 (HANDLE)icon.Handle,
                 GDI_IMAGE_TYPE.IMAGE_ICON,
                 size.Width,
@@ -41,7 +41,7 @@ public static unsafe class IIconExtensions
     {
         PICTDESC desc = icon.CreatePICTDESC(copy);
         ComScope<IPicture> picture = new(null);
-        PInvokeCore.OleCreatePictureIndirect(&desc, IID.Get<IPicture>(), fOwn: copy, picture).ThrowOnFailure();
+        PInvoke.OleCreatePictureIndirect(&desc, IID.Get<IPicture>(), fOwn: copy, picture).ThrowOnFailure();
         return picture;
     }
 }

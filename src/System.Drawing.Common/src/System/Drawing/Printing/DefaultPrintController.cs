@@ -45,7 +45,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
                 lpszOutput = document.PrinterSettings.PrintToFile ? outputPort : null
             };
 
-            int result = PInvoke.StartDoc(this, info);
+            int result = PInvokeDrawing.StartDoc(this, info);
             if (result <= 0)
             {
                 WIN32_ERROR error = (WIN32_ERROR)Marshal.GetLastPInvokeError();
@@ -75,7 +75,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
 
         base.OnStartPage(document, e);
         e.PageSettings.CopyToHdevmode(_modeHandle);
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(_modeHandle);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(_modeHandle);
         try
         {
             HDC result = PInvoke.ResetDCW(_hdc, devmode);
@@ -83,7 +83,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
         }
         finally
         {
-            PInvokeCore.GlobalUnlock(_modeHandle);
+            PInvoke.GlobalUnlock(_modeHandle);
         }
 
         _graphics = Graphics.FromHdcInternal(_hdc);
@@ -91,10 +91,10 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
         if (document.OriginAtMargins)
         {
             // Adjust the origin of the graphics object to be at the user-specified margin location.
-            int dpiX = PInvokeCore.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-            int dpiY = PInvokeCore.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
-            int hardMarginX_DU = PInvokeCore.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX);
-            int hardMarginY_DU = PInvokeCore.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY);
+            int dpiX = PInvoke.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+            int dpiY = PInvoke.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+            int hardMarginX_DU = PInvoke.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETX);
+            int hardMarginY_DU = PInvoke.GetDeviceCaps(_hdc, GET_DEVICE_CAPS_INDEX.PHYSICALOFFSETY);
             float hardMarginX = hardMarginX_DU * 100 / dpiX;
             float hardMarginY = hardMarginY_DU * 100 / dpiY;
 
@@ -102,7 +102,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
             _graphics.TranslateTransform(document.DefaultPageSettings.Margins.Left, document.DefaultPageSettings.Margins.Top);
         }
 
-        int result2 = PInvoke.StartPage(this);
+        int result2 = PInvokeDrawing.StartPage(this);
         return result2 <= 0 ? throw new Win32Exception() : _graphics;
     }
 
@@ -115,7 +115,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
 
         try
         {
-            int result = PInvoke.EndPage(this);
+            int result = PInvokeDrawing.EndPage(this);
             if (result <= 0)
             {
                 throw new Win32Exception();
@@ -141,7 +141,7 @@ public unsafe class StandardPrintController : PrintController, IHandle<HDC>
         {
             try
             {
-                int result = e.Cancel ? PInvoke.AbortDoc(this) : PInvoke.EndDoc(this);
+                int result = e.Cancel ? PInvokeDrawing.AbortDoc(this) : PInvokeDrawing.EndDoc(this);
                 if (result <= 0)
                     throw new Win32Exception();
             }

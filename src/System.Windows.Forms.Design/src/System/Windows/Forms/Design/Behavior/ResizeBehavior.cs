@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -644,7 +644,7 @@ internal class ResizeBehavior : Behavior
             // E.g., We resize control to 50px, LayoutEngine lays out and finds 50px was too small
             // and resized back to 100px. This is what should happen, but it looks bad in the designer.
             // To avoid the flicker we temporarily turn off painting while we do the resize.
-            PInvokeCore.SendMessage(control, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+            PInvoke.SendMessage(control, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
             try
             {
                 bool fRTL = false;
@@ -830,7 +830,7 @@ internal class ResizeBehavior : Behavior
             {
                 // While we were resizing we discarded painting messages to reduce flicker.
                 // We now turn painting back on and manually refresh the controls.
-                PInvokeCore.SendMessage(control, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                PInvoke.SendMessage(control, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                 // update the control
                 if (needToUpdate)
                 {

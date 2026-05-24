@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Buffers;
@@ -160,9 +160,9 @@ public partial class Control
             _activeXState = default;
             _ambientProperties =
             [
-                new("Font", PInvokeCore.DISPID_AMBIENT_FONT),
-                new("BackColor", PInvokeCore.DISPID_AMBIENT_BACKCOLOR),
-                new("ForeColor", PInvokeCore.DISPID_AMBIENT_FORECOLOR)
+                new("Font", PInvoke.DISPID_AMBIENT_FONT),
+                new("BackColor", PInvoke.DISPID_AMBIENT_BACKCOLOR),
+                new("ForeColor", PInvoke.DISPID_AMBIENT_FORECOLOR)
             ];
         }
 
@@ -176,11 +176,11 @@ public partial class Control
         {
             get
             {
-                AmbientProperty property = LookupAmbient(PInvokeCore.DISPID_AMBIENT_BACKCOLOR);
+                AmbientProperty property = LookupAmbient(PInvoke.DISPID_AMBIENT_BACKCOLOR);
 
                 if (property.Empty)
                 {
-                    using VARIANT value = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_BACKCOLOR);
+                    using VARIANT value = GetAmbientProperty(PInvoke.DISPID_AMBIENT_BACKCOLOR);
                     if (value.vt is VARENUM.VT_I4 or VARENUM.VT_INT)
                     {
                         property.Value = ColorTranslator.FromOle(value.data.intVal);
@@ -201,11 +201,11 @@ public partial class Control
         {
             get
             {
-                AmbientProperty property = LookupAmbient(PInvokeCore.DISPID_AMBIENT_FONT);
+                AmbientProperty property = LookupAmbient(PInvoke.DISPID_AMBIENT_FONT);
 
                 if (property.Empty)
                 {
-                    using VARIANT value = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_FONT);
+                    using VARIANT value = GetAmbientProperty(PInvoke.DISPID_AMBIENT_FONT);
                     if (value.vt == VARENUM.VT_UNKNOWN)
                     {
                         using var font = ComScope<IFont>.TryQueryFrom(value.data.punkVal, out HRESULT hr);
@@ -237,11 +237,11 @@ public partial class Control
         {
             get
             {
-                AmbientProperty property = LookupAmbient(PInvokeCore.DISPID_AMBIENT_FORECOLOR);
+                AmbientProperty property = LookupAmbient(PInvoke.DISPID_AMBIENT_FORECOLOR);
 
                 if (property.Empty)
                 {
-                    using VARIANT value = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_FORECOLOR);
+                    using VARIANT value = GetAmbientProperty(PInvoke.DISPID_AMBIENT_FORECOLOR);
                     if (value.vt is VARENUM.VT_I4 or VARENUM.VT_INT)
                     {
                         property.Value = ColorTranslator.FromOle(value.data.intVal);
@@ -280,8 +280,8 @@ public partial class Control
                 {
                     s_logPixels = default;
                     using var dc = GetDcScope.ScreenDC;
-                    s_logPixels.X = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-                    s_logPixels.Y = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+                    s_logPixels.X = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+                    s_logPixels.Y = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
                 }
 
                 return s_logPixels;
@@ -360,7 +360,7 @@ public partial class Control
                         HWND hwndMap = hwnd.IsNull ? hwndParent : hwnd;
                         Point pt = new(PARAM.LOWORD(lpmsg->lParam), PARAM.HIWORD(lpmsg->lParam));
 
-                        PInvokeCore.MapWindowPoints(hwndMap, _control, ref pt);
+                        PInvoke.MapWindowPoints(hwndMap, _control, ref pt);
 
                         // Check to see if this message should really go to a child control, and if so, map the
                         // point into that child's window coordinates.
@@ -374,13 +374,13 @@ public partial class Control
                         lpmsg->lParam = PARAM.FromPoint(pt);
                     }
 
-                    if (lpmsg->message == PInvokeCore.WM_KEYDOWN && lpmsg->wParam == (WPARAM)(nuint)VIRTUAL_KEY.VK_TAB)
+                    if (lpmsg->message == PInvoke.WM_KEYDOWN && lpmsg->wParam == (WPARAM)(nuint)VIRTUAL_KEY.VK_TAB)
                     {
                         target.SelectNextControl(null, ModifierKeys != Keys.Shift, tabStopOnly: true, nested: true, wrap: true);
                     }
                     else
                     {
-                        PInvokeCore.SendMessage(target, lpmsg->message, lpmsg->wParam, lpmsg->lParam);
+                        PInvoke.SendMessage(target, lpmsg->message, lpmsg->wParam, lpmsg->lParam);
                     }
 
                     break;
@@ -431,7 +431,7 @@ public partial class Control
             // supported on classic metafiles. We throw VIEW_E_DRAW in the hope that
             // the caller figures it out and sends us a different DC.
 
-            OBJ_TYPE hdcType = (OBJ_TYPE)PInvokeCore.GetObjectType(hdcDraw);
+            OBJ_TYPE hdcType = (OBJ_TYPE)PInvoke.GetObjectType(hdcDraw);
             if (hdcType == OBJ_TYPE.OBJ_METADC)
             {
                 return HRESULT.VIEW_E_DRAW;
@@ -460,7 +460,7 @@ public partial class Control
                 Point p2 = new(rc.right - rc.left, rc.bottom - rc.top);
                 PInvoke.LPtoDP(hdcDraw, [p1, p2]);
 
-                iMode = (HDC_MAP_MODE)PInvokeCore.SetMapMode(hdcDraw, HDC_MAP_MODE.MM_ANISOTROPIC);
+                iMode = (HDC_MAP_MODE)PInvoke.SetMapMode(hdcDraw, HDC_MAP_MODE.MM_ANISOTROPIC);
                 PInvoke.SetWindowOrgEx(hdcDraw, 0, 0, &pW);
                 PInvoke.SetWindowExtEx(hdcDraw, _control.Width, _control.Height, (SIZE*)&sWindowExt);
                 PInvoke.SetViewportOrgEx(hdcDraw, p1.X, p1.Y, &pVp);
@@ -473,7 +473,7 @@ public partial class Control
                 nint flags = PInvoke.PRF_CHILDREN | PInvoke.PRF_CLIENT | PInvoke.PRF_ERASEBKGND | PInvoke.PRF_NONCLIENT;
                 if (hdcType != OBJ_TYPE.OBJ_ENHMETADC)
                 {
-                    PInvokeCore.SendMessage(_control, PInvokeCore.WM_PRINT, (WPARAM)hdcDraw, (LPARAM)flags);
+                    PInvoke.SendMessage(_control, PInvoke.WM_PRINT, (WPARAM)hdcDraw, (LPARAM)flags);
                 }
                 else
                 {
@@ -489,7 +489,7 @@ public partial class Control
                     PInvoke.SetWindowExtEx(hdcDraw, sWindowExt.Width, sWindowExt.Height, lpsz: null);
                     PInvoke.SetViewportOrgEx(hdcDraw, pVp.X, pVp.Y, lppt: null);
                     PInvoke.SetViewportExtEx(hdcDraw, sViewportExt.Width, sViewportExt.Height, lpsz: null);
-                    PInvokeCore.SetMapMode(hdcDraw, iMode);
+                    PInvoke.SetMapMode(hdcDraw, iMode);
                 }
             }
 
@@ -595,7 +595,7 @@ public partial class Control
                 return property;
             }
 
-            hr = dispatch.Value->TryGetProperty(dispid, &property, PInvoke.LCID.USER_DEFAULT.RawValue);
+            hr = dispatch.Value->TryGetProperty(dispid, &property, PInvokeForms.LCID.USER_DEFAULT.RawValue);
 
             if (hr.Failed)
             {
@@ -1255,7 +1255,7 @@ public partial class Control
         /// <inheritdoc cref="IOleControl.OnAmbientPropertyChange(int)"/>
         internal void OnAmbientPropertyChange(int dispID)
         {
-            if (dispID == PInvokeCore.DISPID_UNKNOWN)
+            if (dispID == PInvoke.DISPID_UNKNOWN)
             {
                 // Invalidate all properties. Ideally we should be checking each one, but
                 // that's pretty expensive too.
@@ -1282,8 +1282,8 @@ public partial class Control
             // Special properties that we care about
             switch (dispID)
             {
-                case PInvokeCore.DISPID_AMBIENT_UIDEAD:
-                    using (VARIANT value = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_UIDEAD))
+                case PInvoke.DISPID_AMBIENT_UIDEAD:
+                    using (VARIANT value = GetAmbientProperty(PInvoke.DISPID_AMBIENT_UIDEAD))
                     {
                         if (value.vt == VARENUM.VT_BOOL)
                         {
@@ -1293,10 +1293,10 @@ public partial class Control
 
                     break;
 
-                case PInvokeCore.DISPID_AMBIENT_DISPLAYASDEFAULT:
+                case PInvoke.DISPID_AMBIENT_DISPLAYASDEFAULT:
                     if (_control is IButtonControl ibuttonControl)
                     {
-                        using VARIANT value = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_DISPLAYASDEFAULT);
+                        using VARIANT value = GetAmbientProperty(PInvoke.DISPID_AMBIENT_DISPLAYASDEFAULT);
                         if (value.vt == VARENUM.VT_BOOL)
                         {
                             ibuttonControl.NotifyDefault(value.data.boolVal == VARIANT_BOOL.VARIANT_TRUE);
@@ -1360,16 +1360,16 @@ public partial class Control
             }
 
             // Hookup our ambient colors
-            AmbientProperty prop = LookupAmbient(PInvokeCore.DISPID_AMBIENT_BACKCOLOR);
+            AmbientProperty prop = LookupAmbient(PInvoke.DISPID_AMBIENT_BACKCOLOR);
             prop.Value = ColorTranslator.FromOle((int)pQaContainer->colorBack);
 
-            prop = LookupAmbient(PInvokeCore.DISPID_AMBIENT_FORECOLOR);
+            prop = LookupAmbient(PInvoke.DISPID_AMBIENT_FORECOLOR);
             prop.Value = ColorTranslator.FromOle((int)pQaContainer->colorFore);
 
             // And our ambient font
             if (pQaContainer->pFont is not null)
             {
-                prop = LookupAmbient(PInvokeCore.DISPID_AMBIENT_FONT);
+                prop = LookupAmbient(PInvoke.DISPID_AMBIENT_FONT);
 
                 try
                 {
@@ -1649,7 +1649,7 @@ public partial class Control
             }
 
             // Get the ambient properties that effect us.
-            using VARIANT property = GetAmbientProperty(PInvokeCore.DISPID_AMBIENT_UIDEAD);
+            using VARIANT property = GetAmbientProperty(PInvoke.DISPID_AMBIENT_UIDEAD);
             if (property.vt == VARENUM.VT_BOOL)
             {
                 bool uiDead = property.data.boolVal == VARIANT_BOOL.VARIANT_TRUE;
@@ -1809,7 +1809,7 @@ public partial class Control
                     RECT rcIntersect = intersect;
                     HWND hWndParent = PInvoke.GetParent(_control);
 
-                    PInvokeCore.MapWindowPoints(hWndParent, _control, ref rcIntersect);
+                    PInvoke.MapWindowPoints(hWndParent, _control, ref rcIntersect);
 
                     _lastClipRect = rcIntersect;
                     setRegion = true;
@@ -1847,10 +1847,10 @@ public partial class Control
             bool needPreProcess = false;
             switch (lpmsg->message)
             {
-                case PInvokeCore.WM_KEYDOWN:
-                case PInvokeCore.WM_SYSKEYDOWN:
-                case PInvokeCore.WM_CHAR:
-                case PInvokeCore.WM_SYSCHAR:
+                case PInvoke.WM_KEYDOWN:
+                case PInvoke.WM_SYSKEYDOWN:
+                case PInvoke.WM_CHAR:
+                case PInvoke.WM_SYSCHAR:
                     needPreProcess = true;
                     break;
             }
@@ -1883,7 +1883,7 @@ public partial class Control
                             }
                             else
                             {
-                                PInvoke.DispatchMessageA(lpmsg);
+                                PInvokeForms.DispatchMessageA(lpmsg);
                             }
 
                             return HRESULT.S_OK;
@@ -2109,7 +2109,7 @@ public partial class Control
                     return;
                 }
 
-                if (m.Msg is >= ((int)PInvokeCore.WM_NCLBUTTONDOWN) and <= ((int)PInvokeCore.WM_NCMBUTTONDBLCLK))
+                if (m.Msg is >= ((int)PInvoke.WM_NCLBUTTONDOWN) and <= ((int)PInvoke.WM_NCMBUTTONDBLCLK))
                 {
                     return;
                 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -599,7 +599,7 @@ public class DragDropTests : ControlTestBase
     private unsafe bool TryGetUIAutomation(IUIAutomation** uiAutomation)
     {
         Guid CLSID_CUIAutomation = new("FF48DBA4-60EF-4201-AA87-54103EEF594E");
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             in CLSID_CUIAutomation,
             pUnkOuter: null,
             CLSCTX.CLSCTX_INPROC_SERVER,

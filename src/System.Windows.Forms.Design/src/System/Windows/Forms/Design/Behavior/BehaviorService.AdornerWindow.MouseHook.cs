@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.Design;
@@ -71,7 +71,7 @@ public sealed partial class BehaviorService
                     if (_thisProcessID == 0)
                     {
                         AdornerWindow adornerWindow = s_adornerWindowList[0];
-                        PInvokeCore.GetWindowThreadProcessId(adornerWindow, out _thisProcessID);
+                        PInvoke.GetWindowThreadProcessId(adornerWindow, out _thisProcessID);
                     }
 
                     _callBack = MouseHookProc;
@@ -80,7 +80,7 @@ public sealed partial class BehaviorService
                         WINDOWS_HOOK_ID.WH_MOUSE,
                         (delegate* unmanaged[Stdcall]<int, WPARAM, LPARAM, LRESULT>)hook,
                         HINSTANCE.Null,
-                        PInvokeCore.GetCurrentThreadId());
+                        PInvoke.GetCurrentThreadId());
 
                     _isHooked = _mouseHookHandle != 0;
 
@@ -165,7 +165,7 @@ public sealed partial class BehaviorService
                         Debug.Assert(_thisProcessID != 0, "Didn't get our process id!");
 
                         // Make sure the window is in our process
-                        PInvokeCore.GetWindowThreadProcessId(hwnd, out uint pid);
+                        PInvoke.GetWindowThreadProcessId(hwnd, out uint pid);
 
                         // If this isn't our process, bail
                         if (pid != _thisProcessID)
@@ -180,11 +180,11 @@ public sealed partial class BehaviorService
                             Message m = Message.Create(hwnd, msg, 0u, PARAM.FromLowHigh(pt.Y, pt.X));
 
                             // No one knows why we get an extra click here from VS. As a workaround, we check the TimeStamp and discard it.
-                            if (m.Msg == (int)PInvokeCore.WM_LBUTTONDOWN)
+                            if (m.Msg == (int)PInvoke.WM_LBUTTONDOWN)
                             {
                                 _lastLButtonDownTimeStamp = PInvoke.GetMessageTime();
                             }
-                            else if (m.Msg == (int)PInvokeCore.WM_LBUTTONDBLCLK)
+                            else if (m.Msg == (int)PInvoke.WM_LBUTTONDBLCLK)
                             {
                                 int lButtonDoubleClickTimeStamp = PInvoke.GetMessageTime();
                                 if (lButtonDoubleClickTimeStamp == _lastLButtonDownTimeStamp)

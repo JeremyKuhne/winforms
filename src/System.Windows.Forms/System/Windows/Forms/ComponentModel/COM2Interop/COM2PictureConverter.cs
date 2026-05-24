@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -22,7 +22,7 @@ internal sealed unsafe class Com2PictureConverter : Com2DataTypeToManagedDataTyp
 
     public Com2PictureConverter(Com2PropertyDescriptor property)
     {
-        if (property.DISPID == PInvokeCore.DISPID_MOUSEICON || property.Name.Contains("Icon"))
+        if (property.DISPID == PInvoke.DISPID_MOUSEICON || property.Name.Contains("Icon"))
         {
             _pictureType = typeof(Icon);
         }
@@ -118,7 +118,7 @@ internal sealed unsafe class Com2PictureConverter : Com2DataTypeToManagedDataTyp
             }
 
             using ComScope<IPicture> picture = new(null);
-            PInvokeCore.OleCreatePictureIndirect(&pictdesc, IID.Get<IPicture>(), own, picture).ThrowOnFailure();
+            PInvoke.OleCreatePictureIndirect(&pictdesc, IID.Get<IPicture>(), own, picture).ThrowOnFailure();
             _lastManaged = managedValue;
             picture.Value->get_Handle(out _lastNativeHandle).ThrowOnFailure();
             IUnknown* unknown;

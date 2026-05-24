@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -6,7 +6,7 @@ using Windows.Win32.UI.Controls.Dialogs;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PInvokeForms
 {
     [DllImport("COMDLG32.dll", ExactSpelling = true, EntryPoint = "PrintDlgW")]
     internal static extern unsafe BOOL PrintDlg(PRINTDLGW_64* pPD);

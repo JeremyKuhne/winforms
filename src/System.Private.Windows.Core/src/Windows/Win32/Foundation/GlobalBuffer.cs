@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Memory;
@@ -22,7 +22,7 @@ internal unsafe ref struct GlobalBuffer
             return;
         }
 
-        _hglobal = PInvokeCore.GlobalReAlloc(
+        _hglobal = PInvoke.GlobalReAlloc(
             hglobal,
             length,
             (uint)GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE);
@@ -33,7 +33,7 @@ internal unsafe ref struct GlobalBuffer
             return;
         }
 
-        _pointer = PInvokeCore.GlobalLock(_hglobal);
+        _pointer = PInvoke.GlobalLock(_hglobal);
         if (_pointer is null)
         {
             Status = HRESULT.E_OUTOFMEMORY;
@@ -53,7 +53,7 @@ internal unsafe ref struct GlobalBuffer
     {
         if (!_hglobal.IsNull)
         {
-            PInvokeCore.GlobalUnlock(_hglobal);
+            PInvoke.GlobalUnlock(_hglobal);
             _buffer = default;
             _pointer = null;
             _hglobal = HGLOBAL.Null;

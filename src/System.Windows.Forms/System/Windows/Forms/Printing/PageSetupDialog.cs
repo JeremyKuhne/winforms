@@ -285,9 +285,10 @@ public sealed class PageSetupDialog : CommonDialog
             Span<char> buffer = stackalloc char[2];
             int result;
             fixed (char* pBuffer = buffer)
+            fixed (char* pLocale = PInvoke.LOCALE_NAME_SYSTEM_DEFAULT)
             {
                 result = PInvoke.GetLocaleInfoEx(
-                    PInvoke.LOCALE_NAME_SYSTEM_DEFAULT,
+                    pLocale,
                     PInvoke.LOCALE_IMEASURE,
                     pBuffer,
                     buffer.Length);
@@ -331,7 +332,7 @@ public sealed class PageSetupDialog : CommonDialog
 
         try
         {
-            if (!PInvoke.PageSetupDlg(&dialogSettings))
+            if (!PInvokeForms.PageSetupDlg(&dialogSettings))
             {
                 return false;
             }
@@ -342,8 +343,8 @@ public sealed class PageSetupDialog : CommonDialog
         }
         finally
         {
-            PInvokeCore.GlobalFree(dialogSettings.hDevMode);
-            PInvokeCore.GlobalFree(dialogSettings.hDevNames);
+            PInvoke.GlobalFree(dialogSettings.hDevMode);
+            PInvoke.GlobalFree(dialogSettings.hDevNames);
         }
     }
 }

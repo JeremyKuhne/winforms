@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -24,10 +24,10 @@ internal readonly ref struct CreatePenScope
 
     /// <summary>
     ///  Creates a solid pen based on the <paramref name="color"/> and <paramref name="width"/> using
-    ///  <see cref="PInvokeCore.CreatePen(PEN_STYLE, int, COLORREF)" />.
+    ///  <see cref="PInvoke.CreatePen(PEN_STYLE, int, COLORREF)" />.
     /// </summary>
     public CreatePenScope(Color color, int width = 1) =>
-        HPEN = PInvokeCore.CreatePen(PEN_STYLE.PS_SOLID, width, color);
+        HPEN = PInvoke.CreatePen(PEN_STYLE.PS_SOLID, width, color);
 
     public static implicit operator HPEN(in CreatePenScope scope) => scope.HPEN;
     public static unsafe implicit operator HGDIOBJ(in CreatePenScope scope) => scope.HPEN;
@@ -38,7 +38,7 @@ internal readonly ref struct CreatePenScope
     {
         if (!HPEN.IsNull)
         {
-            PInvokeCore.DeleteObject(HPEN);
+            PInvoke.DeleteObject(HPEN);
         }
 
 #if DEBUG

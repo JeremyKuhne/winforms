@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -51,7 +51,7 @@ internal class TreeViewDesigner : ControlDesigner
     {
         point = Control.PointToClient(point);
         _tvhit.pt = point;
-        PInvokeCore.SendMessage(Control, PInvoke.TVM_HITTEST, 0, ref _tvhit);
+        PInvoke.SendMessage(Control, PInvoke.TVM_HITTEST, 0, ref _tvhit);
         return _tvhit.flags == TVHITTESTINFO_FLAGS.TVHT_ONITEMBUTTON;
     }
 

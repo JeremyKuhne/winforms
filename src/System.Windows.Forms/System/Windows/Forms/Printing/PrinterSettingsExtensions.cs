@@ -23,7 +23,7 @@ internal static class PrinterSettingsExtensions
 
         fixed (char* n = printerSettings.PrinterName)
         {
-            modeSize = PInvoke.DocumentProperties(HWND.Null, HANDLE.Null, n, null, (DEVMODEW*)null, 0);
+            modeSize = PInvoke.DocumentProperties(HWND.Null, default(global::Windows.Win32.Graphics.Printing.PRINTER_HANDLE), n, null, (DEVMODEW*)null, 0);
             if (modeSize < 1)
             {
                 throw new InvalidPrinterException(printerSettings);
@@ -37,7 +37,7 @@ internal static class PrinterSettingsExtensions
         {
             modeSize = PInvoke.DocumentProperties(
                 HWND.Null,
-                HANDLE.Null,
+                default(global::Windows.Win32.Graphics.Printing.PRINTER_HANDLE),
                 n,
                 (DEVMODEW*)b,
                 (DEVMODEW*)null,

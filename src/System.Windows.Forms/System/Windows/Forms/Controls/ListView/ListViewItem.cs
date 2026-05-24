@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -877,7 +877,7 @@ public partial class ListViewItem : ICloneable, ISerializable
                 lv.Focus();
             }
 
-            PInvokeCore.SendMessage(lv, PInvoke.LVM_EDITLABELW, (WPARAM)Index);
+            PInvoke.SendMessage(lv, PInvoke.LVM_EDITLABELW, (WPARAM)Index);
         }
     }
 
@@ -1096,15 +1096,15 @@ public partial class ListViewItem : ICloneable, ISerializable
             lvItem.mask |= LIST_VIEW_ITEM_FLAGS.LVIF_GROUPID;
             lvItem.iGroupId = _listView.GetNativeGroupId(this);
 
-            nint result = PInvokeCore.SendMessage(_listView, PInvoke.LVM_ISGROUPVIEWENABLED);
+            nint result = PInvoke.SendMessage(_listView, PInvoke.LVM_ISGROUPVIEWENABLED);
             Debug.Assert(!updateOwner || result != 0, "Groups not enabled");
-            result = PInvokeCore.SendMessage(_listView, PInvoke.LVM_HASGROUP, (WPARAM)lvItem.iGroupId);
+            result = PInvoke.SendMessage(_listView, PInvoke.LVM_HASGROUP, (WPARAM)lvItem.iGroupId);
             Debug.Assert(!updateOwner || result != 0, $"Doesn't contain group id: {lvItem.iGroupId}");
         }
 
         if (updateOwner)
         {
-            PInvokeCore.SendMessage(_listView, PInvoke.LVM_SETITEMW, 0, ref lvItem);
+            PInvoke.SendMessage(_listView, PInvoke.LVM_SETITEMW, 0, ref lvItem);
         }
     }
 
@@ -1133,7 +1133,7 @@ public partial class ListViewItem : ICloneable, ISerializable
             }
 
             lvItem.iItem = displayIndex;
-            PInvokeCore.SendMessage(_listView, PInvoke.LVM_GETITEMW, 0, ref lvItem);
+            PInvoke.SendMessage(_listView, PInvoke.LVM_GETITEMW, 0, ref lvItem);
 
             // Update this class' information
             if (checkSelection)

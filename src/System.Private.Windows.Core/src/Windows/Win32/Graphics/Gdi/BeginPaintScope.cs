@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -6,7 +6,7 @@ using System.Drawing;
 namespace Windows.Win32.Graphics.Gdi;
 
 /// <summary>
-///  Helper to scope lifetime of an HDC retrieved via <see cref="PInvokeCore.BeginPaint(HWND, out PAINTSTRUCT)"/>
+///  Helper to scope lifetime of an HDC retrieved via <see cref="PInvoke.BeginPaint(HWND, out PAINTSTRUCT)"/>
 /// </summary>
 /// <remarks>
 ///  <para>
@@ -28,7 +28,7 @@ internal readonly ref struct BeginPaintScope
 
     public BeginPaintScope(HWND hwnd)
     {
-        HDC = PInvokeCore.BeginPaint(hwnd, out _paintStruct);
+        HDC = PInvoke.BeginPaint(hwnd, out _paintStruct);
         HWND = hwnd;
     }
 
@@ -38,7 +38,7 @@ internal readonly ref struct BeginPaintScope
     {
         if (!HDC.IsNull)
         {
-            PInvokeCore.EndPaint(HWND, _paintStruct);
+            PInvoke.EndPaint(HWND, _paintStruct);
         }
 
 #if DEBUG

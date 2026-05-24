@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -37,7 +37,7 @@ internal readonly ref struct DeviceContextHdcScope
     /// <remarks>
     ///  <para>
     ///   When a <see cref="T:System.Drawing.Graphics"/> object is created from a <see cref="Gdi.HDC"/> the clipping region and
-    ///   the viewport origin are applied (<see cref="PInvokeCore.GetViewportExtEx(HDC, SIZE*)"/>). The clipping
+    ///   the viewport origin are applied (<see cref="PInvoke.GetViewportExtEx(HDC, SIZE*)"/>). The clipping
     ///   region isn't reflected in <see cref="P:System.Drawing.Graphics.Clip"/>, which is combined with the HDC HRegion.
     ///  </para>
     ///  <para>
@@ -140,7 +140,7 @@ internal readonly ref struct DeviceContextHdcScope
         {
             HDC = HDC.IsNull ? DeviceContext.GetHdc() : HDC;
             ValidateHDC();
-            _savedHdcState = saveHdcState ? PInvokeCore.SaveDC(HDC) : 0;
+            _savedHdcState = saveHdcState ? PInvoke.SaveDC(HDC) : 0;
             return;
         }
 
@@ -166,7 +166,7 @@ internal readonly ref struct DeviceContextHdcScope
             throw new InvalidOperationException("Null HDC");
         }
 
-        OBJ_TYPE type = (OBJ_TYPE)PInvokeCore.GetObjectType(HDC);
+        OBJ_TYPE type = (OBJ_TYPE)PInvoke.GetObjectType(HDC);
         switch (type)
         {
             case OBJ_TYPE.OBJ_DC:
@@ -186,7 +186,7 @@ internal readonly ref struct DeviceContextHdcScope
     {
         if (_savedHdcState != 0)
         {
-            PInvokeCore.RestoreDC(HDC, _savedHdcState);
+            PInvoke.RestoreDC(HDC, _savedHdcState);
         }
 
         // Note that Graphics keeps track of the HDC it passes back, so we don't need to pass it back in

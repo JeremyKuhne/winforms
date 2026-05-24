@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -44,7 +44,7 @@ public class AxHostPropertyDescriptorTests
         Assert.Equal("Misc", Assert.IsType<CategoryAttribute>(property.Attributes[typeof(CategoryAttribute)]).Category);
         Assert.Empty(Assert.IsType<DescriptionAttribute>(property.Attributes[typeof(DescriptionAttribute)]).Description);
         Assert.False(Assert.IsType<ReadOnlyAttribute>(property.Attributes[typeof(ReadOnlyAttribute)]).IsReadOnly);
-        Assert.Equal(PInvokeCore.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
+        Assert.Equal(PInvoke.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
         Assert.False(control.IsHandleCreated);
     }
 
@@ -60,7 +60,7 @@ public class AxHostPropertyDescriptorTests
         Assert.Equal("Misc", Assert.IsType<CategoryAttribute>(property.Attributes[typeof(CategoryAttribute)]).Category);
         Assert.Empty(Assert.IsType<DescriptionAttribute>(property.Attributes[typeof(DescriptionAttribute)]).Description);
         Assert.False(Assert.IsType<ReadOnlyAttribute>(property.Attributes[typeof(ReadOnlyAttribute)]).IsReadOnly);
-        Assert.Equal(PInvokeCore.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
+        Assert.Equal(PInvoke.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
         Assert.False(control.IsHandleCreated);
     }
 
@@ -76,7 +76,7 @@ public class AxHostPropertyDescriptorTests
         Assert.Equal("Misc", Assert.IsType<CategoryAttribute>(property.Attributes[typeof(CategoryAttribute)]).Category);
         Assert.Empty(Assert.IsType<DescriptionAttribute>(property.Attributes[typeof(DescriptionAttribute)]).Description);
         Assert.True(Assert.IsType<ReadOnlyAttribute>(property.Attributes[typeof(ReadOnlyAttribute)]).IsReadOnly);
-        Assert.Equal(PInvokeCore.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
+        Assert.Equal(PInvoke.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
         Assert.False(control.IsHandleCreated);
     }
 
@@ -92,7 +92,7 @@ public class AxHostPropertyDescriptorTests
         Assert.Equal("Misc", Assert.IsType<CategoryAttribute>(property.Attributes[typeof(CategoryAttribute)]).Category);
         Assert.Empty(Assert.IsType<DescriptionAttribute>(property.Attributes[typeof(DescriptionAttribute)]).Description);
         Assert.True(Assert.IsType<ReadOnlyAttribute>(property.Attributes[typeof(ReadOnlyAttribute)]).IsReadOnly);
-        Assert.Equal(PInvokeCore.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
+        Assert.Equal(PInvoke.DISPID_TEXT, Assert.IsType<DispIdAttribute>(property.Attributes[typeof(DispIdAttribute)]).Value);
         Assert.False(control.IsHandleCreated);
     }
 
@@ -1422,7 +1422,7 @@ public class AxHostPropertyDescriptorTests
         [Category("Category")]
         public string CategoryProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [Description("Description")]
         public string DescriptionProperty { get; set; }
 
@@ -1432,30 +1432,30 @@ public class AxHostPropertyDescriptorTests
         [ReadOnly(true)]
         public string ReadOnlyProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         public string DispIdProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         public DataSource DispIdDataSourceProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [Browsable(false)]
         public string DispIdNotBrowsableProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [ReadOnly(true)]
         public string DispIdReadOnlyProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [ReadOnly(true)]
         [Browsable(false)]
         public string DispIdNotBrowsableReadOnlyProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [Editor(typeof(CustomEditor), typeof(object))]
         public string DispIdEditorProperty { get; set; }
 
-        [DispId(PInvokeCore.DISPID_TEXT)]
+        [DispId(PInvoke.DISPID_TEXT)]
         [Editor(typeof(CustomUITypeEditor), typeof(UITypeEditor))]
         public string DispIdUITypeEditorProperty { get; set; }
     }

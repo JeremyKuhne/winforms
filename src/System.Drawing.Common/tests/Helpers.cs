@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
@@ -125,7 +125,7 @@ public static unsafe class Helpers
 
     public static Color EmptyColor => Color.FromArgb(0, 0, 0, 0);
 
-    internal static Rectangle GetWindowDCRect(HDC hdc) => GetHWndRect(PInvokeCore.WindowFromDC(hdc));
+    internal static Rectangle GetWindowDCRect(HDC hdc) => GetHWndRect(PInvoke.WindowFromDC(hdc));
 
     internal static Rectangle GetHWndRect(HWND hwnd)
     {
@@ -134,13 +134,13 @@ public static unsafe class Helpers
             return GetMonitorRectForWindow(hwnd);
         }
 
-        PInvokeCore.GetClientRect(hwnd, out RECT rect);
+        PInvoke.GetClientRect(hwnd, out RECT rect);
         return rect;
     }
 
     private static Rectangle GetMonitorRectForWindow(HWND hwnd)
     {
-        HMONITOR hmonitor = PInvokeCore.MonitorFromWindow(hwnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
+        HMONITOR hmonitor = PInvoke.MonitorFromWindow(hwnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
         ((nint)hmonitor.Value).Should().NotBe(0);
 
         MONITORINFO info = new()
@@ -148,7 +148,7 @@ public static unsafe class Helpers
             cbSize = (uint)sizeof(MONITORINFO)
         };
 
-        PInvokeCore.GetMonitorInfo(hmonitor, ref info).Should().Be(BOOL.TRUE);
+        PInvoke.GetMonitorInfo(hmonitor, ref info).Should().Be(BOOL.TRUE);
         return info.rcMonitor;
     }
 

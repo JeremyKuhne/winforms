@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -52,7 +52,7 @@ internal static unsafe class GpImageExtensions
     {
         PICTDESC desc = image.CreatePICTDESC();
         ComScope<IPictureDisp> picture = new(null);
-        PInvokeCore.OleCreatePictureIndirect(&desc, IID.Get<IPictureDisp>(), fOwn: true, picture).ThrowOnFailure();
+        PInvoke.OleCreatePictureIndirect(&desc, IID.Get<IPictureDisp>(), fOwn: true, picture).ThrowOnFailure();
         return picture;
     }
 
@@ -67,7 +67,7 @@ internal static unsafe class GpImageExtensions
     {
         PICTDESC desc = image.CreatePICTDESC();
         ComScope<IPicture> picture = new(null);
-        PInvokeCore.OleCreatePictureIndirect(&desc, IID.Get<IPicture>(), fOwn: true, picture).ThrowOnFailure();
+        PInvoke.OleCreatePictureIndirect(&desc, IID.Get<IPicture>(), fOwn: true, picture).ThrowOnFailure();
         return picture;
     }
 }

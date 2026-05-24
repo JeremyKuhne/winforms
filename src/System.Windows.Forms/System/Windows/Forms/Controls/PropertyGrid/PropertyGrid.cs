@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -593,7 +593,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
             {
                 if (_paintFrozen++ == 0)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
                 }
             }
 
@@ -606,7 +606,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
 
                 if (--_paintFrozen == 0)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                     Invalidate(true);
                 }
             }
@@ -2373,7 +2373,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
 
             // This is so changes to names of native objects will be reflected in the combo box.
             object? obj = GetUnwrappedObject(0);
-            if ((ComNativeDescriptor.IsNameDispId(obj, dispID) || dispID == PInvokeCore.DISPID_Name) && obj is not null)
+            if ((ComNativeDescriptor.IsNameDispId(obj, dispID) || dispID == PInvoke.DISPID_Name) && obj is not null)
             {
                 OnComComponentNameChanged(new ComponentRenameEventArgs(obj, oldName: null, TypeDescriptor.GetClassName(obj)));
             }
@@ -4250,7 +4250,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_UNDO:
+            case PInvoke.WM_UNDO:
                 if (m.LParamInternal == 0)
                 {
                     _gridView.DoUndoCommand();
@@ -4261,7 +4261,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
                 }
 
                 return;
-            case PInvokeCore.WM_CUT:
+            case PInvoke.WM_CUT:
                 if (m.LParamInternal == 0)
                 {
                     _gridView.DoCutCommand();
@@ -4273,7 +4273,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
 
                 return;
 
-            case PInvokeCore.WM_COPY:
+            case PInvoke.WM_COPY:
                 if (m.LParamInternal == 0)
                 {
                     _gridView.DoCopyCommand();
@@ -4285,7 +4285,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
 
                 return;
 
-            case PInvokeCore.WM_PASTE:
+            case PInvoke.WM_PASTE:
                 if (m.LParamInternal == 0)
                 {
                     _gridView.DoPasteCommand();
@@ -4297,7 +4297,7 @@ public partial class PropertyGrid : ContainerControl, IComPropertyBrowser, IProp
 
                 return;
 
-            case PInvokeCore.WM_COPYDATA:
+            case PInvoke.WM_COPYDATA:
                 var cds = (COPYDATASTRUCT*)(nint)m.LParamInternal;
 
                 if (cds is not null && cds->lpData is not null)

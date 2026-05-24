@@ -1,5 +1,7 @@
 {
   "$schema": "https://aka.ms/CsWin32.schema.json",
+  "className": "PInvokeDrawing",
+  "extensionReceiver": "PInvoke",
   "allowMarshaling": false,
   "useSafeHandles": false,
   "public": false,

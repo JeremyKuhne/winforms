@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -15,7 +15,7 @@ public unsafe class ClassPropertyDispatchAdapterTests
         TestClass testClass = new();
         ClassPropertyDispatchAdapter adapter = new(testClass);
 
-        adapter.TryGetNextDispId(PInvokeCore.DISPID_STARTENUM, out int result).Should().BeTrue();
+        adapter.TryGetNextDispId(PInvoke.DISPID_STARTENUM, out int result).Should().BeTrue();
         result.Should().Be(0x10000);
         adapter.TryGetMemberName(result, out string? name).Should().BeTrue();
         name.Should().Be("Value");

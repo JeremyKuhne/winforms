@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -273,7 +273,7 @@ public abstract partial class TextBoxBase : Control
     ///  Gets or sets the background color of the control.
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
-    [DispId(PInvokeCore.DISPID_BACKCOLOR)]
+    [DispId(PInvoke.DISPID_BACKCOLOR)]
     [SRDescription(nameof(SR.ControlBackColorDescr))]
     public override Color BackColor
     {
@@ -344,7 +344,7 @@ public abstract partial class TextBoxBase : Control
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
     [DefaultValue(BorderStyle.Fixed3D)]
-    [DispId(PInvokeCore.DISPID_BORDERSTYLE)]
+    [DispId(PInvoke.DISPID_BORDERSTYLE)]
     [SRDescription(nameof(SR.TextBoxBorderDescr))]
     public BorderStyle BorderStyle
     {
@@ -388,7 +388,7 @@ public abstract partial class TextBoxBase : Control
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [SRDescription(nameof(SR.TextBoxCanUndoDescr))]
-    public bool CanUndo => IsHandleCreated && (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_CANUNDO) != 0;
+    public bool CanUndo => IsHandleCreated && (int)PInvoke.SendMessage(this, PInvoke.EM_CANUNDO) != 0;
 
     /// <summary>
     ///  Returns the parameters needed to create the handle. Inheriting classes
@@ -492,7 +492,7 @@ public abstract partial class TextBoxBase : Control
     ///  Gets or sets the foreground color of the control.
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
-    [DispId(PInvokeCore.DISPID_FORECOLOR)]
+    [DispId(PInvoke.DISPID_FORECOLOR)]
     [SRDescription(nameof(SR.ControlForeColorDescr))]
     public override Color ForeColor
     {
@@ -664,7 +664,7 @@ public abstract partial class TextBoxBase : Control
         {
             if (IsHandleCreated)
             {
-                bool curState = (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_GETMODIFY) != 0;
+                bool curState = (int)PInvoke.SendMessage(this, PInvoke.EM_GETMODIFY) != 0;
                 if (_textBoxFlags[s_modified] != curState)
                 {
                     // Raise ModifiedChanged event. See WmReflectCommand for more info.
@@ -686,7 +686,7 @@ public abstract partial class TextBoxBase : Control
             {
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.EM_SETMODIFY, (WPARAM)(BOOL)value);
+                    PInvoke.SendMessage(this, PInvoke.EM_SETMODIFY, (WPARAM)(BOOL)value);
                     // Must maintain this state always in order for the
                     // test in the Get method to work properly.
                 }
@@ -878,7 +878,7 @@ public abstract partial class TextBoxBase : Control
         {
             start = 0;
             int startResult = 0;
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_GETSEL, (WPARAM)(&startResult), ref end);
+            PInvoke.SendMessage(this, PInvoke.EM_GETSEL, (WPARAM)(&startResult), ref end);
             start = startResult;
 
             // Here, we return the max of either 0 or the # returned by
@@ -934,7 +934,7 @@ public abstract partial class TextBoxBase : Control
 
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.EM_SETREADONLY, (WPARAM)(BOOL)value);
+                    PInvoke.SendMessage(this, PInvoke.EM_SETREADONLY, (WPARAM)(BOOL)value);
                     EnsureReadonlyBackgroundColor(value);
                 }
 
@@ -1001,23 +1001,23 @@ public abstract partial class TextBoxBase : Control
         // The EM_LIMITTEXT message limits only the text the user can enter. It does not affect any text
         // already in the edit control when the message is sent, nor does it affect the length of the text
         // copied to the edit control by the WM_SETTEXT message.
-        PInvokeCore.SendMessage(this, PInvokeCore.EM_LIMITTEXT);
+        PInvoke.SendMessage(this, PInvoke.EM_LIMITTEXT);
 
         if (clearUndo)
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_REPLACESEL, 0, text);
+            PInvoke.SendMessage(this, PInvoke.EM_REPLACESEL, 0, text);
 
             // For consistency with Text, we clear the modified flag
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SETMODIFY);
+            PInvoke.SendMessage(this, PInvoke.EM_SETMODIFY);
             ClearUndo();
         }
         else
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_REPLACESEL, (WPARAM)(-1), text);
+            PInvoke.SendMessage(this, PInvoke.EM_REPLACESEL, (WPARAM)(-1), text);
         }
 
         // Re-enable user input.
-        PInvokeCore.SendMessage(this, PInvokeCore.EM_LIMITTEXT, (WPARAM)_maxLength);
+        PInvoke.SendMessage(this, PInvoke.EM_LIMITTEXT, (WPARAM)_maxLength);
     }
 
     /// <summary>
@@ -1085,7 +1085,7 @@ public abstract partial class TextBoxBase : Control
                 if (IsHandleCreated)
                 {
                     // clear the modified flag
-                    PInvokeCore.SendMessage(this, PInvokeCore.EM_SETMODIFY);
+                    PInvoke.SendMessage(this, PInvoke.EM_SETMODIFY);
                 }
             }
         }
@@ -1096,7 +1096,7 @@ public abstract partial class TextBoxBase : Control
         // Note: Currently WinForms does not fully support surrogates. If
         // the text contains surrogate characters this property may return incorrect values.
 
-        => IsHandleCreated ? PInvokeCore.GetWindowTextLength(this) : Text.Length;
+        => IsHandleCreated ? PInvoke.GetWindowTextLength(this) : Text.Length;
 
     internal override string WindowText
     {
@@ -1275,7 +1275,7 @@ public abstract partial class TextBoxBase : Control
     {
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_EMPTYUNDOBUFFER);
+            PInvoke.SendMessage(this, PInvoke.EM_EMPTYUNDOBUFFER);
         }
     }
 
@@ -1288,7 +1288,7 @@ public abstract partial class TextBoxBase : Control
     /// <summary>
     ///  Copies the current selection in the text box to the Clipboard.
     /// </summary>
-    public void Copy() => PInvokeCore.SendMessage(this, PInvokeCore.WM_COPY);
+    public void Copy() => PInvoke.SendMessage(this, PInvoke.WM_COPY);
 
     protected override AccessibleObject CreateAccessibilityInstance() => new TextBoxBaseAccessibleObject(this);
 
@@ -1313,7 +1313,7 @@ public abstract partial class TextBoxBase : Control
     /// <summary>
     ///  Moves the current selection in the text box to the Clipboard.
     /// </summary>
-    public void Cut() => PInvokeCore.SendMessage(this, PInvokeCore.WM_CUT);
+    public void Cut() => PInvoke.SendMessage(this, PInvoke.WM_CUT);
 
     /// <summary>
     ///  Returns the text end position (one past the last input character). This property is virtual to allow MaskedTextBox
@@ -1384,7 +1384,7 @@ public abstract partial class TextBoxBase : Control
         UpdateMaxLength();
         if (_textBoxFlags[s_modified])
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SETMODIFY, (WPARAM)(BOOL)true);
+            PInvoke.SendMessage(this, PInvoke.EM_SETMODIFY, (WPARAM)(BOOL)true);
         }
 
         EnsureReadonlyBackgroundColor(true);
@@ -1408,7 +1408,7 @@ public abstract partial class TextBoxBase : Control
     /// <summary>
     ///  Replaces the current selection in the text box with the contents of the Clipboard.
     /// </summary>
-    public void Paste() => PInvokeCore.SendMessage(this, PInvokeCore.WM_PASTE);
+    public void Paste() => PInvoke.SendMessage(this, PInvoke.WM_PASTE);
 
     protected override bool ProcessDialogKey(Keys keyData)
     {
@@ -1564,7 +1564,7 @@ public abstract partial class TextBoxBase : Control
     /// </summary>
     public virtual int GetCharIndexFromPosition(Point pt)
     {
-        int index = (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_CHARFROMPOS, 0, PARAM.FromPoint(pt));
+        int index = (int)PInvoke.SendMessage(this, PInvoke.EM_CHARFROMPOS, 0, PARAM.FromPoint(pt));
         index = PARAM.LOWORD(index);
 
         if (index < 0)
@@ -1594,7 +1594,7 @@ public abstract partial class TextBoxBase : Control
     ///  you pass the index of a overflowed character, GetLineFromCharIndex would
     ///  return 1 and not 0.
     /// </summary>
-    public virtual int GetLineFromCharIndex(int index) => (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_LINEFROMCHAR, (WPARAM)index);
+    public virtual int GetLineFromCharIndex(int index) => (int)PInvoke.SendMessage(this, PInvoke.EM_LINEFROMCHAR, (WPARAM)index);
 
     /// <summary>
     ///  Returns the location of the character at the given index.
@@ -1606,7 +1606,7 @@ public abstract partial class TextBoxBase : Control
             return Point.Empty;
         }
 
-        int i = (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_POSFROMCHAR, (WPARAM)index);
+        int i = (int)PInvoke.SendMessage(this, PInvoke.EM_POSFROMCHAR, (WPARAM)index);
         return new Point(PARAM.SignedLOWORD(i), PARAM.SignedHIWORD(i));
     }
 
@@ -1617,13 +1617,13 @@ public abstract partial class TextBoxBase : Control
     {
         ArgumentOutOfRangeException.ThrowIfNegative(lineNumber);
 
-        return (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_LINEINDEX, (WPARAM)lineNumber);
+        return (int)PInvoke.SendMessage(this, PInvoke.EM_LINEINDEX, (WPARAM)lineNumber);
     }
 
     /// <summary>
     ///  Returns the index of the first character of the line where the caret is.
     /// </summary>
-    public int GetFirstCharIndexOfCurrentLine() => (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_LINEINDEX, (WPARAM)(-1));
+    public int GetFirstCharIndexOfCurrentLine() => (int)PInvoke.SendMessage(this, PInvoke.EM_LINEINDEX, (WPARAM)(-1));
 
     /// <summary>
     ///  Ensures that the caret is visible in the TextBox window, by scrolling the
@@ -1645,9 +1645,9 @@ public abstract partial class TextBoxBase : Control
 
         using ComScope<IRichEditOle> richEdit = new(null);
 
-        if (PInvokeCore.SendMessage(this, PInvokeCore.EM_GETOLEINTERFACE, 0, (void**)richEdit) == 0)
+        if (PInvoke.SendMessage(this, PInvoke.EM_GETOLEINTERFACE, 0, (void**)richEdit) == 0)
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SCROLLCARET);
+            PInvoke.SendMessage(this, PInvoke.EM_SCROLLCARET);
             return;
         }
 
@@ -1674,7 +1674,7 @@ public abstract partial class TextBoxBase : Control
             windowTextRange.Value->ScrollIntoView((int)tomConstants.tomEnd).ThrowOnFailure();
 
             // 2. Get the first visible line.
-            int firstVisibleLine = (int)PInvokeCore.SendMessage(this, PInvokeCore.EM_GETFIRSTVISIBLELINE);
+            int firstVisibleLine = (int)PInvoke.SendMessage(this, PInvoke.EM_GETFIRSTVISIBLELINE);
 
             // 3. If the first visible line is smaller than the start of the selection, we are done.
             if (firstVisibleLine <= selStartLine)
@@ -1691,7 +1691,7 @@ public abstract partial class TextBoxBase : Control
             }
         }
 
-        PInvokeCore.SendMessage(this, PInvokeCore.EM_SCROLLCARET);
+        PInvoke.SendMessage(this, PInvoke.EM_SCROLLCARET);
     }
 
     /// <summary>
@@ -1746,7 +1746,7 @@ public abstract partial class TextBoxBase : Control
         {
             AdjustSelectionStartAndEnd(selectionStart, selectionLength, out int start, out int end, textLength);
 
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SETSEL, (WPARAM)start, (LPARAM)end);
+            PInvoke.SendMessage(this, PInvoke.EM_SETSEL, (WPARAM)start, (LPARAM)end);
 
             if (IsAccessibilityObjectCreated)
             {
@@ -1859,7 +1859,7 @@ public abstract partial class TextBoxBase : Control
         {
             _textBoxFlags[s_setSelectionOnHandleCreated] = false;
             AdjustSelectionStartAndEnd(_selectionStart, _selectionLength, out int start, out int end, -1);
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SETSEL, (WPARAM)start, (LPARAM)end);
+            PInvoke.SendMessage(this, PInvoke.EM_SETSEL, (WPARAM)start, (LPARAM)end);
         }
     }
 
@@ -1982,19 +1982,19 @@ public abstract partial class TextBoxBase : Control
     /// <summary>
     ///  Undoes the last edit operation in the text box.
     /// </summary>
-    public void Undo() => PInvokeCore.SendMessage(this, PInvokeCore.EM_UNDO);
+    public void Undo() => PInvoke.SendMessage(this, PInvoke.EM_UNDO);
 
     internal virtual void UpdateMaxLength()
     {
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_LIMITTEXT, (WPARAM)_maxLength);
+            PInvoke.SendMessage(this, PInvoke.EM_LIMITTEXT, (WPARAM)_maxLength);
         }
     }
 
     internal override HBRUSH InitializeDCForWmCtlColor(HDC dc, MessageId msg)
     {
-        if (msg == PInvokeCore.WM_CTLCOLORSTATIC && !ShouldSerializeBackColor())
+        if (msg == PInvoke.WM_CTLCOLORSTATIC && !ShouldSerializeBackColor())
         {
             // Let the Win32 Edit control handle background colors itself.
             // This is necessary because a disabled edit control will display a different
@@ -2029,7 +2029,7 @@ public abstract partial class TextBoxBase : Control
         base.WndProc(ref m);
         if (!_textBoxFlags[s_multiline])
         {
-            PInvokeCore.SendMessage(this, PInvokeCore.EM_SETMARGINS, (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN));
+            PInvoke.SendMessage(this, PInvoke.EM_SETMARGINS, (WPARAM)(PInvoke.EC_LEFTMARGIN | PInvoke.EC_RIGHTMARGIN));
         }
     }
 
@@ -2081,20 +2081,20 @@ public abstract partial class TextBoxBase : Control
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_LBUTTONDBLCLK:
+            case PInvoke.WM_LBUTTONDBLCLK:
                 _doubleClickFired = true;
                 base.WndProc(ref m);
                 break;
             case MessageId.WM_REFLECT_COMMAND:
                 WmReflectCommand(ref m);
                 break;
-            case PInvokeCore.WM_GETDLGCODE:
+            case PInvoke.WM_GETDLGCODE:
                 WmGetDlgCode(ref m);
                 break;
-            case PInvokeCore.WM_SETFONT:
+            case PInvoke.WM_SETFONT:
                 WmSetFont(ref m);
                 break;
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_CONTEXTMENU:
                 if (ShortcutsEnabled)
                 {
                     // Calling base will find ContextMenus in this order:
@@ -2109,7 +2109,7 @@ public abstract partial class TextBoxBase : Control
                 }
 
                 break;
-            case PInvokeCore.WM_DESTROY:
+            case PInvoke.WM_DESTROY:
                 if (TryGetAccessibilityObject(out AccessibleObject? @object) && @object is TextBoxBaseAccessibleObject accessibleObject &&
                     !RecreatingHandle)
                 {

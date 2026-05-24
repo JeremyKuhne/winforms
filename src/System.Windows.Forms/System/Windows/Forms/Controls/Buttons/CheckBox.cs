@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -205,7 +205,7 @@ public partial class CheckBox : ButtonBase
 
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.BM_SETCHECK, (WPARAM)(int)_checkState);
+                PInvoke.SendMessage(this, PInvoke.BM_SETCHECK, (WPARAM)(int)_checkState);
             }
 
             bool checkedChanged = oldChecked != Checked;
@@ -495,7 +495,7 @@ public partial class CheckBox : ButtonBase
 
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.BM_SETCHECK, (WPARAM)(int)_checkState);
+            PInvoke.SendMessage(this, PInvoke.BM_SETCHECK, (WPARAM)(int)_checkState);
         }
     }
 

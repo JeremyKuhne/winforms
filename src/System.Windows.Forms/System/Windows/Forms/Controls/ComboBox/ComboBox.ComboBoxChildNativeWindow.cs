@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.UI.Accessibility;
@@ -22,10 +22,10 @@ public partial class ComboBox
         {
             switch ((uint)m.MsgInternal)
             {
-                case PInvokeCore.WM_GETOBJECT:
+                case PInvoke.WM_GETOBJECT:
                     WmGetObject(ref m);
                     return;
-                case PInvokeCore.WM_MOUSEMOVE:
+                case PInvoke.WM_MOUSEMOVE:
                     if (_childWindowType == ChildWindowType.DropDownList)
                     {
                         // Need to track the selection change via mouse over to
@@ -52,7 +52,7 @@ public partial class ComboBox
                     }
 
                     break;
-                case PInvokeCore.WM_DESTROY:
+                case PInvoke.WM_DESTROY:
                     AccessibleObject? accessibilityObject = GetChildAccessibleObjectIfCreated();
 
                     if (accessibilityObject is not null)

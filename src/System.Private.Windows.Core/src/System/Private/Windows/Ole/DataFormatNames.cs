@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.UI.Shell;
@@ -30,9 +30,9 @@ internal static partial class DataFormatNames
     internal const string Serializable = "PersistentObject";
     internal const string Xaml = "Xaml";
     internal const string XamlPackage = "XamlPackage";
-    internal const string InkSerializedFormat = PInvokeCore.INK_SERIALIZED_FORMAT;
-    internal const string FileNameAnsi = PInvokeCore.CFSTR_FILENAMEA;
-    internal const string FileNameUnicode = PInvokeCore.CFSTR_FILENAME;
+    internal const string InkSerializedFormat = PInvoke.INK_SERIALIZED_FORMAT;
+    internal const string FileNameAnsi = PInvoke.CFSTR_FILENAMEA;
+    internal const string FileNameUnicode = PInvoke.CFSTR_FILENAME;
     internal const string BinaryFormatBitmap = "System.Drawing.Bitmap";
     internal const string BinaryFormatMetafile = "System.Drawing.Imaging.Metafile";
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -77,7 +77,7 @@ internal partial class MdiControlStrip : MenuStrip
 
     private Bitmap GetTargetWindowIcon()
     {
-        HICON hIcon = (HICON)PInvokeCore.SendMessage(GetSafeHandle(_target), PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        HICON hIcon = (HICON)PInvoke.SendMessage(GetSafeHandle(_target), PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
         Icon icon = !hIcon.IsNull ? Icon.FromHandle(hIcon) : Form.DefaultIcon;
         using Icon smallIcon = new(icon, SystemInformation.SmallIconSize);
         return smallIcon.ToBitmap();

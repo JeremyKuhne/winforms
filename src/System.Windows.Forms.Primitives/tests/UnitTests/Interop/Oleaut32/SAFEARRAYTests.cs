@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -57,7 +57,7 @@ public unsafe class SAFEARRAYTests
             lLbound = 1
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate((VARENUM)vt, 1, &saBound);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate((VARENUM)vt, 1, &saBound);
         NativeAssert.NotNull(psa);
 
         try
@@ -71,13 +71,13 @@ public unsafe class SAFEARRAYTests
             Assert.Equal(1, psa->rgsabound.AsSpan(1)[0].lLbound);
 
             VARENUM arrayVt = VT_EMPTY;
-            HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+            HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
             Assert.Equal(HRESULT.S_OK, hr);
             Assert.Equal((VARENUM)vt, arrayVt);
         }
         finally
         {
-            HRESULT hr = PInvokeCore.SafeArrayDestroy(psa);
+            HRESULT hr = PInvoke.SafeArrayDestroy(psa);
             Assert.Equal(HRESULT.S_OK, hr);
         }
     }
@@ -93,7 +93,7 @@ public unsafe class SAFEARRAYTests
 
         using ComScope<IRecordInfo> recordInfo = new(new CustomRecordInfo().GetComInterface());
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreateEx(VT_RECORD, 1, &saBound, recordInfo);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreateEx(VT_RECORD, 1, &saBound, recordInfo);
         NativeAssert.NotNull(psa);
 
         try
@@ -107,13 +107,13 @@ public unsafe class SAFEARRAYTests
             Assert.Equal(1, psa->rgsabound.AsSpan(1)[0].lLbound);
 
             VARENUM arrayVt = VT_EMPTY;
-            HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+            HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
             Assert.Equal(HRESULT.S_OK, hr);
             Assert.Equal(VT_RECORD, arrayVt);
         }
         finally
         {
-            HRESULT hr = PInvokeCore.SafeArrayDestroy(psa);
+            HRESULT hr = PInvoke.SafeArrayDestroy(psa);
             Assert.Equal(HRESULT.S_OK, hr);
         }
     }
@@ -182,7 +182,7 @@ public unsafe class SAFEARRAYTests
             lLbound = 0
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate((VARENUM)vt, 2, saBounds);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate((VARENUM)vt, 2, saBounds);
         NativeAssert.NotNull(psa);
 
         try
@@ -198,13 +198,13 @@ public unsafe class SAFEARRAYTests
             Assert.Equal(1, ((SAFEARRAYBOUND*)&psa->rgsabound)[1].lLbound);
 
             VARENUM arrayVt = VT_EMPTY;
-            HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+            HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
             Assert.Equal(HRESULT.S_OK, hr);
             Assert.Equal((VARENUM)vt, arrayVt);
         }
         finally
         {
-            HRESULT hr = PInvokeCore.SafeArrayDestroy(psa);
+            HRESULT hr = PInvoke.SafeArrayDestroy(psa);
             Assert.Equal(HRESULT.S_OK, hr);
         }
     }
@@ -218,7 +218,7 @@ public unsafe class SAFEARRAYTests
             lLbound = 0
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(VT_I4, 1, &saBound);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(VT_I4, 1, &saBound);
         NativeAssert.NotNull(psa);
 
         try
@@ -230,19 +230,19 @@ public unsafe class SAFEARRAYTests
             fixed (int* pIndices2 = indices2)
             {
                 int value1 = 1;
-                HRESULT hr = PInvokeCore.SafeArrayPutElement(psa, pIndices1, &value1);
+                HRESULT hr = PInvoke.SafeArrayPutElement(psa, pIndices1, &value1);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int value2 = 2;
-                hr = PInvokeCore.SafeArrayPutElement(psa, pIndices2, &value2);
+                hr = PInvoke.SafeArrayPutElement(psa, pIndices2, &value2);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int result = -1;
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices1, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices1, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(1, result);
 
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices2, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices2, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(2, result);
             }
@@ -252,7 +252,7 @@ public unsafe class SAFEARRAYTests
         }
         finally
         {
-            PInvokeCore.SafeArrayDestroy(psa);
+            PInvoke.SafeArrayDestroy(psa);
         }
     }
 
@@ -265,7 +265,7 @@ public unsafe class SAFEARRAYTests
             lLbound = -5
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(VT_I4, 1, &saBound);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(VT_I4, 1, &saBound);
         NativeAssert.NotNull(psa);
 
         try
@@ -277,19 +277,19 @@ public unsafe class SAFEARRAYTests
             fixed (int* pIndices2 = indices2)
             {
                 int value1 = 1;
-                HRESULT hr = PInvokeCore.SafeArrayPutElement(psa, pIndices1, &value1);
+                HRESULT hr = PInvoke.SafeArrayPutElement(psa, pIndices1, &value1);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int value2 = 2;
-                hr = PInvokeCore.SafeArrayPutElement(psa, pIndices2, &value2);
+                hr = PInvoke.SafeArrayPutElement(psa, pIndices2, &value2);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int result = -1;
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices1, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices1, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(1, result);
 
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices2, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices2, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(2, result);
             }
@@ -299,7 +299,7 @@ public unsafe class SAFEARRAYTests
         }
         finally
         {
-            PInvokeCore.SafeArrayDestroy(psa);
+            PInvoke.SafeArrayDestroy(psa);
         }
     }
 
@@ -319,7 +319,7 @@ public unsafe class SAFEARRAYTests
             lLbound = 0
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(VT_I4, 2, saBounds);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(VT_I4, 2, saBounds);
         NativeAssert.NotNull(psa);
 
         try
@@ -331,19 +331,19 @@ public unsafe class SAFEARRAYTests
             fixed (int* pIndices2 = indices2)
             {
                 int value1 = 1;
-                HRESULT hr = PInvokeCore.SafeArrayPutElement(psa, pIndices1, &value1);
+                HRESULT hr = PInvoke.SafeArrayPutElement(psa, pIndices1, &value1);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int value2 = 2;
-                hr = PInvokeCore.SafeArrayPutElement(psa, pIndices2, &value2);
+                hr = PInvoke.SafeArrayPutElement(psa, pIndices2, &value2);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int result = -1;
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices1, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices1, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(1, result);
 
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices2, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices2, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(2, result);
             }
@@ -353,7 +353,7 @@ public unsafe class SAFEARRAYTests
         }
         finally
         {
-            PInvokeCore.SafeArrayDestroy(psa);
+            PInvoke.SafeArrayDestroy(psa);
         }
     }
 
@@ -373,7 +373,7 @@ public unsafe class SAFEARRAYTests
             lLbound = -4
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(VT_I4, 2, saBounds);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(VT_I4, 2, saBounds);
         NativeAssert.NotNull(psa);
 
         try
@@ -385,19 +385,19 @@ public unsafe class SAFEARRAYTests
             fixed (int* pIndices2 = indices2)
             {
                 int value1 = 1;
-                HRESULT hr = PInvokeCore.SafeArrayPutElement(psa, pIndices1, &value1);
+                HRESULT hr = PInvoke.SafeArrayPutElement(psa, pIndices1, &value1);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int value2 = 2;
-                hr = PInvokeCore.SafeArrayPutElement(psa, pIndices2, &value2);
+                hr = PInvoke.SafeArrayPutElement(psa, pIndices2, &value2);
                 Assert.Equal(HRESULT.S_OK, hr);
 
                 int result = -1;
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices1, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices1, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(1, result);
 
-                hr = PInvokeCore.SafeArrayGetElement(psa, pIndices2, &result);
+                hr = PInvoke.SafeArrayGetElement(psa, pIndices2, &result);
                 Assert.Equal(HRESULT.S_OK, hr);
                 Assert.Equal(2, result);
             }
@@ -407,7 +407,7 @@ public unsafe class SAFEARRAYTests
         }
         finally
         {
-            PInvokeCore.SafeArrayDestroy(psa);
+            PInvoke.SafeArrayDestroy(psa);
         }
     }
 }

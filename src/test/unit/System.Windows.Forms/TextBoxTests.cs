@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -419,11 +419,11 @@ public partial class TextBoxTests
         };
 
         // Cover the Placeholder draw code path
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
         tb.TextAlign = HorizontalAlignment.Center;
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
         tb.TextAlign = HorizontalAlignment.Right;
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
 
         Assert.False(string.IsNullOrEmpty(tb.PlaceholderText));
     }
@@ -438,11 +438,11 @@ public partial class TextBoxTests
         };
 
         // Cover the Placeholder draw code path in RightToLeft scenario
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
         tb.TextAlign = HorizontalAlignment.Center;
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
         tb.TextAlign = HorizontalAlignment.Right;
-        PInvokeCore.SendMessage(tb, PInvokeCore.WM_PAINT, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(tb, PInvoke.WM_PAINT, (WPARAM)(BOOL)false);
 
         Assert.False(string.IsNullOrEmpty(tb.PlaceholderText));
     }

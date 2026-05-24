@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -84,7 +84,7 @@ public sealed partial class ImageList
 
                 if (_owner.HandleCreated)
                 {
-                    return PInvoke.ImageList.GetImageCount(_owner);
+                    return PInvokeForms.ImageList.GetImageCount(_owner);
                 }
                 else
                 {
@@ -160,12 +160,12 @@ public sealed partial class ImageList
                     bool ok;
                     try
                     {
-                        ok = PInvoke.ImageList.Replace(_owner, index, hBitmap, hMask);
+                        ok = PInvokeForms.ImageList.Replace(_owner, index, hBitmap, hMask);
                     }
                     finally
                     {
-                        PInvokeCore.DeleteObject((HGDIOBJ)hBitmap);
-                        PInvokeCore.DeleteObject((HGDIOBJ)hMask);
+                        PInvoke.DeleteObject((HGDIOBJ)hBitmap);
+                        PInvoke.DeleteObject((HGDIOBJ)hMask);
                     }
 
                     if (!ok)
@@ -420,7 +420,7 @@ public sealed partial class ImageList
 
             if (_owner.HandleCreated)
             {
-                PInvoke.ImageList.Remove(_owner, -1);
+                PInvokeForms.ImageList.Remove(_owner, -1);
             }
 
             _owner.OnChangeHandle(EventArgs.Empty);
@@ -545,7 +545,7 @@ public sealed partial class ImageList
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
             AssertInvariant();
-            if (!PInvoke.ImageList.Remove(_owner, index))
+            if (!PInvokeForms.ImageList.Remove(_owner, index))
             {
                 throw new InvalidOperationException(SR.ImageListRemoveFailed);
             }

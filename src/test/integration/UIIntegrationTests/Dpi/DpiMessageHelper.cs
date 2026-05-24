@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms.UITests.Dpi;
@@ -12,9 +12,9 @@ internal static class DpiMessageHelper
 
         _ = (uint)message switch
         {
-            PInvokeCore.WM_DPICHANGED => SendWmDpiChangedMessage(message),
-            PInvokeCore.WM_DPICHANGED_BEFOREPARENT => PInvokeCore.SendMessage(control, message, wParam),
-            PInvokeCore.WM_DPICHANGED_AFTERPARENT => PInvokeCore.SendMessage(control, message),
+            PInvoke.WM_DPICHANGED => SendWmDpiChangedMessage(message),
+            PInvoke.WM_DPICHANGED_BEFOREPARENT => PInvoke.SendMessage(control, message, wParam),
+            PInvoke.WM_DPICHANGED_AFTERPARENT => PInvoke.SendMessage(control, message),
             _ => throw new NotImplementedException()
         };
 
@@ -25,8 +25,8 @@ internal static class DpiMessageHelper
                 (int)Math.Round(control.Width * factor),
                 (int)Math.Round(control.Height * factor));
 
-            PInvokeCore.SendMessage(control, PInvokeCore.WM_GETDPISCALEDSIZE, wParam, ref suggestedRect);
-            return PInvokeCore.SendMessage(control, message, wParam, ref suggestedRect);
+            PInvoke.SendMessage(control, PInvoke.WM_GETDPISCALEDSIZE, wParam, ref suggestedRect);
+            return PInvoke.SendMessage(control, message, wParam, ref suggestedRect);
         }
     }
 }

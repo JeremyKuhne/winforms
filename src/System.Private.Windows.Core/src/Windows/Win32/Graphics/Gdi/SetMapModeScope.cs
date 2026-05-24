@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -24,11 +24,11 @@ internal readonly ref struct SetMapModeScope
 
     /// <summary>
     ///  Sets the <paramref name="mapMode"/> in the given <paramref name="hdc"/> using
-    ///  <see cref="PInvokeCore.SetMapMode(HDC, HDC_MAP_MODE)"/>.
+    ///  <see cref="PInvoke.SetMapMode(HDC, HDC_MAP_MODE)"/>.
     /// </summary>
     public SetMapModeScope(HDC hdc, HDC_MAP_MODE mapMode)
     {
-        _previousMapMode = (HDC_MAP_MODE)PInvokeCore.SetMapMode(hdc, mapMode);
+        _previousMapMode = (HDC_MAP_MODE)PInvoke.SetMapMode(hdc, mapMode);
 
         // If we didn't actually change the map mode, don't keep the HDC so we skip putting back the same state.
         _hdc = mapMode == _previousMapMode ? default : hdc;
@@ -38,7 +38,7 @@ internal readonly ref struct SetMapModeScope
     {
         if (!_hdc.IsNull)
         {
-            PInvokeCore.SetMapMode(_hdc, _previousMapMode);
+            PInvoke.SetMapMode(_hdc, _previousMapMode);
         }
 
 #if DEBUG

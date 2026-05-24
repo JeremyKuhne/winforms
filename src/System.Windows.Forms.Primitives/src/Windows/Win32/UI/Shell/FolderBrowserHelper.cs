@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -31,7 +31,7 @@ internal static class FolderBrowserHelper
             }
         }
 
-        using BufferScope<char> buffer = new((int)PInvokeCore.MAX_PATH + 1);
+        using BufferScope<char> buffer = new((int)PInvoke.MAX_PATH + 1);
 
         fixed (char* b = buffer)
         fixed (char* t = title)

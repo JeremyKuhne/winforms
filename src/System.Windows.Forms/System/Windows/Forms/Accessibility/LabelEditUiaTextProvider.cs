@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -61,9 +61,9 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
 
     public override SupportedTextSelection SupportedTextSelection => SupportedTextSelection.SupportedTextSelection_Single;
 
-    public override string Text => PInvokeCore.GetWindowText(_owningChildEdit);
+    public override string Text => PInvoke.GetWindowText(_owningChildEdit);
 
-    public override int TextLength => (int)PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.WM_GETTEXTLENGTH);
+    public override int TextLength => (int)PInvoke.SendMessage(_owningChildEdit, PInvoke.WM_GETTEXTLENGTH);
 
     public override WINDOW_EX_STYLE WindowExStyle => GetWindowExStyle(_owningChildEdit);
 
@@ -86,7 +86,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
 
         // Returns info about the selected text range.
         // If there is no selection, start and end parameters are the position of the caret.
-        PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_GETSEL, ref start, ref end);
+        PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_GETSEL, ref start, ref end);
 
         *pRetVal = ComHelpers.GetComPointer<ITextRangeProvider>(new UiaTextRange(
             _owningChildEditAccessibilityObject,
@@ -160,7 +160,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
 
         // Returns info about the selected text range.
         // If there is no selection, start and end parameters are the position of the caret.
-        PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_GETSEL, ref start, ref end);
+        PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_GETSEL, ref start, ref end);
 
         ComSafeArrayScope<ITextRangeProvider> result = new(1);
         // Adding to the SAFEARRAY adds a reference
@@ -225,7 +225,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
 
     public override Point PointToScreen(Point pt)
     {
-        PInvokeCore.MapWindowPoints(_owningChildEdit.Handle, HWND.Null, ref pt);
+        PInvoke.MapWindowPoints(_owningChildEdit.Handle, HWND.Null, ref pt);
         return pt;
     }
 
@@ -269,7 +269,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
 
         // Convert screen to client coordinates.
         // (Essentially ScreenToClient but MapWindowPoints accounts for window mirroring using WS_EX_LAYOUTRTL.)
-        if (PInvokeCore.MapWindowPoints(HWND.Null, _owningChildEdit.Handle, ref clientLocation) == 0)
+        if (PInvoke.MapWindowPoints(HWND.Null, _owningChildEdit.Handle, ref clientLocation) == 0)
         {
             *pRetVal = ComHelpers.GetComPointer<ITextRangeProvider>(
                 new UiaTextRange(
@@ -305,7 +305,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
     public override Rectangle RectangleToScreen(Rectangle rect)
     {
         RECT r = rect;
-        PInvokeCore.MapWindowPoints(_owningChildEdit.Handle, HWND.Null, ref r);
+        PInvoke.MapWindowPoints(_owningChildEdit.Handle, HWND.Null, ref r);
         return r;
     }
 
@@ -323,12 +323,12 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
             return;
         }
 
-        PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_SETSEL, (WPARAM)start, (LPARAM)end);
+        PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_SETSEL, (WPARAM)start, (LPARAM)end);
     }
 
     private int GetCharIndexFromPosition(Point pt)
     {
-        int index = PARAM.LOWORD(PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_CHARFROMPOS, 0, PARAM.FromPoint(pt)));
+        int index = PARAM.LOWORD(PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_CHARFROMPOS, 0, PARAM.FromPoint(pt)));
 
         if (index < 0)
         {
@@ -352,7 +352,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
     {
         // Send an EM_GETRECT message to find out the bounding rectangle.
         RECT rectangle = default;
-        PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_GETRECT, 0, ref rectangle);
+        PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_GETRECT, 0, ref rectangle);
 
         return rectangle;
     }
@@ -364,7 +364,7 @@ internal sealed unsafe class LabelEditUiaTextProvider : UiaTextProvider
             return Point.Empty;
         }
 
-        int i = (int)PInvokeCore.SendMessage(_owningChildEdit, PInvokeCore.EM_POSFROMCHAR, (WPARAM)index);
+        int i = (int)PInvoke.SendMessage(_owningChildEdit, PInvoke.EM_POSFROMCHAR, (WPARAM)index);
 
         return new Point(PARAM.SignedLOWORD(i), PARAM.SignedHIWORD(i));
     }

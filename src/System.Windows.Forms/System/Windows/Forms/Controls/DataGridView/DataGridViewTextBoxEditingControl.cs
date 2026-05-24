@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms;
@@ -251,7 +251,7 @@ public partial class DataGridViewTextBoxEditingControl : TextBox, IDataGridViewE
         switch ((Keys)(nint)m.WParamInternal)
         {
             case Keys.Enter:
-                if (m.MsgInternal == PInvokeCore.WM_CHAR
+                if (m.MsgInternal == PInvoke.WM_CHAR
                     && !(ModifierKeys == Keys.Shift && Multiline && AcceptsReturn))
                 {
                     // Ignore the Enter key and don't add it to the textbox content. This happens when failing
@@ -263,7 +263,7 @@ public partial class DataGridViewTextBoxEditingControl : TextBox, IDataGridViewE
                 break;
 
             case Keys.LineFeed:
-                if (m.MsgInternal == PInvokeCore.WM_CHAR && ModifierKeys == Keys.Control && Multiline && AcceptsReturn)
+                if (m.MsgInternal == PInvoke.WM_CHAR && ModifierKeys == Keys.Control && Multiline && AcceptsReturn)
                 {
                     // Ignore linefeed character when user hits Ctrl-Enter to commit the cell.
                     return true;
@@ -272,7 +272,7 @@ public partial class DataGridViewTextBoxEditingControl : TextBox, IDataGridViewE
                 break;
 
             case Keys.A:
-                if (m.MsgInternal == PInvokeCore.WM_KEYDOWN && ModifierKeys == Keys.Control)
+                if (m.MsgInternal == PInvoke.WM_KEYDOWN && ModifierKeys == Keys.Control)
                 {
                     SelectAll();
                     return true;

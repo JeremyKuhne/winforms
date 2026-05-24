@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -42,7 +42,7 @@ public abstract partial class TextBoxBase
 
             // Returns info about the selected text range.
             // If there is no selection, start and end parameters are the position of the caret.
-            PInvokeCore.SendMessage(Owner, PInvokeCore.EM_GETSEL, ref start, ref end);
+            PInvoke.SendMessage(Owner, PInvoke.EM_GETSEL, ref start, ref end);
 
             ComSafeArrayScope<ITextRangeProvider> result = new(1);
             // Adding to the SAFEARRAY adds a reference
@@ -107,7 +107,7 @@ public abstract partial class TextBoxBase
 
             // Convert screen to client coordinates.
             // (Essentially ScreenToClient but MapWindowPoints accounts for window mirroring using WS_EX_LAYOUTRTL.)
-            if (PInvokeCore.MapWindowPoints((HWND)default, Owner, ref clientLocation) == 0)
+            if (PInvoke.MapWindowPoints((HWND)default, Owner, ref clientLocation) == 0)
             {
                 *pRetVal = ComHelpers.GetComPointer<ITextRangeProvider>(
                     new UiaTextRange(
@@ -207,7 +207,7 @@ public abstract partial class TextBoxBase
 
         public override int FirstVisibleLine
             => Owner is not null && Owner.IsHandleCreated
-                ? (int)PInvokeCore.SendMessage(Owner, PInvokeCore.EM_GETFIRSTVISIBLELINE)
+                ? (int)PInvoke.SendMessage(Owner, PInvoke.EM_GETFIRSTVISIBLELINE)
                 : -1;
 
         public override bool IsMultiline => Owner is not null && Owner.Multiline;
@@ -232,7 +232,7 @@ public abstract partial class TextBoxBase
 
         public override int LinesCount
             => Owner is not null && Owner.IsHandleCreated
-                ? (int)PInvokeCore.SendMessage(Owner, PInvokeCore.EM_GETLINECOUNT)
+                ? (int)PInvoke.SendMessage(Owner, PInvoke.EM_GETLINECOUNT)
                 : -1;
 
         public override int LinesPerPage
@@ -298,7 +298,7 @@ public abstract partial class TextBoxBase
 
         public override int GetLineIndex(int line)
             => Owner is not null && Owner.IsHandleCreated
-                ? (int)PInvokeCore.SendMessage(Owner, PInvokeCore.EM_LINEINDEX, (WPARAM)line)
+                ? (int)PInvoke.SendMessage(Owner, PInvoke.EM_LINEINDEX, (WPARAM)line)
                 : -1;
 
         public override Point GetPositionFromChar(int charIndex)
@@ -399,9 +399,9 @@ public abstract partial class TextBoxBase
         public override bool LineScroll(int charactersHorizontal, int linesVertical)
             // Sends an EM_LINESCROLL message to scroll it horizontally and/or vertically.
             => Owner is not null && Owner.IsHandleCreated
-                && PInvokeCore.SendMessage(
+                && PInvoke.SendMessage(
                     Owner,
-                    PInvokeCore.EM_LINESCROLL,
+                    PInvoke.EM_LINESCROLL,
                     (WPARAM)charactersHorizontal,
                     (LPARAM)linesVertical) != 0;
 
@@ -424,7 +424,7 @@ public abstract partial class TextBoxBase
                 return;
             }
 
-            PInvokeCore.SendMessage(Owner, PInvokeCore.EM_SETSEL, (WPARAM)start, (LPARAM)end);
+            PInvoke.SendMessage(Owner, PInvoke.EM_SETSEL, (WPARAM)start, (LPARAM)end);
         }
 
         private RECT GetFormattingRectangle()
@@ -438,7 +438,7 @@ public abstract partial class TextBoxBase
 
             // Send an EM_GETRECT message to find out the bounding rectangle.
             RECT rectangle = default;
-            PInvokeCore.SendMessage(Owner, PInvokeCore.EM_GETRECT, (WPARAM)0, ref rectangle);
+            PInvoke.SendMessage(Owner, PInvoke.EM_GETRECT, (WPARAM)0, ref rectangle);
             return rectangle;
         }
 

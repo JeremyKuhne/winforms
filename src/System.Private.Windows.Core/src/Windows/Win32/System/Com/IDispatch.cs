@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Ole;
@@ -93,7 +93,7 @@ internal unsafe partial struct IDispatch
     {
         Guid guid = Guid.Empty;
         EXCEPINFO pExcepInfo = default;
-        int putDispatchID = PInvokeCore.DISPID_PROPERTYPUT;
+        int putDispatchID = PInvoke.DISPID_PROPERTYPUT;
         errorText = null;
 
         DISPPARAMS dispParams = new()
@@ -110,7 +110,7 @@ internal unsafe partial struct IDispatch
         HRESULT hr = Invoke(
             dispatchId,
             &guid,
-            PInvokeCore.GetThreadLocale(),
+            PInvoke.GetThreadLocale(),
             DISPATCH_FLAGS.DISPATCH_PROPERTYPUT,
             &dispParams,
             null,
@@ -138,7 +138,7 @@ internal unsafe partial struct IDispatch
 
         fixed (char* n = name)
         {
-            HRESULT result = GetIDsOfNames(IID.NULL(), (PWSTR*)&n, 1u, PInvokeCore.GetThreadLocale(), &id);
+            HRESULT result = GetIDsOfNames(IID.NULL(), (PWSTR*)&n, 1u, PInvoke.GetThreadLocale(), &id);
             dispId = id;
             return result;
         }

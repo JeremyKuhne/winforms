@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -259,11 +259,11 @@ public partial class ProgressBar : Control
         {
             if (_marqueeAnimationSpeed == 0)
             {
-                PInvokeCore.SendMessage(this, PInvoke.PBM_SETMARQUEE, (WPARAM)(BOOL)false, (LPARAM)_marqueeAnimationSpeed);
+                PInvoke.SendMessage(this, PInvoke.PBM_SETMARQUEE, (WPARAM)(BOOL)false, (LPARAM)_marqueeAnimationSpeed);
             }
             else
             {
-                PInvokeCore.SendMessage(this, PInvoke.PBM_SETMARQUEE, (WPARAM)(BOOL)true, (LPARAM)_marqueeAnimationSpeed);
+                PInvoke.SendMessage(this, PInvoke.PBM_SETMARQUEE, (WPARAM)(BOOL)true, (LPARAM)_marqueeAnimationSpeed);
             }
         }
     }
@@ -299,7 +299,7 @@ public partial class ProgressBar : Control
 
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
+                    PInvoke.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
                     UpdatePos();
                 }
             }
@@ -337,7 +337,7 @@ public partial class ProgressBar : Control
 
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
+                    PInvoke.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
                     UpdatePos();
                 }
             }
@@ -349,7 +349,7 @@ public partial class ProgressBar : Control
         base.OnBackColorChanged(e);
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBKCOLOR, 0, BackColor.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBKCOLOR, 0, BackColor.ToWin32());
         }
     }
 
@@ -358,7 +358,7 @@ public partial class ProgressBar : Control
         base.OnForeColorChanged(e);
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBARCOLOR, 0, ForeColor.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBARCOLOR, 0, ForeColor.ToWin32());
         }
     }
 
@@ -427,7 +427,7 @@ public partial class ProgressBar : Control
             _step = value;
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.PBM_SETSTEP, (WPARAM)_step);
+                PInvoke.SendMessage(this, PInvoke.PBM_SETSTEP, (WPARAM)_step);
             }
         }
     }
@@ -605,11 +605,11 @@ public partial class ProgressBar : Control
         base.OnHandleCreated(e);
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETSTEP, (WPARAM)_step);
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETPOS, (WPARAM)_value);
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBKCOLOR, (WPARAM)0, (LPARAM)BackColor);
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBARCOLOR, (WPARAM)0, (LPARAM)ForeColor);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETRANGE32, (WPARAM)_minimum, (LPARAM)_maximum);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETSTEP, (WPARAM)_step);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETPOS, (WPARAM)_value);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBKCOLOR, (WPARAM)0, (LPARAM)BackColor);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBARCOLOR, (WPARAM)0, (LPARAM)ForeColor);
         }
 
         StartMarquee();
@@ -689,7 +689,7 @@ public partial class ProgressBar : Control
     {
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETPOS, (WPARAM)_value);
+            PInvoke.SendMessage(this, PInvoke.PBM_SETPOS, (WPARAM)_value);
         }
     }
 
@@ -703,8 +703,8 @@ public partial class ProgressBar : Control
     {
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBARCOLOR, 0, ForeColor.ToWin32());
-            PInvokeCore.SendMessage(this, PInvoke.PBM_SETBKCOLOR, 0, BackColor.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBARCOLOR, 0, ForeColor.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.PBM_SETBKCOLOR, 0, BackColor.ToWin32());
         }
     }
 

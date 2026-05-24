@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -7,7 +7,7 @@ namespace Windows.Win32.Foundation;
 
 /// <remarks>
 ///  <para>
-///   Never convert native constants (such as <see cref="PInvokeCore.CLR_NONE"/> to <see cref="Color"/> or pass them through
+///   Never convert native constants (such as <see cref="PInvoke.CLR_NONE"/> to <see cref="Color"/> or pass them through
 ///   any conversion in <see cref="Color"/>, <see cref="ColorTranslator"/>, etc. as they can change the value.
 ///   <see cref="COLORREF"/> is a DWORD- passing constants in native code would just pass the value as is.
 ///  </para>

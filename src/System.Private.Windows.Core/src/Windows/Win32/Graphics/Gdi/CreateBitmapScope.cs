@@ -1,10 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
 
 /// <summary>
-///  Helper to scope lifetime of a <see cref="Gdi.HBITMAP"/> created via <see cref="PInvokeCore.CreateBitmap"/>
+///  Helper to scope lifetime of a <see cref="Gdi.HBITMAP"/> created via <see cref="PInvoke.CreateBitmap"/>
 ///  Deletes the <see cref="Gdi.HBITMAP"/> (if any) when disposed.
 /// </summary>
 /// <remarks>
@@ -22,16 +22,16 @@ internal readonly ref struct CreateBitmapScope
     public HBITMAP HBITMAP { get; }
 
     /// <summary>
-    ///  Creates a bitmap using <see cref="PInvokeCore.CreateBitmap"/>
+    ///  Creates a bitmap using <see cref="PInvoke.CreateBitmap"/>
     /// </summary>
     public unsafe CreateBitmapScope(int nWidth, int nHeight, uint nPlanes, uint nBitCount, void* lpvBits) =>
-        HBITMAP = PInvokeCore.CreateBitmap(nWidth, nHeight, nPlanes, nBitCount, lpvBits);
+        HBITMAP = PInvoke.CreateBitmap(nWidth, nHeight, nPlanes, nBitCount, lpvBits);
 
     /// <summary>
     ///  Creates a bitmap compatible with the given <see cref="HDC"/> via
-    ///  <see cref="PInvokeCore.CreateCompatibleBitmap(HDC, int, int)"/>
+    ///  <see cref="PInvoke.CreateCompatibleBitmap(HDC, int, int)"/>
     /// </summary>
-    public CreateBitmapScope(HDC hdc, int cx, int cy) => HBITMAP = PInvokeCore.CreateCompatibleBitmap(hdc, cx, cy);
+    public CreateBitmapScope(HDC hdc, int cx, int cy) => HBITMAP = PInvoke.CreateCompatibleBitmap(hdc, cx, cy);
 
     public static implicit operator HBITMAP(in CreateBitmapScope scope) => scope.HBITMAP;
     public static implicit operator HGDIOBJ(in CreateBitmapScope scope) => scope.HBITMAP;
@@ -43,7 +43,7 @@ internal readonly ref struct CreateBitmapScope
     {
         if (!HBITMAP.IsNull)
         {
-            PInvokeCore.DeleteObject(HBITMAP);
+            PInvoke.DeleteObject(HBITMAP);
         }
 
 #if DEBUG

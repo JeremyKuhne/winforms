@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -67,7 +67,7 @@ public static partial class ToolStripManager
                         WINDOWS_HOOK_ID.WH_GETMESSAGE,
                         (delegate* unmanaged[Stdcall]<int, WPARAM, LPARAM, LRESULT>)hook,
                         HINSTANCE.Null,
-                        PInvokeCore.GetCurrentThreadId());
+                        PInvoke.GetCurrentThreadId());
 
                     if (_messageHookHandle != IntPtr.Zero)
                     {
@@ -90,7 +90,7 @@ public static partial class ToolStripManager
                         // Call pretranslate on the message to execute the message filters and preprocess message.
                         if (Application.ThreadContext.FromCurrent().PreTranslateMessage(ref *msg))
                         {
-                            msg->message = PInvokeCore.WM_NULL;
+                            msg->message = PInvoke.WM_NULL;
                         }
                     }
                 }

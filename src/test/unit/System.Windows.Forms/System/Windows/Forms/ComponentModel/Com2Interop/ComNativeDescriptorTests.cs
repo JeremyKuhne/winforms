@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -93,7 +93,7 @@ public unsafe class ComNativeDescriptorTests
     public void ComNativeDescriptor_GetProperties_FromActiveXMediaPlayerControl_ComInterop()
     {
         Guid guid = typeof(WindowsMediaPlayerClass).GUID;
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             in guid,
             pUnkOuter: null,
             CLSCTX.CLSCTX_INPROC_SERVER,
@@ -111,7 +111,7 @@ public unsafe class ComNativeDescriptorTests
     {
         Guid guid = typeof(WindowsMediaPlayerClass).GUID;
         ComScope<IUnknown> unknown = new(null);
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             &guid,
             null,
             CLSCTX.CLSCTX_INPROC_SERVER,

@@ -1,15 +1,18 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="CloseHandle(HANDLE)"/>
-    public static BOOL CloseHandle<T>(T handle) where T : IHandle<HANDLE>
+    extension(PInvoke)
     {
-        BOOL result = CloseHandle(handle.Handle);
-        GC.KeepAlive(handle.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.CloseHandle(HANDLE)"/>
+        public static BOOL CloseHandle<T>(T handle) where T : IHandle<HANDLE>
+        {
+            BOOL result = PInvoke.CloseHandle(handle.Handle);
+            GC.KeepAlive(handle.Wrapper);
+            return result;
+        }
     }
 }

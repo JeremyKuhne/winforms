@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -365,7 +365,7 @@ public sealed partial class Application
             }
 
             bool complete = false;
-            bool success = PInvoke.SendMessageCallback(hwnd, PInvokeCore.WM_SYSCOLORCHANGE + MessageId.WM_REFLECT, () => complete = true);
+            bool success = PInvoke.SendMessageCallback(hwnd, PInvoke.WM_SYSCOLORCHANGE + MessageId.WM_REFLECT, () => complete = true);
             Debug.Assert(success);
 
             if (!success)
@@ -722,7 +722,7 @@ public sealed partial class Application
 
                 // 248887 we need to send a WM_THEMECHANGED to the top level windows of this application.
                 // We do it this way to ensure that we get all top level windows -- whether we created them or not.
-                PInvokeCore.EnumWindows(SendThemeChanged);
+                PInvoke.EnumWindows(SendThemeChanged);
             }
         }
     }
@@ -733,7 +733,7 @@ public sealed partial class Application
     private static unsafe BOOL SendThemeChanged(HWND hwnd)
     {
         uint processId;
-        PInvokeCore.GetWindowThreadProcessId(hwnd, &processId);
+        PInvoke.GetWindowThreadProcessId(hwnd, &processId);
         if (processId == PInvoke.GetCurrentProcessId() && PInvoke.IsWindowVisible(hwnd))
         {
             SendThemeChangedRecursive(hwnd);
@@ -758,10 +758,10 @@ public sealed partial class Application
     private static BOOL SendThemeChangedRecursive(HWND handle)
     {
         // First send to all children.
-        PInvokeCore.EnumChildWindows(handle, SendThemeChangedRecursive);
+        PInvoke.EnumChildWindows(handle, SendThemeChangedRecursive);
 
         // Then send to ourself.
-        PInvokeCore.SendMessage(handle, PInvokeCore.WM_THEMECHANGED);
+        PInvoke.SendMessage(handle, PInvoke.WM_THEMECHANGED);
 
         return true;
     }
@@ -1166,7 +1166,7 @@ public sealed partial class Application
     /// </summary>
     internal static unsafe ThreadContext GetContextForHandle<T>(T handle) where T : IHandle<HWND>
     {
-        ThreadContext? threadContext = ThreadContext.FromId(PInvokeCore.GetWindowThreadProcessId(handle.Handle, null));
+        ThreadContext? threadContext = ThreadContext.FromId(PInvoke.GetWindowThreadProcessId(handle.Handle, null));
         Debug.Assert(
             threadContext is not null,
             "No thread context for handle. This is expected if you saw a previous assert about the handle being invalid.");
@@ -1231,7 +1231,7 @@ public sealed partial class Application
     {
         Debug.Assert(PInvoke.IsWindow(handle), "Handle being parked is not a valid window handle");
         Debug.Assert(
-            ((WINDOW_STYLE)PInvokeCore.GetWindowLong(handle.Handle, WINDOW_LONG_PTR_INDEX.GWL_STYLE)).HasFlag(WINDOW_STYLE.WS_CHILD),
+            ((WINDOW_STYLE)PInvoke.GetWindowLong(handle.Handle, WINDOW_LONG_PTR_INDEX.GWL_STYLE)).HasFlag(WINDOW_STYLE.WS_CHILD),
             "Only WS_CHILD windows should be parked.");
 
         GetContextForHandle(handle)?.GetParkingWindow(dpiAwarenessContext).ParkHandle(handle);

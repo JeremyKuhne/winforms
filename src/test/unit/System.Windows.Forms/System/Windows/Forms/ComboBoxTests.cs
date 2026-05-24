@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -1810,7 +1810,7 @@ public class ComboBoxTests
 
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_PAINT
+                Msg = (int)PInvoke.WM_PAINT
             };
             control.WndProc(ref m);
             Assert.Equal(expectedIsHandleCreated, control.IsHandleCreated);
@@ -1837,7 +1837,7 @@ public class ComboBoxTests
 
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_PAINT
+                Msg = (int)PInvoke.WM_PAINT
             };
             control.WndProc(ref m);
             Assert.Equal(expectedIsHandleCreated, control.IsHandleCreated);
@@ -1892,7 +1892,7 @@ public class ComboBoxTests
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_PAINT
+            Msg = (int)PInvoke.WM_PAINT
         };
         control.WndProc(ref m);
         Assert.True(control.IsHandleCreated);
@@ -1926,7 +1926,7 @@ public class ComboBoxTests
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_PAINT
+            Msg = (int)PInvoke.WM_PAINT
         };
         control.WndProc(ref m);
         Assert.True(control.IsHandleCreated);
@@ -1983,7 +1983,7 @@ public class ComboBoxTests
 
                 Message m = new()
                 {
-                    Msg = (int)PInvokeCore.WM_PAINT,
+                    Msg = (int)PInvoke.WM_PAINT,
                     WParam = hdc
                 };
                 control.WndProc(ref m);
@@ -2021,7 +2021,7 @@ public class ComboBoxTests
 
                 Message m = new()
                 {
-                    Msg = (int)PInvokeCore.WM_PAINT,
+                    Msg = (int)PInvoke.WM_PAINT,
                     WParam = hdc
                 };
                 control.WndProc(ref m);
@@ -2087,7 +2087,7 @@ public class ComboBoxTests
 
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_PAINT,
+                Msg = (int)PInvoke.WM_PAINT,
                 WParam = hdc
             };
             control.WndProc(ref m);
@@ -2132,7 +2132,7 @@ public class ComboBoxTests
 
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_PAINT,
+                Msg = (int)PInvoke.WM_PAINT,
                 WParam = hdc
             };
             control.WndProc(ref m);

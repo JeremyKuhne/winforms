@@ -1,21 +1,24 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="SHCreateItemFromParsingName(string, System.Com.IBindCtx*, in Guid, out void*)"/>
-    public static unsafe IShellItem* SHCreateItemFromParsingName(string path)
+    extension(PInvoke)
     {
-        HRESULT hr = SHCreateItemFromParsingName(path, pbc: null, in IID.GetRef<IShellItem>(), out void* ppv);
-        if (hr.Failed)
+        /// <inheritdoc cref="PInvoke.SHCreateItemFromParsingName(string, System.Com.IBindCtx*, in Guid, out void*)"/>
+        public static unsafe IShellItem* SHCreateItemFromParsingName(string path)
         {
-            throw new Win32Exception((int)hr);
-        }
+            HRESULT hr = PInvoke.SHCreateItemFromParsingName(path, pbc: null, in IID.GetRef<IShellItem>(), out void* ppv);
+            if (hr.Failed)
+            {
+                throw new Win32Exception((int)hr);
+            }
 
-        return (IShellItem*)ppv;
+            return (IShellItem*)ppv;
+        }
     }
 }

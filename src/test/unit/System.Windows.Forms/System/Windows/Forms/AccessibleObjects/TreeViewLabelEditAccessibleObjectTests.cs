@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -20,7 +20,7 @@ public class TreeViewLabelEditAccessibleObjectTests
         var accessibilityObject = (TreeViewLabelEditAccessibleObject)labelEdit.AccessibilityObject;
         using VARIANT runtimeId = accessibilityObject.GetPropertyValue(UIA_PROPERTY_ID.UIA_RuntimeIdPropertyId);
         Assert.Equal(accessibilityObject.RuntimeId, runtimeId.ToObject());
-        PInvokeCore.GetWindowRect(labelEdit, out RECT r);
+        PInvoke.GetWindowRect(labelEdit, out RECT r);
         using VARIANT rectArrayVariant = accessibilityObject.GetPropertyValue(UIA_PROPERTY_ID.UIA_BoundingRectanglePropertyId);
         double[] actualArray = (double[])rectArrayVariant.ToObject();
         Rectangle actualRectangle = new((int)actualArray[0], (int)actualArray[1], (int)actualArray[2], (int)actualArray[3]);

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -107,7 +107,7 @@ internal sealed partial class DesignerActionPanel
             {
                 while (!hWnd.IsNull)
                 {
-                    hWnd = (HWND)PInvokeCore.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
+                    hWnd = (HWND)PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
                     if (hWnd.IsNull)
                     {
                         return false;
@@ -138,13 +138,13 @@ internal sealed partial class DesignerActionPanel
             {
                 try
                 {
-                    PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, parent.Handle);
+                    PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, parent.Handle);
 
                     // Lifted directly from Form.ShowDialog().
                     HWND hWndCapture = PInvoke.GetCapture();
                     if (!hWndCapture.IsNull)
                     {
-                        PInvokeCore.SendMessage(hWndCapture, PInvokeCore.WM_CANCELMODE);
+                        PInvoke.SendMessage(hWndCapture, PInvoke.WM_CANCELMODE);
                         PInvoke.ReleaseCapture();
                     }
 
@@ -154,7 +154,7 @@ internal sealed partial class DesignerActionPanel
                 }
                 finally
                 {
-                    PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, IntPtr.Zero);
+                    PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, IntPtr.Zero);
 
                     // sometimes activation goes to LALA land - if our parent control is still around,
                     // remind it to take focus.
@@ -167,7 +167,7 @@ internal sealed partial class DesignerActionPanel
 
             protected override void WndProc(ref Message m)
             {
-                if (m.MsgInternal == PInvokeCore.WM_ACTIVATE
+                if (m.MsgInternal == PInvoke.WM_ACTIVATE
                     && Visible
                     && m.WParamInternal.LOWORD == PInvoke.WA_INACTIVE
                     && !OwnsWindow((HWND)m.LParamInternal))

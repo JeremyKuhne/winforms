@@ -5,16 +5,19 @@ using System.Drawing;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="GetTextExtentPoint32W(HDC, PCWSTR, int, SIZE*)"/>
-    public static unsafe BOOL GetTextExtentPoint32W<T>(T hdc, string lpString, int c, Size size) where T : IHandle<HDC>
+    extension(PInvoke)
     {
-        fixed (char* pString = lpString)
+        /// <inheritdoc cref="GetTextExtentPoint32W(HDC, PCWSTR, int, SIZE*)"/>
+        public static unsafe BOOL GetTextExtentPoint32W<T>(T hdc, string lpString, int c, Size size) where T : IHandle<HDC>
         {
-            BOOL result = GetTextExtentPoint32W(hdc.Handle, pString, c, (SIZE*)(void*)&size);
-            GC.KeepAlive(hdc.Wrapper);
-            return result;
+            fixed (char* pString = lpString)
+            {
+                BOOL result = PInvoke.GetTextExtentPoint32W(hdc.Handle, pString, c, (SIZE*)(void*)&size);
+                GC.KeepAlive(hdc.Wrapper);
+                return result;
+            }
         }
     }
 }

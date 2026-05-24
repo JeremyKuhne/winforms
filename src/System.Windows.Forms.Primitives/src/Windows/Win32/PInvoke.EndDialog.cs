@@ -1,16 +1,19 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="EndDialog(HWND, nint)"/>
-    public static BOOL EndDialog<T>(T hDlg, IntPtr nResult)
-        where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        BOOL result = EndDialog(hDlg.Handle, nResult);
-        GC.KeepAlive(hDlg.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.EndDialog(HWND, nint)"/>
+        public static BOOL EndDialog<T>(T hDlg, IntPtr nResult)
+            where T : IHandle<HWND>
+        {
+            BOOL result = PInvoke.EndDialog(hDlg.Handle, nResult);
+            GC.KeepAlive(hDlg.Wrapper);
+            return result;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -430,7 +430,7 @@ public partial class ControlTests
         Assert.NotEqual(IntPtr.Zero, control.Handle);
 
         int newDpi = control.DeviceDpi == 96 ? 120 : 96;
-        Message message = Message.Create((HWND)control.Handle, PInvokeCore.WM_DPICHANGED_BEFOREPARENT, (WPARAM)newDpi, (LPARAM)0);
+        Message message = Message.Create((HWND)control.Handle, PInvoke.WM_DPICHANGED_BEFOREPARENT, (WPARAM)newDpi, (LPARAM)0);
 
         control.WndProc(ref message);
 

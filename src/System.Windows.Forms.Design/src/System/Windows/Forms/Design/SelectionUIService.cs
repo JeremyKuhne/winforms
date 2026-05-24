@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -837,15 +837,15 @@ internal sealed partial class SelectionUIService : Control, ISelectionUIService
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_LBUTTONUP:
-            case PInvokeCore.WM_RBUTTONUP:
+            case PInvoke.WM_LBUTTONUP:
+            case PInvoke.WM_RBUTTONUP:
                 if (_mouseDragAnchor != s_invalidPoint)
                 {
                     _ignoreCaptureChanged = true;
                 }
 
                 break;
-            case PInvokeCore.WM_CAPTURECHANGED:
+            case PInvoke.WM_CAPTURECHANGED:
                 if (!_ignoreCaptureChanged && _mouseDragAnchor != s_invalidPoint)
                 {
                     EndMouseDrag(MousePosition);

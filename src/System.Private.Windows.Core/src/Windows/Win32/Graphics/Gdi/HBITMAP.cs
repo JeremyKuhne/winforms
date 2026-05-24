@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -9,7 +9,7 @@ internal readonly partial struct HBITMAP : IDisposable
     {
         if (!IsNull)
         {
-            PInvokeCore.DeleteObject(this);
+            PInvoke.DeleteObject(this);
         }
     }
 
@@ -26,11 +26,11 @@ internal readonly partial struct HBITMAP : IDisposable
 
         // Create a compatible DC and a new compatible bitmap.
         using CreateDcScope destinationDC = new(screenDC);
-        HBITMAP compatibleBitmap = PInvokeCore.CreateCompatibleBitmap(screenDC, width, height);
+        HBITMAP compatibleBitmap = PInvoke.CreateCompatibleBitmap(screenDC, width, height);
 
         // Select the new bitmap into a compatible DC and blit in the original bitmap.
         using SelectObjectScope destinationBitmapSelection = new(destinationDC, compatibleBitmap);
-        PInvokeCore.BitBlt(
+        PInvoke.BitBlt(
             destinationDC,
             0,
             0,

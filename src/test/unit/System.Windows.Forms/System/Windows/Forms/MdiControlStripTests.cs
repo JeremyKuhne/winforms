@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -330,7 +330,7 @@ public class MdiControlStripTests
         // Force size change with large icon
         HICON hicon = (HICON)new Bitmap(256, 256).GetHicon();
         Icon largeIcon = (Icon)Icon.FromHandle(hicon).Clone();
-        PInvokeCore.DestroyIcon(hicon);
+        PInvoke.DestroyIcon(hicon);
         mdiChild.Icon = largeIcon;
 
         MdiControlStrip currentMdiControlStrip = mdiParent.TestAccessor.Dynamic.MdiControlStrip;

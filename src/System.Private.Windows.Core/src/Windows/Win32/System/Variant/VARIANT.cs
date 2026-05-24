@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -62,7 +62,7 @@ internal unsafe partial struct VARIANT : IDisposable
 
         fixed (void* t = &this)
         {
-            PInvokeCore.PropVariantClear((PROPVARIANT*)t);
+            PInvoke.PropVariantClear((PROPVARIANT*)t);
         }
 
         Anonymous.Anonymous.vt = VT_EMPTY;
@@ -279,7 +279,7 @@ internal unsafe partial struct VARIANT : IDisposable
         {
         }
 
-        HRESULT hr = PInvokeCore.SafeArrayLock(psa);
+        HRESULT hr = PInvoke.SafeArrayLock(psa);
         Debug.Assert(hr == HRESULT.S_OK);
 
         try
@@ -437,7 +437,7 @@ internal unsafe partial struct VARIANT : IDisposable
                 pin.Free();
             }
 
-            hr = PInvokeCore.SafeArrayUnlock(psa);
+            hr = PInvoke.SafeArrayUnlock(psa);
             Debug.Assert(hr == HRESULT.S_OK);
         }
 

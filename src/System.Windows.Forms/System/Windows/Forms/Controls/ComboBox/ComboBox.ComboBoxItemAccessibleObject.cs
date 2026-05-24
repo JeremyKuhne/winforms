@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -38,7 +38,7 @@ public partial class ComboBox
                 var listHandle = _owningComboBox.GetListHandle();
                 RECT itemRect = default;
 
-                int result = (int)PInvokeCore.SendMessage(
+                int result = (int)PInvoke.SendMessage(
                     listHandle,
                     PInvoke.LB_GETITEMRECT,
                     (WPARAM)currentIndex,
@@ -51,7 +51,7 @@ public partial class ComboBox
 
                 // Translate the item rect to screen coordinates
                 RECT translated = itemRect;
-                PInvokeCore.MapWindowPoints(listHandle, HWND.Null, ref translated);
+                PInvoke.MapWindowPoints(listHandle, HWND.Null, ref translated);
                 return translated;
             }
         }
@@ -182,7 +182,7 @@ public partial class ComboBox
                 return;
             }
 
-            PInvokeCore.SendMessage(_owningComboBox, PInvoke.CB_SETTOPINDEX, (WPARAM)GetCurrentIndex());
+            PInvoke.SendMessage(_owningComboBox, PInvoke.CB_SETTOPINDEX, (WPARAM)GetCurrentIndex());
         }
 
         internal override void SetFocus()

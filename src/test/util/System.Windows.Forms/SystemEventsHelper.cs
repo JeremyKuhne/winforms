@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
@@ -34,12 +34,12 @@ public static class SystemEventsHelper
         WPARAM wParam;
         if (category == UserPreferenceCategory.Color)
         {
-            msg = PInvokeCore.WM_SYSCOLORCHANGE;
+            msg = PInvoke.WM_SYSCOLORCHANGE;
             wParam = 0;
         }
         else
         {
-            msg = PInvokeCore.WM_SETTINGCHANGE;
+            msg = PInvoke.WM_SETTINGCHANGE;
 
             if (category == UserPreferenceCategory.Accessibility)
             {
@@ -84,6 +84,6 @@ public static class SystemEventsHelper
         }
 
         // Call with reflect to immediately send the message.
-        PInvokeCore.SendMessage(window, msg | MessageId.WM_REFLECT, wParam);
+        PInvoke.SendMessage(window, msg | MessageId.WM_REFLECT, wParam);
     }
 }

@@ -1,9 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvokeCore
+internal static partial class PInvoke
 {
     // We only ever call this on 32 bit so IntPtr is correct
     // https://msdn.microsoft.com/library/windows/desktop/ms633580.aspx

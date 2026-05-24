@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -303,14 +303,14 @@ public class FontDialog : CommonDialog
     {
         switch ((uint)msg)
         {
-            case PInvokeCore.WM_COMMAND:
+            case PInvoke.WM_COMMAND:
                 if (wparam != 0x402)
                 {
                     break;
                 }
 
                 LOGFONT logFont = default;
-                PInvokeCore.SendMessage((HWND)hWnd, PInvokeCore.WM_CHOOSEFONT_GETLOGFONT, (WPARAM)0, ref logFont);
+                PInvoke.SendMessage((HWND)hWnd, PInvoke.WM_CHOOSEFONT_GETLOGFONT, (WPARAM)0, ref logFont);
                 UpdateFont(ref logFont);
                 int index = (int)PInvoke.SendDlgItemMessage((HWND)hWnd, (int)PInvoke.cmb4, PInvoke.CB_GETCURSEL, 0, 0);
                 if (index != PInvoke.CB_ERR)
@@ -340,7 +340,7 @@ public class FontDialog : CommonDialog
                 }
 
                 break;
-            case PInvokeCore.WM_INITDIALOG:
+            case PInvoke.WM_INITDIALOG:
                 if (!ShowColor)
                 {
                     HWND hWndCtl = PInvoke.GetDlgItem((HWND)hWnd, (int)PInvoke.cmb4);
@@ -414,7 +414,7 @@ public class FontDialog : CommonDialog
         // https://microsoft.visualstudio.com/OS/_workitems/edit/42835582
         using (ScaleHelper.EnterDpiAwarenessScope(DPI_AWARENESS_CONTEXT.DPI_AWARENESS_CONTEXT_SYSTEM_AWARE))
         {
-            if (!PInvoke.ChooseFont(&cf))
+            if (!PInvokeForms.ChooseFont(&cf))
             {
                 return false;
             }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -134,17 +134,17 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
         ArgumentNullException.ThrowIfNull(dataObject);
 
         // https://learn.microsoft.com/windows/win32/shell/clipboard#cfstr_indragloop
-        if (dataObject.GetDataPresent(PInvokeCore.CFSTR_INDRAGLOOP)
-            && dataObject.GetData(PInvokeCore.CFSTR_INDRAGLOOP) is DragDropFormat dragDropFormat)
+        if (dataObject.GetDataPresent(PInvoke.CFSTR_INDRAGLOOP)
+            && dataObject.GetData(PInvoke.CFSTR_INDRAGLOOP) is DragDropFormat dragDropFormat)
         {
             try
             {
-                void* basePtr = PInvokeCore.GlobalLock(dragDropFormat.Medium.hGlobal);
+                void* basePtr = PInvoke.GlobalLock(dragDropFormat.Medium.hGlobal);
                 return (basePtr is not null) && (*(BOOL*)basePtr == true);
             }
             finally
             {
-                PInvokeCore.GlobalUnlock(dragDropFormat.Medium.hGlobal);
+                PInvoke.GlobalUnlock(dragDropFormat.Medium.hGlobal);
             }
         }
         else
@@ -166,8 +166,8 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
             || formatName.Equals(DataFormatNames.DragImageBits)
             || formatName.Equals(DataFormatNames.DragSourceHelperFlags)
             || formatName.Equals(DataFormatNames.DragWindow)
-            || formatName.Equals(PInvokeCore.CFSTR_DROPDESCRIPTION)
-            || formatName.Equals(PInvokeCore.CFSTR_INDRAGLOOP)
+            || formatName.Equals(PInvoke.CFSTR_DROPDESCRIPTION)
+            || formatName.Equals(PInvoke.CFSTR_INDRAGLOOP)
             || formatName.Equals(DataFormatNames.IsShowingLayered)
             || formatName.Equals(DataFormatNames.IsShowingText)
             || formatName.Equals(DataFormatNames.UsingDefaultDragImage);
@@ -197,7 +197,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
 
         FORMATETC formatEtc = new()
         {
-            cfFormat = (ushort)(short)PInvokeCore.RegisterClipboardFormat(format),
+            cfFormat = (ushort)(short)PInvoke.RegisterClipboardFormat(format),
             dwAspect = (uint)DVASPECT.DVASPECT_CONTENT,
             lindex = -1,
             ptd = null,
@@ -208,7 +208,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
         {
             pUnkForRelease = null,
             tymed = TYMED.TYMED_HGLOBAL,
-            hGlobal = PInvokeCore.GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, (nuint)sizeof(BOOL))
+            hGlobal = PInvoke.GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, (nuint)sizeof(BOOL))
         };
 
         if (medium.hGlobal.IsNull)
@@ -216,15 +216,15 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
             throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
-        void* basePtr = PInvokeCore.GlobalLock(medium.hGlobal);
+        void* basePtr = PInvoke.GlobalLock(medium.hGlobal);
         if (basePtr is null)
         {
-            PInvokeCore.GlobalFree(medium.hGlobal);
+            PInvoke.GlobalFree(medium.hGlobal);
             throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
         *(BOOL*)basePtr = value;
-        PInvokeCore.GlobalUnlock(medium.hGlobal);
+        PInvoke.GlobalUnlock(medium.hGlobal);
         dataObject.SetData(&formatEtc, &medium, true);
     }
 
@@ -283,14 +283,14 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
             hbmpDragImage = hbmpDragImage,
             sizeDragImage = dragImage is not null ? dragImage.Size : default,
             ptOffset = cursorOffset,
-            crColorKey = (COLORREF)PInvokeCore.GetSysColor(SYS_COLOR_INDEX.COLOR_WINDOW)
+            crColorKey = (COLORREF)PInvoke.GetSysColor(SYS_COLOR_INDEX.COLOR_WINDOW)
         };
 
         // Allow text specified in DROPDESCRIPTION to be displayed on the drag image. If you pass a drag image into an IDragSourceHelper
         // object, then by default, the extra text description of the drag-and-drop operation is not displayed.
         if (dragSourceHelper.Value->SetFlags((uint)DSH_FLAGS.DSH_ALLOWDROPDESCRIPTIONTEXT).Failed)
         {
-            PInvokeCore.DeleteObject(hbmpDragImage);
+            PInvoke.DeleteObject(hbmpDragImage);
             return;
         }
 
@@ -343,19 +343,19 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
             throw new InvalidEnumArgumentException(nameof(dropImageType), (int)dropImageType, typeof(DROPIMAGETYPE));
         }
 
-        if (message.Length >= (int)PInvokeCore.MAX_PATH)
+        if (message.Length >= (int)PInvoke.MAX_PATH)
         {
             throw new ArgumentOutOfRangeException(nameof(message));
         }
 
-        if (messageReplacementToken.Length >= (int)PInvokeCore.MAX_PATH)
+        if (messageReplacementToken.Length >= (int)PInvoke.MAX_PATH)
         {
             throw new ArgumentOutOfRangeException(nameof(messageReplacementToken));
         }
 
         FORMATETC formatEtc = new()
         {
-            cfFormat = (ushort)(short)PInvokeCore.RegisterClipboardFormat(PInvokeCore.CFSTR_DROPDESCRIPTION),
+            cfFormat = (ushort)(short)PInvoke.RegisterClipboardFormat(PInvoke.CFSTR_DROPDESCRIPTION),
             dwAspect = (uint)DVASPECT.DVASPECT_CONTENT,
             lindex = -1,
             ptd = null,
@@ -366,7 +366,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
         {
             pUnkForRelease = null,
             tymed = TYMED.TYMED_HGLOBAL,
-            hGlobal = PInvokeCore.GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, (nuint)sizeof(DROPDESCRIPTION))
+            hGlobal = PInvoke.GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, (nuint)sizeof(DROPDESCRIPTION))
         };
 
         if (medium.hGlobal.IsNull)
@@ -374,10 +374,10 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
             throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
-        void* basePtr = PInvokeCore.GlobalLock(medium.hGlobal);
+        void* basePtr = PInvoke.GlobalLock(medium.hGlobal);
         if (basePtr is null)
         {
-            PInvokeCore.GlobalFree(medium.hGlobal);
+            PInvoke.GlobalFree(medium.hGlobal);
             throw new Win32Exception(Marshal.GetLastWin32Error(), SR.ExternalException);
         }
 
@@ -385,7 +385,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
         pDropDescription->type = dropImageType;
         pDropDescription->szMessage = message;
         pDropDescription->szInsert = messageReplacementToken;
-        PInvokeCore.GlobalUnlock(medium.hGlobal);
+        PInvoke.GlobalUnlock(medium.hGlobal);
 
         // Set the InShellDragLoop flag to true to facilitate loading and retrieving arbitrary private formats. The
         // drag-and-drop helper object calls IDataObject::SetData to load private formats--used for cross-process support--into
@@ -411,7 +411,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
     /// </remarks>
     public static void SetInDragLoop(IComVisibleDataObject dataObject, bool inDragLoop)
     {
-        SetBooleanFormat(dataObject, PInvokeCore.CFSTR_INDRAGLOOP, inDragLoop);
+        SetBooleanFormat(dataObject, PInvoke.CFSTR_INDRAGLOOP, inDragLoop);
 
         // If drag loop is over, release the drag and drop formats.
         if (!inDragLoop)
@@ -456,7 +456,7 @@ internal static unsafe class DragDropHelper<TOleServices, TDataFormat>
         s_oleServices.EnsureThreadState();
 #endif
 
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             CLSID.DragDropHelper,
             pUnkOuter: null,
             CLSCTX.CLSCTX_INPROC_SERVER,

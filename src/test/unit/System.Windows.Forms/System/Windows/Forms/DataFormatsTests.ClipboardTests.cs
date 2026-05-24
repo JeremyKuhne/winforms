@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -14,8 +14,8 @@ public partial class DataFormatsTests
     {
         public static IEnumerable<object[]> GetFormat_Int_TestData()
         {
-            uint manuallyRegisteredFormatId = PInvokeCore.RegisterClipboardFormat("ManuallyRegisteredFormat");
-            uint longManuallyRegisteredFormatId = PInvokeCore.RegisterClipboardFormat(new string('a', 255));
+            uint manuallyRegisteredFormatId = PInvoke.RegisterClipboardFormat("ManuallyRegisteredFormat");
+            uint longManuallyRegisteredFormatId = PInvoke.RegisterClipboardFormat(new string('a', 255));
             yield return new object[] { (int)manuallyRegisteredFormatId, "ManuallyRegisteredFormat" };
             yield return new object[] { (int)longManuallyRegisteredFormatId, new string('a', 255) };
         }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -2073,13 +2073,13 @@ public class GroupBoxTests
 
     public static IEnumerable<object[]> WndProc_EraseBkgnd_TestData()
     {
-        yield return new object[] { PInvokeCore.WM_ERASEBKGND };
-        yield return new object[] { PInvokeCore.WM_PRINTCLIENT };
+        yield return new object[] { PInvoke.WM_ERASEBKGND };
+        yield return new object[] { PInvoke.WM_PRINTCLIENT };
     }
 
     [WinFormsTheory]
-    [InlineData((int)PInvokeCore.WM_ERASEBKGND)]
-    [InlineData((int)PInvokeCore.WM_PRINTCLIENT)]
+    [InlineData((int)PInvoke.WM_ERASEBKGND)]
+    [InlineData((int)PInvoke.WM_PRINTCLIENT)]
     public void GroupBox_WndProc_InvokeEraseBkgndNotOwnerDrawWithoutHandle_Success(int msg)
     {
         using SubGroupBox control = new()
@@ -2108,8 +2108,8 @@ public class GroupBoxTests
     }
 
     [WinFormsTheory]
-    [InlineData((int)PInvokeCore.WM_ERASEBKGND)]
-    [InlineData((int)PInvokeCore.WM_PRINTCLIENT)]
+    [InlineData((int)PInvoke.WM_ERASEBKGND)]
+    [InlineData((int)PInvoke.WM_PRINTCLIENT)]
     public void GroupBox_WndProc_InvokeEraseBkgndNotOwnerDrawWithHandle_Success(int msg)
     {
         using SubGroupBox control = new()
@@ -2149,8 +2149,8 @@ public class GroupBoxTests
     }
 
     [WinFormsTheory]
-    [InlineData((int)PInvokeCore.WM_ERASEBKGND)]
-    [InlineData((int)PInvokeCore.WM_PRINTCLIENT)]
+    [InlineData((int)PInvoke.WM_ERASEBKGND)]
+    [InlineData((int)PInvoke.WM_PRINTCLIENT)]
     public void GroupBox_WndProc_InvokeEraseBkgndNotOwnerDrawZeroWParam_DoesNotThrow(int msg)
     {
         using SubGroupBox control = new()
@@ -2194,7 +2194,7 @@ public class GroupBoxTests
         {
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_ERASEBKGND,
+                Msg = (int)PInvoke.WM_ERASEBKGND,
                 WParam = hdc,
                 Result = 250
             };
@@ -2239,7 +2239,7 @@ public class GroupBoxTests
         {
             Message m = new()
             {
-                Msg = (int)PInvokeCore.WM_PRINTCLIENT,
+                Msg = (int)PInvoke.WM_PRINTCLIENT,
                 WParam = hdc,
                 Result = 250
             };
@@ -2282,7 +2282,7 @@ public class GroupBoxTests
         };
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEHOVER,
+            Msg = (int)PInvoke.WM_MOUSEHOVER,
             Result = 250
         };
         control.WndProc(ref m);

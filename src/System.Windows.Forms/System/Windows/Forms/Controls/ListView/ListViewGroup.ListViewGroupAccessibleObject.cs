@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -56,7 +56,7 @@ public partial class ListViewGroup
                 // Using the "top" property, we set which rectangle type of the group we want to get
                 // This is described in more detail in https://docs.microsoft.com/windows/win32/controls/lvm-getgrouprect
                 groupRect.top = (int)rectType;
-                PInvokeCore.SendMessage(_owningListView, PInvoke.LVM_GETGROUPRECT, (WPARAM)nativeGroupId, ref groupRect);
+                PInvoke.SendMessage(_owningListView, PInvoke.LVM_GETGROUPRECT, (WPARAM)nativeGroupId, ref groupRect);
 
                 // Using the following code, we limit the size of the ListViewGroup rectangle
                 // so that it does not go beyond the rectangle of the ListView
@@ -162,7 +162,7 @@ public partial class ListViewGroup
                 return false;
             }
 
-            return (LIST_VIEW_GROUP_STATE_FLAGS)(uint)PInvokeCore.SendMessage(
+            return (LIST_VIEW_GROUP_STATE_FLAGS)(uint)PInvoke.SendMessage(
                 _owningListView,
                 PInvoke.LVM_GETGROUPSTATE,
                 (WPARAM)nativeGroupId,
@@ -171,7 +171,7 @@ public partial class ListViewGroup
 
         private int GetNativeGroupId()
         {
-            if (PInvokeCore.SendMessage(_owningListView, PInvoke.LVM_HASGROUP, (WPARAM)_owningGroup.ID) == 0)
+            if (PInvoke.SendMessage(_owningListView, PInvoke.LVM_HASGROUP, (WPARAM)_owningGroup.ID) == 0)
             {
                 return -1;
             }

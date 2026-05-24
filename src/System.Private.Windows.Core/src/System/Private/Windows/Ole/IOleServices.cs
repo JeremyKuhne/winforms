@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -96,19 +96,19 @@ internal unsafe interface IOleServices
 #endif
     IComVisibleDataObject CreateDataObject();
 
-    /// <inheritdoc cref="PInvokeCore.OleGetClipboard(IDataObject**)"/>
+    /// <inheritdoc cref="PInvoke.OleGetClipboard(IDataObject**)"/>
 #if NET
     static abstract
 #endif
     HRESULT OleGetClipboard(IDataObject** dataObject);
 
-    /// <inheritdoc cref="PInvokeCore.OleSetClipboard(IDataObject*)"/>
+    /// <inheritdoc cref="PInvoke.OleSetClipboard(IDataObject*)"/>
 #if NET
     static abstract
 #endif
     HRESULT OleSetClipboard(IDataObject* dataObject);
 
-    /// <inheritdoc cref="PInvokeCore.OleFlushClipboard"/>
+    /// <inheritdoc cref="PInvoke.OleFlushClipboard"/>
 #if NET
     static abstract
 #endif

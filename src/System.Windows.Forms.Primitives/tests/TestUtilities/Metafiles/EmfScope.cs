@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -44,7 +44,7 @@ internal class EmfScope :
         fixed (char* pFileName = lpFilename)
         fixed (char* pDesc = lpDesc)
         {
-            HDC metafileHdc = PInvokeCore.CreateEnhMetaFile(hdc, pFileName, lprc, pDesc);
+            HDC metafileHdc = PInvoke.CreateEnhMetaFile(hdc, pFileName, lprc, pDesc);
             if (metafileHdc.IsNull)
             {
                 throw new Win32Exception("Could not create metafile");
@@ -67,7 +67,7 @@ internal class EmfScope :
                     return default;
                 }
 
-                _hemf = PInvokeCore.CloseEnhMetaFile(HDC);
+                _hemf = PInvoke.CloseEnhMetaFile(HDC);
             }
 
             return _hemf;
@@ -80,7 +80,7 @@ internal class EmfScope :
         try
         {
             IntPtr callback = Marshal.GetFunctionPointerForDelegate(CallBack);
-            PInvokeCore.EnumEnhMetaFile(
+            PInvoke.EnumEnhMetaFile(
                 default,
                 HENHMETAFILE,
                 (delegate* unmanaged[Stdcall]<HDC, HANDLETABLE*, ENHMETARECORD*, int, LPARAM, int>)callback,
@@ -250,7 +250,7 @@ internal class EmfScope :
     {
         if (!HDC.IsNull)
         {
-            PInvokeCore.DeleteEnhMetaFile(HENHMETAFILE);
+            PInvoke.DeleteEnhMetaFile(HENHMETAFILE);
         }
 
         GC.SuppressFinalize(this);

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -152,7 +152,7 @@ public class MonthCalendar_CalendarCellAccessibleObjectTests
         control.SelectionStart = new DateTime(2021, 6, 16); // Set a date to have a stable test case
 
         control.CreateControl();
-        PInvokeCore.SendMessage(control, PInvoke.MCM_SETCURRENTVIEW, 0, view);
+        PInvoke.SendMessage(control, PInvoke.MCM_SETCURRENTVIEW, 0, view);
 
         CalendarCellAccessibleObject cellAccessibleObject = CreateCalendarCellAccessibleObject(control, 0, 2, 2);
 

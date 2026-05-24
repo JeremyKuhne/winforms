@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -204,14 +204,14 @@ public partial class ListBox
 
             if (_owningListBox.SelectedIndex == -1) // no item selected
             {
-                PInvokeCore.SendMessage(_owningListBox, PInvoke.LB_SETCARETINDEX, (WPARAM)currentIndex);
+                PInvoke.SendMessage(_owningListBox, PInvoke.LB_SETCARETINDEX, (WPARAM)currentIndex);
                 return;
             }
 
-            int firstVisibleIndex = (int)PInvokeCore.SendMessage(_owningListBox, PInvoke.LB_GETTOPINDEX);
+            int firstVisibleIndex = (int)PInvoke.SendMessage(_owningListBox, PInvoke.LB_GETTOPINDEX);
             if (currentIndex < firstVisibleIndex)
             {
-                PInvokeCore.SendMessage(_owningListBox, PInvoke.LB_SETTOPINDEX, (WPARAM)currentIndex);
+                PInvoke.SendMessage(_owningListBox, PInvoke.LB_SETTOPINDEX, (WPARAM)currentIndex);
                 return;
             }
 
@@ -221,7 +221,7 @@ public partial class ListBox
 
             for (int i = firstVisibleIndex; i < itemsCount; i++)
             {
-                int itemHeight = (int)PInvokeCore.SendMessage(_owningListBox, PInvoke.LB_GETITEMHEIGHT, (WPARAM)i);
+                int itemHeight = (int)PInvoke.SendMessage(_owningListBox, PInvoke.LB_GETITEMHEIGHT, (WPARAM)i);
 
                 if ((itemsHeightSum += itemHeight) <= listBoxHeight)
                 {
@@ -233,7 +233,7 @@ public partial class ListBox
 
                 if (currentIndex > lastVisibleIndex)
                 {
-                    PInvokeCore.SendMessage(_owningListBox, PInvoke.LB_SETTOPINDEX, (WPARAM)(currentIndex - visibleItemsCount + 1));
+                    PInvoke.SendMessage(_owningListBox, PInvoke.LB_SETTOPINDEX, (WPARAM)(currentIndex - visibleItemsCount + 1));
                 }
 
                 break;

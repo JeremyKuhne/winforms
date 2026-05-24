@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -230,7 +230,7 @@ public abstract unsafe class Image : MarshalByRefObject, IImage, IDisposable, IC
         Guid encoder = format.Encoder;
         if (encoder == Guid.Empty)
         {
-            encoder = ImageCodecInfoHelper.GetEncoderClsid(PInvokeCore.ImageFormatPNG);
+            encoder = ImageCodecInfoHelper.GetEncoderClsid(PInvoke.ImageFormatPNG);
         }
 
         Save(filename, encoder, null);

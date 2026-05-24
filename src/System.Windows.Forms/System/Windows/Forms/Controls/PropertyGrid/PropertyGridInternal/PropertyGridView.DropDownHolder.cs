@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -265,7 +265,7 @@ internal partial class PropertyGridView
         {
             while (!hWnd.IsNull)
             {
-                hWnd = (HWND)PInvokeCore.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
+                hWnd = (HWND)PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
                 if (hWnd.IsNull)
                 {
                     return false;
@@ -661,7 +661,7 @@ internal partial class PropertyGridView
 
         protected override void WndProc(ref Message m)
         {
-            if (m.MsgInternal == PInvokeCore.WM_ACTIVATE)
+            if (m.MsgInternal == PInvoke.WM_ACTIVATE)
             {
                 SetState(States.Modal, true);
                 HWND activatedWindow = (HWND)m.LParamInternal;
@@ -671,7 +671,7 @@ internal partial class PropertyGridView
                     return;
                 }
             }
-            else if (m.MsgInternal == PInvokeCore.WM_CLOSE)
+            else if (m.MsgInternal == PInvoke.WM_CLOSE)
             {
                 // Don't let an ALT-F4 get you down.
                 if (Visible)
@@ -681,7 +681,7 @@ internal partial class PropertyGridView
 
                 return;
             }
-            else if (m.MsgInternal == PInvokeCore.WM_DPICHANGED)
+            else if (m.MsgInternal == PInvoke.WM_DPICHANGED)
             {
                 // Dropdownholder in PropertyGridView is already scaled based on the parent font and other
                 // properties that were already set for the new DPI. This case is to avoid rescaling

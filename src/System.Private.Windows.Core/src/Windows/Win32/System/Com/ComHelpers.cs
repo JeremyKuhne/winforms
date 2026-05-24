@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -353,7 +353,7 @@ internal static unsafe partial class ComHelpers
         // caching is by the type library path, so the guid needs looked up again in the registry to figure out the
         // path again.
         using ComScope<ITypeLib> typelib = new(null);
-        HRESULT hr = PInvokeCore.LoadRegTypeLib(typeLibrary, majorVersion, minorVersion, 0, typelib);
+        HRESULT hr = PInvoke.LoadRegTypeLib(typeLibrary, majorVersion, minorVersion, 0, typelib);
         hr.ThrowOnFailure();
 
         ComScope<ITypeInfo> typeInfo = new(null);

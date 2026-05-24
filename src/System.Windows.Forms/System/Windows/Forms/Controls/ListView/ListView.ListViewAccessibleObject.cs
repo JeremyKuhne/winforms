@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -25,7 +25,7 @@ public partial class ListView
             {
                 if (this.IsOwnerHandleCreated(out ListView? owningListView))
                 {
-                    PInvokeCore.GetWindowRect(owningListView, out var rect);
+                    PInvoke.GetWindowRect(owningListView, out var rect);
                     return rect;
                 }
 

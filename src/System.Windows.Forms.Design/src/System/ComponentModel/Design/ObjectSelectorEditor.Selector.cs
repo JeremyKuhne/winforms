@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Windows.Forms;
@@ -190,10 +190,10 @@ public abstract partial class ObjectSelectorEditor
         {
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_GETDLGCODE:
+                case PInvoke.WM_GETDLGCODE:
                     m.ResultInternal = (LRESULT)(m.ResultInternal | (int)PInvoke.DLGC_WANTALLKEYS);
                     return;
-                case PInvokeCore.WM_MOUSEMOVE:
+                case PInvoke.WM_MOUSEMOVE:
                     if (clickSeen)
                     {
                         clickSeen = false;

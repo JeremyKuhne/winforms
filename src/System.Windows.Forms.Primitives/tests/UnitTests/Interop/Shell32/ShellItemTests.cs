@@ -13,7 +13,7 @@ public class ShellItemTests
     {
         string path = Path.GetTempPath();
         uint rgflnOut = default;
-        HRESULT result = PInvoke.SHParseDisplayName(path, pbc: null, out ITEMIDLIST* ppidl, 0, &rgflnOut);
+        HRESULT result = PInvoke.SHParseDisplayName(path, pbc: null, out ITEMIDLIST* ppidl, 0, out rgflnOut);
         try
         {
             Assert.Equal(HRESULT.S_OK, result);

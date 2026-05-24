@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -25,13 +25,13 @@ internal static class DesignerUtils
         new(HatchStyle.Percent50, SystemColors.ControlDarkDark, SystemColors.ControlDarkDark);
     // Pens and Brushes used via GDI to render our grabhandles
     private static HBRUSH s_grabHandleFillBrushPrimary =
-        PInvokeCore.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
+        PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
     private static HBRUSH s_grabHandleFillBrush =
-        PInvokeCore.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
+        PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
     private static HPEN s_grabHandlePenPrimary =
-        PInvokeCore.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
+        PInvoke.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
     private static HPEN s_grabHandlePen =
-        PInvokeCore.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
+        PInvoke.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
 
     // The box-like image used as the user is dragging comps from the toolbox
     private static Bitmap? s_boxImage;
@@ -169,17 +169,17 @@ internal static class DesignerUtils
         s_selectionBorderBrush.Dispose();
         s_selectionBorderBrush = new HatchBrush(HatchStyle.Percent50, SystemColors.ControlDarkDark, SystemColors.ControlDarkDark);
 
-        PInvokeCore.DeleteObject(s_grabHandleFillBrushPrimary);
-        s_grabHandleFillBrushPrimary = PInvokeCore.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
+        PInvoke.DeleteObject(s_grabHandleFillBrushPrimary);
+        s_grabHandleFillBrushPrimary = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
 
-        PInvokeCore.DeleteObject(s_grabHandleFillBrush);
-        s_grabHandleFillBrush = PInvokeCore.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
+        PInvoke.DeleteObject(s_grabHandleFillBrush);
+        s_grabHandleFillBrush = PInvoke.CreateSolidBrush((COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
 
-        PInvokeCore.DeleteObject(s_grabHandlePenPrimary);
-        s_grabHandlePenPrimary = PInvokeCore.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
+        PInvoke.DeleteObject(s_grabHandlePenPrimary);
+        s_grabHandlePenPrimary = PInvoke.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.ControlText));
 
-        PInvokeCore.DeleteObject(s_grabHandlePen);
-        s_grabHandlePen = PInvokeCore.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
+        PInvoke.DeleteObject(s_grabHandlePen);
+        s_grabHandlePen = PInvoke.CreatePen(PEN_STYLE.PS_SOLID, cWidth: 1, (COLORREF)(uint)ColorTranslator.ToWin32(SystemColors.Window));
     }
 
     /// <summary>
@@ -267,7 +267,7 @@ internal static class DesignerUtils
         using SelectObjectScope penSelection = new(hDC, s_grabHandlePenPrimary);
 
         // Draw our rect no-resize handle
-        PInvokeCore.Rectangle(hDC, bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
+        PInvoke.Rectangle(hDC, bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
     }
 
     /// <summary>
@@ -290,8 +290,8 @@ internal static class DesignerUtils
             height: 2);
 
         // Lower rect - its fillbrush depends on the primary selection
-        PInvokeCore.SelectObject(hDC, isPrimary ? s_grabHandleFillBrushPrimary : s_grabHandleFillBrush);
-        PInvokeCore.Rectangle(hDC, bounds.Left, bounds.Top + s_lockedHandleLowerOffset, bounds.Right, bounds.Bottom);
+        PInvoke.SelectObject(hDC, isPrimary ? s_grabHandleFillBrushPrimary : s_grabHandleFillBrush);
+        PInvoke.Rectangle(hDC, bounds.Left, bounds.Top + s_lockedHandleLowerOffset, bounds.Right, bounds.Bottom);
     }
 
     /// <summary>
@@ -401,7 +401,7 @@ internal static class DesignerUtils
         using DeviceContextHdcScope destDC = new(gDest, applyGraphicsState: false);
 
         // Perform our BitBlt operation to push the image into the dest bitmap
-        PInvokeCore.BitBlt(
+        PInvoke.BitBlt(
             destDC,
             x: 0,
             y: 0,
@@ -440,9 +440,9 @@ internal static class DesignerUtils
         using (Graphics g = Graphics.FromImage(image))
         {
             IntPtr hDc = g.GetHdc();
-            PInvokeCore.SendMessage(
+            PInvoke.SendMessage(
                 control,
-                PInvokeCore.WM_PRINT,
+                PInvoke.WM_PRINT,
                 (WPARAM)hDc,
                 (LPARAM)(uint)(PInvoke.PRF_CHILDREN | PInvoke.PRF_CLIENT | PInvoke.PRF_ERASEBKGND | PInvoke.PRF_NONCLIENT));
             g.ReleaseHdc(hDc);
@@ -819,7 +819,7 @@ internal static class DesignerUtils
     private static int ScaleLogicalToDeviceUnitsX(int unit) => ScaleHelper.ScaleToInitialSystemDpi(unit);
 
     private static uint TreeView_GetExtendedStyle(HWND handle)
-        => (uint)PInvokeCore.SendMessage(handle, PInvoke.TVM_GETEXTENDEDSTYLE);
+        => (uint)PInvoke.SendMessage(handle, PInvoke.TVM_GETEXTENDEDSTYLE);
 
     /// <summary>
     ///  Modify a WinForms TreeView control to use the new Explorer style theme
@@ -835,7 +835,7 @@ internal static class DesignerUtils
         PInvoke.SetWindowTheme(hwnd, "Explorer", pszSubIdList: null);
         uint exstyle = TreeView_GetExtendedStyle(hwnd);
         exstyle |= PInvoke.TVS_EX_DOUBLEBUFFER | PInvoke.TVS_EX_FADEINOUTEXPANDOS;
-        PInvokeCore.SendMessage(treeView, PInvoke.TVM_SETEXTENDEDSTYLE, 0, (nint)exstyle);
+        PInvoke.SendMessage(treeView, PInvoke.TVM_SETEXTENDEDSTYLE, 0, (nint)exstyle);
     }
 
     /// <summary>
@@ -848,7 +848,7 @@ internal static class DesignerUtils
 
         HWND hwnd = (HWND)listView.Handle;
         PInvoke.SetWindowTheme(hwnd, "Explorer", null);
-        PInvokeCore.SendMessage(
+        PInvoke.SendMessage(
             listView,
             PInvoke.LVM_SETEXTENDEDLISTVIEWSTYLE,
             (WPARAM)PInvoke.LVS_EX_DOUBLEBUFFER,

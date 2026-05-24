@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -27,7 +27,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.TranslateTransform))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(1, 2), origin);
 
             RECT clipRect = default;
@@ -42,7 +42,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.Clipping))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(0, 0), origin);
 
             RECT clipRect = default;
@@ -57,7 +57,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.All))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(1, 2), origin);
 
             RECT clipRect = default;
@@ -72,7 +72,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.None))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(0, 0), origin);
 
             RECT clipRect = default;
@@ -94,7 +94,7 @@ public class DeviceContextHdcScopeTests
         RECT originalClipRect = default;
         GDI_REGION_TYPE originalRegionType = PInvoke.GetClipBox(hdc, &originalClipRect);
         Point originalOrigin = default;
-        PInvokeCore.GetViewportOrgEx(hdc, &originalOrigin);
+        PInvoke.GetViewportOrgEx(hdc, &originalOrigin);
 
         using Graphics g = Graphics.FromHdcInternal(hdc);
 
@@ -110,7 +110,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.TranslateTransform))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(1, 2), origin);
 
             RECT clipRect = default;
@@ -129,7 +129,7 @@ public class DeviceContextHdcScopeTests
         RECT currentClipRect = default;
         PInvoke.GetClipBox(hdc, &currentClipRect);
         Point currentOrigin = default;
-        PInvokeCore.GetViewportOrgEx(hdc, &currentOrigin);
+        PInvoke.GetViewportOrgEx(hdc, &currentOrigin);
         Assert.Equal(originalClipRect, currentClipRect);
         Assert.Equal(originalOrigin, currentOrigin);
 
@@ -137,7 +137,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.Clipping))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(0, 0), origin);
 
             RECT clipRect = default;
@@ -152,7 +152,7 @@ public class DeviceContextHdcScopeTests
         // Should be in original state
         currentClipRect = default;
         PInvoke.GetClipBox(hdc, &currentClipRect);
-        PInvokeCore.GetViewportOrgEx(hdc, &currentOrigin);
+        PInvoke.GetViewportOrgEx(hdc, &currentOrigin);
         Assert.Equal(originalClipRect, currentClipRect);
         Assert.Equal(originalOrigin, currentOrigin);
 
@@ -160,7 +160,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.All))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(1, 2), origin);
 
             RECT clipRect = default;
@@ -175,7 +175,7 @@ public class DeviceContextHdcScopeTests
         // Should be in original state
         currentClipRect = default;
         PInvoke.GetClipBox(hdc, &currentClipRect);
-        PInvokeCore.GetViewportOrgEx(hdc, &currentOrigin);
+        PInvoke.GetViewportOrgEx(hdc, &currentOrigin);
         Assert.Equal(originalClipRect, currentClipRect);
         Assert.Equal(originalOrigin, currentOrigin);
 
@@ -183,7 +183,7 @@ public class DeviceContextHdcScopeTests
         using (DeviceContextHdcScope scope = new(g, ApplyGraphicsProperties.None))
         {
             Point origin = default;
-            PInvokeCore.GetViewportOrgEx(scope, &origin);
+            PInvoke.GetViewportOrgEx(scope, &origin);
             Assert.Equal(new Point(0, 0), origin);
 
             RECT clipRect = default;
@@ -198,7 +198,7 @@ public class DeviceContextHdcScopeTests
         // Should be in original state
         currentClipRect = default;
         PInvoke.GetClipBox(hdc, &currentClipRect);
-        PInvokeCore.GetViewportOrgEx(hdc, &currentOrigin);
+        PInvoke.GetViewportOrgEx(hdc, &currentOrigin);
         Assert.Equal(originalClipRect, currentClipRect);
         Assert.Equal(originalOrigin, currentOrigin);
 

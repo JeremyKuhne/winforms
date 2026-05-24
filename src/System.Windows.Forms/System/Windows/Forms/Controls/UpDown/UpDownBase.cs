@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -175,7 +175,7 @@ public abstract partial class UpDownBase : ContainerControl
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
     [DefaultValue(BorderStyle.Fixed3D)]
-    [DispId(PInvokeCore.DISPID_BORDERSTYLE)]
+    [DispId(PInvoke.DISPID_BORDERSTYLE)]
     [SRDescription(nameof(SR.UpDownBaseBorderStyleDescr))]
     public BorderStyle BorderStyle
     {
@@ -939,7 +939,7 @@ public abstract partial class UpDownBase : ContainerControl
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_SETFOCUS:
+            case PInvoke.WM_SETFOCUS:
                 if (!HostedInWin32DialogManager)
                 {
                     if (ActiveControl is null)
@@ -962,7 +962,7 @@ public abstract partial class UpDownBase : ContainerControl
                 }
 
                 break;
-            case PInvokeCore.WM_KILLFOCUS:
+            case PInvoke.WM_KILLFOCUS:
                 DefWndProc(ref m);
                 break;
             default:

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -30,7 +30,7 @@ public class ScrollableControlDesigner : ParentControlDesigner
         ScrollableControl f = (ScrollableControl)Control;
         if (f.IsHandleCreated && f.AutoScroll)
         {
-            int hitTest = (int)PInvokeCore.SendMessage(f, PInvokeCore.WM_NCHITTEST, 0, PARAM.FromLowHigh(pt.X, pt.Y));
+            int hitTest = (int)PInvoke.SendMessage(f, PInvoke.WM_NCHITTEST, 0, PARAM.FromLowHigh(pt.X, pt.Y));
             if (hitTest is ((int)PInvoke.HTVSCROLL) or ((int)PInvoke.HTHSCROLL))
             {
                 return true;
@@ -49,8 +49,8 @@ public class ScrollableControlDesigner : ParentControlDesigner
 
         switch (m.Msg)
         {
-            case (int)PInvokeCore.WM_HSCROLL:
-            case (int)PInvokeCore.WM_VSCROLL:
+            case (int)PInvoke.WM_HSCROLL:
+            case (int)PInvoke.WM_VSCROLL:
 
                 // When we scroll, we reposition a control without causing a
                 // property change event. Therefore, we must tell the

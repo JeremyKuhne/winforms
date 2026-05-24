@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -615,17 +615,17 @@ public partial class DataGridViewComboBoxCell : DataGridViewCell
                 }
 
                 Debug.Assert(s_cachedDropDownWidth >= 1);
-                PInvokeCore.SendMessage(comboBox, PInvoke.CB_SETDROPPEDWIDTH, (WPARAM)s_cachedDropDownWidth);
+                PInvoke.SendMessage(comboBox, PInvoke.CB_SETDROPPEDWIDTH, (WPARAM)s_cachedDropDownWidth);
             }
         }
         else
         {
             // The dropdown width may have been previously adjusted to the items because of the owning column autosized.
             // The dropdown width needs to be realigned to the DropDownWidth property value.
-            int dropDownWidth = (int)PInvokeCore.SendMessage(comboBox, PInvoke.CB_GETDROPPEDWIDTH);
+            int dropDownWidth = (int)PInvoke.SendMessage(comboBox, PInvoke.CB_GETDROPPEDWIDTH);
             if (dropDownWidth != DropDownWidth)
             {
-                PInvokeCore.SendMessage(comboBox, PInvoke.CB_SETDROPPEDWIDTH, (WPARAM)DropDownWidth);
+                PInvoke.SendMessage(comboBox, PInvoke.CB_SETDROPPEDWIDTH, (WPARAM)DropDownWidth);
             }
         }
     }

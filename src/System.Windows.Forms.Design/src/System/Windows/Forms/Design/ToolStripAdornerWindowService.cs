@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -102,7 +102,7 @@ internal sealed class ToolStripAdornerWindowService : IDisposable
         }
 
         Point pt = new(c.Left, c.Top);
-        PInvokeCore.MapWindowPoints(c.Parent, _toolStripAdornerWindow, ref pt);
+        PInvoke.MapWindowPoints(c.Parent, _toolStripAdornerWindow, ref pt);
         return pt;
     }
 
@@ -278,7 +278,7 @@ internal sealed class ToolStripAdornerWindowService : IDisposable
         {
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_NCHITTEST:
+                case PInvoke.WM_NCHITTEST:
                     m.ResultInternal = (LRESULT)PInvoke.HTTRANSPARENT;
                     break;
                 default:

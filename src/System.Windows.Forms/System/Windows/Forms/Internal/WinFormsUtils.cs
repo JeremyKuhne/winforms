@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -158,7 +158,7 @@ internal sealed partial class WindowsFormsUtils
         }
 
 #if DEBUG
-        string windowText = PInvokeCore.GetWindowText(hwnd);
+        string windowText = PInvoke.GetWindowText(hwnd);
         string typeOfControl = "Unknown";
         string nameOfControl = "";
         Control? c = Control.FromHandle(hwnd);
@@ -283,7 +283,7 @@ internal sealed partial class WindowsFormsUtils
     /// </remarks>
     public static Point TranslatePoint(Point point, Control fromControl, Control toControl)
     {
-        PInvokeCore.MapWindowPoints(fromControl, toControl, ref point);
+        PInvoke.MapWindowPoints(fromControl, toControl, ref point);
         return point;
     }
 

@@ -1,5 +1,7 @@
 {
   "$schema": "https://aka.ms/CsWin32.schema.json",
+  "className": "PInvokeForms",
+  "extensionReceiver": "PInvoke",
   "allowMarshaling": false,
   "useSafeHandles": false,
   "comInterop": {

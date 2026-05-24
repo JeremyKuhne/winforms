@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -36,8 +36,8 @@ public partial class ScalingBeforeChanges : Form
         using GetDcScope dc = new(hwnd);
         if (!dc.IsNull)
         {
-            x = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-            y = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+            x = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+            y = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
         }
     }
 
@@ -76,7 +76,7 @@ public partial class ScalingBeforeChanges : Form
         base.WndProc(ref m);
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_DPICHANGED:
+            case PInvoke.WM_DPICHANGED:
                 int x = LOWORD(m.WParam);
                 int y = HIWORD(m.WParam);
                 if (x != _deviceDpiX || y != _deviceDpiY)
@@ -119,13 +119,13 @@ public class MyCheckBox : CheckBox
         uint dpi;
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_DPICHANGED_BEFOREPARENT:
+            case PInvoke.WM_DPICHANGED_BEFOREPARENT:
                 dpi = PInvoke.GetDpiForWindow(this);
                 Debug.WriteLine($"WM_DPICHANGED_BEFOREPARENT  {dpi}");
 
                 m.Result = 1;
                 break;
-            case PInvokeCore.WM_DPICHANGED_AFTERPARENT:
+            case PInvoke.WM_DPICHANGED_AFTERPARENT:
                 dpi = PInvoke.GetDpiForWindow(this);
                 Debug.WriteLine($"WM_DPICHANGED_AFTERPARENT {dpi}");
                 m.Result = 1;

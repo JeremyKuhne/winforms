@@ -5,14 +5,17 @@ using System.Drawing;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="ChildWindowFromPointEx(HWND, Point, CWP_FLAGS)"/>
-    public static HWND ChildWindowFromPointEx<T>(T hwndParent, Point pt, CWP_FLAGS uFlags)
-        where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        HWND result = ChildWindowFromPointEx(hwndParent.Handle, pt, uFlags);
-        GC.KeepAlive(hwndParent.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.ChildWindowFromPointEx(HWND, Point, CWP_FLAGS)"/>
+        public static HWND ChildWindowFromPointEx<T>(T hwndParent, Point pt, CWP_FLAGS uFlags)
+            where T : IHandle<HWND>
+        {
+            HWND result = PInvoke.ChildWindowFromPointEx(hwndParent.Handle, pt, uFlags);
+            GC.KeepAlive(hwndParent.Wrapper);
+            return result;
+        }
     }
 }

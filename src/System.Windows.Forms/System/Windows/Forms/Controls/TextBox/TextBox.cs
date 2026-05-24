@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -335,7 +335,7 @@ public partial class TextBox : TextBoxBase
                 CreateHandle();
             }
 
-            return (char)PInvokeCore.SendMessage(this, PInvokeCore.EM_GETPASSWORDCHAR);
+            return (char)PInvoke.SendMessage(this, PInvoke.EM_GETPASSWORDCHAR);
         }
         set
         {
@@ -347,7 +347,7 @@ public partial class TextBox : TextBoxBase
                     if (PasswordChar != value)
                     {
                         // Set the password mode.
-                        PInvokeCore.SendMessage(this, PInvokeCore.EM_SETPASSWORDCHAR, (WPARAM)value);
+                        PInvoke.SendMessage(this, PInvoke.EM_SETPASSWORDCHAR, (WPARAM)value);
 
                         // Disable IME if setting the control to password mode.
                         VerifyImeRestrictedModeChanged();
@@ -600,7 +600,7 @@ public partial class TextBox : TextBoxBase
         {
             if (!_useSystemPasswordChar)
             {
-                PInvokeCore.SendMessage(this, PInvokeCore.EM_SETPASSWORDCHAR, (WPARAM)_passwordChar);
+                PInvoke.SendMessage(this, PInvoke.EM_SETPASSWORDCHAR, (WPARAM)_passwordChar);
             }
         }
 
@@ -896,7 +896,7 @@ public partial class TextBox : TextBoxBase
         switch (m.MsgInternal)
         {
             // Work around a very obscure Windows issue.
-            case PInvokeCore.WM_LBUTTONDOWN:
+            case PInvoke.WM_LBUTTONDOWN:
                 MouseButtons realState = MouseButtons;
                 bool wasValidationCancelled = ValidationCancelled;
                 Focus();
@@ -908,7 +908,7 @@ public partial class TextBox : TextBoxBase
 
                 break;
 
-            case PInvokeCore.WM_PAINT:
+            case PInvoke.WM_PAINT:
                 {
                     // The native control tracks its own state, so it is get into a state Where either the native control invalidates
                     // itself, and thus blastsover the placeholder text
@@ -945,7 +945,7 @@ public partial class TextBox : TextBoxBase
 
                 break;
 
-            case PInvokeCore.WM_PRINT:
+            case PInvoke.WM_PRINT:
                 WmPrint(ref m);
                 break;
 

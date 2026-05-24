@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -63,7 +63,7 @@ public class SubPropertyGrid<TSelected> : PropertyGrid where TSelected : new()
 
         try
         {
-            PInvokeCore.PostMessage(this, WM_DELAYEDEXECUTION, lParam: GCHandle.ToIntPtr(callbackHandle));
+            PInvoke.PostMessage(this, WM_DELAYEDEXECUTION, lParam: GCHandle.ToIntPtr(callbackHandle));
             GridView.PopupEditor(GridView.TestAccessor.Dynamic._selectedRow);
         }
         finally

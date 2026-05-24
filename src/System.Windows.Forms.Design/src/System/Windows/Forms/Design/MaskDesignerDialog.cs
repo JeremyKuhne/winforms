@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -498,7 +498,7 @@ internal class MaskDesignerDialog : Form
         // Since we need to pre-process each item before inserting it in the ListView, it is better to remove all items
         // from it first and then add the sorted ones back (no replace). Stop redrawing while we change the list.
 
-        PInvokeCore.SendMessage(_listViewCannedMasks, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+        PInvoke.SendMessage(_listViewCannedMasks, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
 
         try
         {
@@ -532,7 +532,7 @@ internal class MaskDesignerDialog : Form
         finally
         {
             // Resume redraw.
-            PInvokeCore.SendMessage(_listViewCannedMasks, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+            PInvoke.SendMessage(_listViewCannedMasks, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
             _listViewCannedMasks.Invalidate();
         }
     }

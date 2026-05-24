@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -24,10 +24,10 @@ internal readonly ref struct SelectPaletteScope
     public SelectPaletteScope(HDC hdc, HPALETTE hpalette, bool forceBackground, bool realizePalette)
     {
         HDC = hdc;
-        HPALETTE = PInvokeCore.SelectPalette(hdc, hpalette, forceBackground);
+        HPALETTE = PInvoke.SelectPalette(hdc, hpalette, forceBackground);
         if (!HPALETTE.IsNull && realizePalette)
         {
-            PInvokeCore.RealizePalette(hdc);
+            PInvoke.RealizePalette(hdc);
         }
     }
 
@@ -37,7 +37,7 @@ internal readonly ref struct SelectPaletteScope
     {
         if (!HPALETTE.IsNull)
         {
-            PInvokeCore.SelectPalette(HDC, HPALETTE, bForceBkgd: false);
+            PInvoke.SelectPalette(HDC, HPALETTE, bForceBkgd: false);
         }
 
         DisposalTracking.SuppressFinalize(this);

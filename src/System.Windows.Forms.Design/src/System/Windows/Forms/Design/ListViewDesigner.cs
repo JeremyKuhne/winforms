@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -78,12 +78,12 @@ internal class ListViewDesigner : ControlDesigner
 
             if (!hwndHit.IsNull && hwndHit != listView.Handle)
             {
-                HWND headerHwnd = (HWND)PInvokeCore.SendMessage(listView, PInvoke.LVM_GETHEADER);
+                HWND headerHwnd = (HWND)PInvoke.SendMessage(listView, PInvoke.LVM_GETHEADER);
                 if (hwndHit == headerHwnd)
                 {
-                    PInvokeCore.MapWindowPoints(HWND.Null, headerHwnd, ref point);
+                    PInvoke.MapWindowPoints(HWND.Null, headerHwnd, ref point);
                     _hdrhit.pt = point;
-                    PInvokeCore.SendMessage(headerHwnd, PInvoke.HDM_HITTEST, 0, ref _hdrhit);
+                    PInvoke.SendMessage(headerHwnd, PInvoke.HDM_HITTEST, 0, ref _hdrhit);
                     if (_hdrhit.flags == HEADER_HITTEST_INFO_FLAGS.HHT_ONDIVIDER)
                         return true;
                 }
@@ -132,7 +132,7 @@ internal class ListViewDesigner : ControlDesigner
     {
         switch (m.Msg)
         {
-            case (int)PInvokeCore.WM_NOTIFY:
+            case (int)PInvoke.WM_NOTIFY:
             case (int)MessageId.WM_REFLECT_NOTIFY:
                 NMHDR* nmhdr = (NMHDR*)(nint)m.LParamInternal;
                 if (nmhdr->code == PInvoke.HDN_ENDTRACKW)

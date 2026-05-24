@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -203,7 +203,7 @@ public partial class Label : Control, IAutomationLiveRegion
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
     [DefaultValue(BorderStyle.None)]
-    [DispId(PInvokeCore.DISPID_BORDERSTYLE)]
+    [DispId(PInvoke.DISPID_BORDERSTYLE)]
     [SRDescription(nameof(SR.LabelBorderDescr))]
     public virtual BorderStyle BorderStyle
     {
@@ -1426,7 +1426,7 @@ public partial class Label : Control, IAutomationLiveRegion
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_NCHITTEST:
+            case PInvoke.WM_NCHITTEST:
                 // Label returns HT_TRANSPARENT for everything, so all messages get routed to the parent. Change
                 // this so we can tell what's going on.
 

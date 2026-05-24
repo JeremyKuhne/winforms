@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -768,7 +768,7 @@ public class ListBoxTests
         control.ColumnWidth = 123;
 
         RECT rc = default;
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETITEMRECT, 0, ref rc));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETITEMRECT, 0, ref rc));
         Assert.Equal(123, ((Rectangle)rc).Width);
     }
 
@@ -1461,10 +1461,10 @@ public class ListBoxTests
 
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         Assert.Equal(0, control.HorizontalExtent);
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETHORIZONTALEXTENT));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETHORIZONTALEXTENT));
 
         control.HorizontalExtent = 10;
-        Assert.Equal(expected, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETHORIZONTALEXTENT));
+        Assert.Equal(expected, (int)PInvoke.SendMessage(control, PInvoke.LB_GETHORIZONTALEXTENT));
     }
 
     public static IEnumerable<object[]> HorizontalScrollbar_Set_TestData()
@@ -1800,7 +1800,7 @@ public class ListBoxTests
         };
 
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(expected, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETITEMHEIGHT) == 25);
+        Assert.Equal(expected, (int)PInvoke.SendMessage(control, PInvoke.LB_GETITEMHEIGHT) == 25);
     }
 
     [WinFormsTheory]
@@ -2629,15 +2629,15 @@ public class ListBoxTests
         // Select last.
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.SelectedIndex = 1;
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
 
         // Select first.
         control.SelectedIndex = 0;
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
 
         // Clear selection.
         control.SelectedIndex = -1;
-        Assert.Equal(-1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(-1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
     }
 
     [WinFormsTheory]
@@ -2656,21 +2656,21 @@ public class ListBoxTests
         // Select last.
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.SelectedIndex = 1;
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
         Span<int> buffer = stackalloc int[5];
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 1, 0, 0, 0, 0 }, buffer.ToArray());
 
         // Select first.
         control.SelectedIndex = 0;
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
-        Assert.Equal(2, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(2, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 0, 1, 0, 0, 0 }, buffer.ToArray());
 
         // Clear selection.
         control.SelectedIndex = -1;
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 0, 1, 0, 0, 0 }, buffer.ToArray());
     }
 
@@ -3142,19 +3142,19 @@ public class ListBoxTests
         // Select last.
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.SelectedItem = "item2";
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
 
         // Select invalid.
         control.SelectedItem = "NoSuchItem";
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
 
         // Select first.
         control.SelectedItem = "item1";
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
 
         // Clear selection.
         control.SelectedItem = null;
-        Assert.Equal(-1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(-1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
     }
 
     [WinFormsTheory]
@@ -3173,28 +3173,28 @@ public class ListBoxTests
         // Select last.
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.SelectedItem = "item2";
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
         Span<int> buffer = stackalloc int[5];
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 1, 0, 0, 0, 0 }, buffer.ToArray());
 
         // Select invalid.
         control.SelectedItem = "NoSuchItem";
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
         buffer = stackalloc int[5];
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 1, 0, 0, 0, 0 }, buffer.ToArray());
 
         // Select first.
         control.SelectedItem = "item1";
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
-        Assert.Equal(2, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(2, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 0, 1, 0, 0, 0 }, buffer.ToArray());
 
         // Clear selection.
         control.SelectedItem = null;
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETCURSEL));
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETCURSEL));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETSELITEMS, (WPARAM)buffer.Length, ref buffer[0]));
         Assert.Equal(new int[] { 0, 1, 0, 0, 0 }, buffer.ToArray());
     }
 
@@ -3324,7 +3324,7 @@ public class ListBoxTests
         void Dirty()
         {
             // Simulate a selection change notification.
-            PInvokeCore.SendMessage(control, MessageId.WM_REFLECT | PInvokeCore.WM_COMMAND, WPARAM.MAKEWPARAM(0, (int)PInvoke.LBN_SELCHANGE));
+            PInvoke.SendMessage(control, MessageId.WM_REFLECT | PInvoke.WM_COMMAND, WPARAM.MAKEWPARAM(0, (int)PInvoke.LBN_SELCHANGE));
         }
     }
 
@@ -4430,7 +4430,7 @@ public class ListBoxTests
 
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         control.TopIndex = 1;
-        Assert.Equal(0, (int)PInvokeCore.SendMessage(control, PInvoke.LB_GETTOPINDEX));
+        Assert.Equal(0, (int)PInvoke.SendMessage(control, PInvoke.LB_GETTOPINDEX));
     }
 
     [WinFormsTheory]

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -294,7 +294,7 @@ public class ListViewGroup_ListViewGroupAccessibleObjectTests
             Assert.True(list.IsHandleCreated);
 
             RECT groupRect = default;
-            PInvokeCore.SendMessage(list, PInvoke.LVM_GETGROUPRECT, (WPARAM)listGroup.ID, ref groupRect);
+            PInvoke.SendMessage(list, PInvoke.LVM_GETGROUPRECT, (WPARAM)listGroup.ID, ref groupRect);
 
             int actualWidth = group1AccObj.Bounds.Width;
             int expectedWidth = groupRect.Width;
@@ -330,7 +330,7 @@ public class ListViewGroup_ListViewGroupAccessibleObjectTests
         listView.Items.Add(new ListViewItem("a", group));
 
         RECT groupRect = default;
-        PInvokeCore.SendMessage(listView, PInvoke.LVM_GETGROUPRECT, (WPARAM)group.ID, ref groupRect);
+        PInvoke.SendMessage(listView, PInvoke.LVM_GETGROUPRECT, (WPARAM)group.ID, ref groupRect);
 
         AccessibleObject groupAccObj = group.AccessibilityObject;
 

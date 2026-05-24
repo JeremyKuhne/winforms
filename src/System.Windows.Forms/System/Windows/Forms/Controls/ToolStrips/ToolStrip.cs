@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -1653,7 +1653,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
     /// </summary>
     [SRCategory(nameof(SR.CatBehavior))]
     [DefaultValue(false)]
-    [DispId(PInvokeCore.DISPID_TABSTOP)]
+    [DispId(PInvoke.DISPID_TABSTOP)]
     [SRDescription(nameof(SR.ControlTabStopDescr))]
     public new bool TabStop
     {
@@ -2647,14 +2647,14 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
         using DeviceContextHdcScope imageHdc = new(g, applyGraphicsState: false);
 
         // Send the actual wm_print message
-        PInvokeCore.SendMessage(
+        PInvoke.SendMessage(
             this,
-            PInvokeCore.WM_PRINT,
+            PInvoke.WM_PRINT,
             (WPARAM)imageHdc,
             (LPARAM)(uint)(PInvoke.PRF_CHILDREN | PInvoke.PRF_CLIENT | PInvoke.PRF_ERASEBKGND | PInvoke.PRF_NONCLIENT));
 
         // Now BLT the result to the destination bitmap.
-        PInvokeCore.BitBlt(
+        PInvoke.BitBlt(
             hDC,
             bounds.X,
             bounds.Y,
@@ -3542,7 +3542,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
 
                         // PERF - consider - we only actually need to copy the clipping rect.
                         // copy the background from the toolstrip onto the offscreen bitmap
-                        PInvokeCore.BitBlt(
+                        PInvoke.BitBlt(
                             ItemHdcInfo,
                             0,
                             0,
@@ -3560,7 +3560,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
                         }
 
                         // copy the item back onto the toolstrip
-                        PInvokeCore.BitBlt(
+                        PInvoke.BitBlt(
                             toolStripHDC,
                             item.Bounds.X,
                             item.Bounds.Y,
@@ -4575,7 +4575,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
 
     protected override void WndProc(ref Message m)
     {
-        if (m.MsgInternal == PInvokeCore.WM_SETFOCUS)
+        if (m.MsgInternal == PInvoke.WM_SETFOCUS)
         {
             SnapFocus((HWND)(nint)m.WParamInternal);
 
@@ -4590,7 +4590,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
             }
         }
 
-        if (m.MsgInternal == PInvokeCore.WM_KILLFOCUS)
+        if (m.MsgInternal == PInvoke.WM_KILLFOCUS)
         {
             // Clear modal menu tracking when focus leaves ToolStrip context so
             // keyboard input is not incorrectly routed after tabbing away.
@@ -4608,7 +4608,7 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
             }
         }
 
-        if (!AllowClickThrough && m.MsgInternal == PInvokeCore.WM_MOUSEACTIVATE)
+        if (!AllowClickThrough && m.MsgInternal == PInvoke.WM_MOUSEACTIVATE)
         {
             // We want to prevent taking focus if someone clicks on the toolstrip dropdown itself. The mouse message
             // will still go through, but focus won't be taken. If someone clicks on a child control (ComboBox,
@@ -4658,12 +4658,12 @@ public partial class ToolStrip : ScrollableControl, IArrangedElement, ISupportTo
 
         base.WndProc(ref m);
 
-        if (AllowClickThrough && m.MsgInternal == PInvokeCore.WM_MOUSEACTIVATE && m.ResultInternal == PInvoke.MA_ACTIVATEANDEAT)
+        if (AllowClickThrough && m.MsgInternal == PInvoke.WM_MOUSEACTIVATE && m.ResultInternal == PInvoke.MA_ACTIVATEANDEAT)
         {
             m.ResultInternal = (LRESULT)(nint)PInvoke.MA_ACTIVATE;
         }
 
-        if (m.Msg == (int)PInvokeCore.WM_NCDESTROY)
+        if (m.Msg == (int)PInvoke.WM_NCDESTROY)
         {
             // Destroy the owner window, if we created one. We
             // cannot do this in OnHandleDestroyed, because at

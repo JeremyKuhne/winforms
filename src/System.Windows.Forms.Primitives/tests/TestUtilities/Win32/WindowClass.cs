@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -50,7 +50,7 @@ internal class WindowClass
 
         if (backgroundBrush.IsNull)
         {
-            backgroundBrush = PInvokeCore.GetSysColorBrush(SYS_COLOR_INDEX.COLOR_WINDOW);
+            backgroundBrush = PInvoke.GetSysColorBrush(SYS_COLOR_INDEX.COLOR_WINDOW);
         }
         else if (backgroundBrush == (HBRUSH)(-1))
         {
@@ -59,7 +59,7 @@ internal class WindowClass
 
         if (icon.IsNull)
         {
-            icon = PInvokeCore.LoadIcon(HINSTANCE.Null, (PCWSTR)(char*)PInvokeCore.IDI_APPLICATION);
+            icon = PInvoke.LoadIcon(HINSTANCE.Null, (PCWSTR)(char*)PInvoke.IDI_APPLICATION);
         }
         else if (icon == (-1))
         {
@@ -202,7 +202,7 @@ internal class WindowClass
 
             if (!Atom.IsValid)
             {
-                Atom = PInvokeCore.GetClassLong(window, GET_CLASS_LONG_INDEX.GCW_ATOM);
+                Atom = PInvoke.GetClassLong(window, GET_CLASS_LONG_INDEX.GCW_ATOM);
             }
 
             if (isMainWindow)
@@ -218,7 +218,7 @@ internal class WindowClass
     {
         switch (msg)
         {
-            case PInvokeCore.WM_DESTROY:
+            case PInvoke.WM_DESTROY:
                 if (hWnd == MainWindow)
                 {
                     PInvoke.PostQuitMessage(0);
@@ -227,6 +227,6 @@ internal class WindowClass
                 return (LRESULT)0;
         }
 
-        return PInvokeCore.DefWindowProc(hWnd, msg, wParam, lParam);
+        return PInvoke.DefWindowProc(hWnd, msg, wParam, lParam);
     }
 }

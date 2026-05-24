@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -254,7 +254,7 @@ public partial class ControlTests
 
         DropTargetMock dropTarget = new();
         Assert.Equal(ApartmentState.STA, Application.OleRequired());
-        Assert.Equal(HRESULT.S_OK, PInvokeCore.RegisterDragDrop(control, dropTarget));
+        Assert.Equal(HRESULT.S_OK, PInvoke.RegisterDragDrop(control, dropTarget));
 
         control.AllowDrop = value;
         Assert.Equal(value, control.AllowDrop);
@@ -10529,7 +10529,7 @@ public partial class ControlTests
     {
         using SubControl control = new();
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        PInvokeCore.SendMessage(control, PInvokeCore.WM_UPDATEUISTATE, (WPARAM)wParam);
+        PInvoke.SendMessage(control, PInvoke.WM_UPDATEUISTATE, (WPARAM)wParam);
         Assert.Equal(expected, control.ShowFocusCues);
     }
 
@@ -10588,7 +10588,7 @@ public partial class ControlTests
     {
         using SubControl control = new();
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        PInvokeCore.SendMessage(control, PInvokeCore.WM_UPDATEUISTATE, (WPARAM)wParam);
+        PInvoke.SendMessage(control, PInvoke.WM_UPDATEUISTATE, (WPARAM)wParam);
         Assert.Equal(expected, control.ShowKeyboardCues);
     }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -685,7 +685,7 @@ public class ContainerControl : ScrollableControl, IContainerControl
         if (GetTopLevel())
         {
             // Get window's client rectangle (i.e. without chrome) expressed in screen coordinates
-            PInvokeCore.GetClientRect(this, out RECT clientRectangle);
+            PInvoke.GetClientRect(this, out RECT clientRectangle);
             Point topLeftPoint = default;
             PInvoke.ClientToScreen(this, ref topLeftPoint);
             return new Rectangle(topLeftPoint.X, topLeftPoint.Y, clientRectangle.right, clientRectangle.bottom);
@@ -2023,7 +2023,7 @@ public class ContainerControl : ScrollableControl, IContainerControl
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_SETFOCUS:
+            case PInvoke.WM_SETFOCUS:
                 WmSetFocus(ref m);
                 break;
             default:

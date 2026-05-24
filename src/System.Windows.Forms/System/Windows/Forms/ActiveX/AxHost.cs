@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -784,19 +784,19 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
     protected override void OnFontChanged(EventArgs e)
     {
         base.OnFontChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_FONT);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_FONT);
     }
 
     protected override void OnForeColorChanged(EventArgs e)
     {
         base.OnForeColorChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_FORECOLOR);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_FORECOLOR);
     }
 
     protected override void OnBackColorChanged(EventArgs e)
     {
         base.OnBackColorChanged(e);
-        AmbientChanged(PInvokeCore.DISPID_AMBIENT_BACKCOLOR);
+        AmbientChanged(PInvoke.DISPID_AMBIENT_BACKCOLOR);
     }
 
     private void AmbientChanged(int dispid)
@@ -836,7 +836,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
             // If it is, call DISPID_AMBIENT_DISPLAYNAME directly on the control itself.
             if (GetOcx() is IOleControl.Interface oleCtl)
             {
-                oleCtl.OnAmbientPropertyChange(PInvokeCore.DISPID_AMBIENT_DISPLAYNAME);
+                oleCtl.OnAmbientPropertyChange(PInvoke.DISPID_AMBIENT_DISPLAYNAME);
             }
         }
     }
@@ -1061,8 +1061,8 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                 return HRESULT.E_FAIL;
             }
 
-            s_logPixelsX = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
-            s_logPixelsY = PInvokeCore.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
+            s_logPixelsX = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSX);
+            s_logPixelsY = PInvoke.GetDeviceCaps(dc, GET_DEVICE_CAPS_INDEX.LOGPIXELSY);
         }
 
         return HRESULT.S_OK;
@@ -1244,13 +1244,13 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         }
 
         HWND handle = HWND;
-        IntPtr currentWndproc = PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
+        IntPtr currentWndproc = PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
         if (currentWndproc == _wndprocAddr)
         {
             return true;
         }
 
-        if ((int)PInvokeCore.SendMessage(this, _subclassCheckMessage) == REGMSG_RETVAL)
+        if ((int)PInvoke.SendMessage(this, _subclassCheckMessage) == REGMSG_RETVAL)
         {
             _wndprocAddr = currentWndproc;
             return true;
@@ -1259,7 +1259,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         // We were resubclassed, we need to resublass ourselves.
         Debug.Assert(!OwnWindow(), "Why are we here if we own our window?");
         WindowReleaseHandle();
-        PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, currentWndproc);
+        PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, currentWndproc);
         WindowAssignHandle(handle, _axState[s_assignUniqueID]);
         InformOfNewHandle();
         _axState[s_manualUpdate] = true;
@@ -1755,7 +1755,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
             // We don't have a message so we must create one ourselves.
             // The message we are creating is a WM_SYSKEYDOWN with the right alt key setting.
             hwnd = (ContainingControl is null) ? HWND.Null : ContainingControl.HWND,
-            message = PInvokeCore.WM_SYSKEYDOWN,
+            message = PInvoke.WM_SYSKEYDOWN,
             wParam = (WPARAM)char.ToUpper(charCode, CultureInfo.CurrentCulture),
             // 0x20180001
             lParam = LPARAM.MAKELPARAM(
@@ -2076,46 +2076,46 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
 
         switch (dispid)
         {
-            case PInvokeCore.DISPID_AMBIENT_USERMODE:
+            case PInvoke.DISPID_AMBIENT_USERMODE:
                 return IsUserMode();
-            case PInvokeCore.DISPID_AMBIENT_AUTOCLIP:
+            case PInvoke.DISPID_AMBIENT_AUTOCLIP:
                 return true;
-            case PInvokeCore.DISPID_AMBIENT_MESSAGEREFLECT:
+            case PInvoke.DISPID_AMBIENT_MESSAGEREFLECT:
                 return true;
-            case PInvokeCore.DISPID_AMBIENT_UIDEAD:
+            case PInvoke.DISPID_AMBIENT_UIDEAD:
                 return false;
-            case PInvokeCore.DISPID_AMBIENT_DISPLAYASDEFAULT:
+            case PInvoke.DISPID_AMBIENT_DISPLAYASDEFAULT:
                 return false;
-            case PInvokeCore.DISPID_AMBIENT_FONT:
+            case PInvoke.DISPID_AMBIENT_FONT:
                 if (richParent is not null)
                 {
                     return GetIFontFromFont(richParent.Font);
                 }
 
                 return null;
-            case PInvokeCore.DISPID_AMBIENT_SHOWGRABHANDLES:
+            case PInvoke.DISPID_AMBIENT_SHOWGRABHANDLES:
                 return false;
-            case PInvokeCore.DISPID_AMBIENT_SHOWHATCHING:
+            case PInvoke.DISPID_AMBIENT_SHOWHATCHING:
                 return false;
-            case PInvokeCore.DISPID_AMBIENT_BACKCOLOR:
+            case PInvoke.DISPID_AMBIENT_BACKCOLOR:
                 if (richParent is not null)
                 {
                     return GetOleColorFromColor(richParent.BackColor);
                 }
 
                 return null;
-            case PInvokeCore.DISPID_AMBIENT_FORECOLOR:
+            case PInvoke.DISPID_AMBIENT_FORECOLOR:
                 if (richParent is not null)
                 {
                     return GetOleColorFromColor(richParent.ForeColor);
                 }
 
                 return null;
-            case PInvokeCore.DISPID_AMBIENT_DISPLAYNAME:
+            case PInvoke.DISPID_AMBIENT_DISPLAYNAME:
                 return AxContainer.GetNameForControl(this) ?? string.Empty;
-            case PInvokeCore.DISPID_AMBIENT_LOCALEID:
-                return PInvokeCore.GetThreadLocale();
-            case PInvokeCore.DISPID_AMBIENT_RIGHTTOLEFT:
+            case PInvoke.DISPID_AMBIENT_LOCALEID:
+                return PInvoke.GetThreadLocale();
+            case PInvoke.DISPID_AMBIENT_RIGHTTOLEFT:
                 Control? control = this;
                 while (control is not null)
                 {
@@ -2254,7 +2254,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
     private void CreateWithoutLicense(Guid clsid)
     {
         using ComScope<IUnknown> unknown = new(null);
-        HRESULT hr = PInvokeCore.CoCreateInstance(
+        HRESULT hr = PInvoke.CoCreateInstance(
             &clsid,
             (IUnknown*)null,
             CLSCTX.CLSCTX_INPROC_SERVER,
@@ -2363,7 +2363,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         }
 
         using BSTR name = default;
-        hr = categorizeProperties.Value->GetCategoryName(propcat, (int)PInvokeCore.GetThreadLocale(), &name);
+        hr = categorizeProperties.Value->GetCategoryName(propcat, (int)PInvoke.GetThreadLocale(), &name);
         if (hr.Succeeded && !name.IsNull)
         {
             category = new CategoryAttribute(name.ToString());
@@ -2704,7 +2704,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
 
     private AxPropertyDescriptor? GetPropertyDescriptorFromDispid(int dispid)
     {
-        Debug.Assert(dispid != PInvokeCore.DISPID_UNKNOWN, "Wrong dispid sent to GetPropertyDescriptorFromDispid");
+        Debug.Assert(dispid != PInvoke.DISPID_UNKNOWN, "Wrong dispid sent to GetPropertyDescriptorFromDispid");
 
         PropertyDescriptorCollection props = FillProperties(null);
         foreach (PropertyDescriptor prop in props)
@@ -2971,7 +2971,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                 lplpUnk = unknown,
                 cPages = 1,
                 lpPages = &guid,
-                lcid = PInvokeCore.GetThreadLocale(),
+                lcid = PInvoke.GetThreadLocale(),
                 dispidInitialProperty = dispid
             };
 
@@ -3031,7 +3031,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                 unknown,
                 uuids.cElems,
                 uuids.pElems,
-                PInvokeCore.GetThreadLocale(),
+                PInvoke.GetThreadLocale(),
                 0,
                 (void*)null).AssertSuccess();
         }
@@ -3039,7 +3039,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         {
             if (_oleSite is IPropertyNotifySink.Interface sink)
             {
-                sink.OnChanged(PInvokeCore.DISPID_UNKNOWN);
+                sink.OnChanged(PInvoke.DISPID_UNKNOWN);
             }
 
             transaction?.Commit();
@@ -3070,27 +3070,27 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         switch (m.MsgInternal)
         {
             // Things we explicitly ignore and pass to the ActiveX Control's windproc
-            case PInvokeCore.WM_ERASEBKGND:
+            case PInvoke.WM_ERASEBKGND:
             case MessageId.WM_REFLECT_NOTIFYFORMAT:
-            case PInvokeCore.WM_SETCURSOR:
-            case PInvokeCore.WM_SYSCOLORCHANGE:
+            case PInvoke.WM_SETCURSOR:
+            case PInvoke.WM_SYSCOLORCHANGE:
 
             // Some of the common controls respond to this message to do some custom painting.
             // So, we should just pass this message through.
-            case PInvokeCore.WM_DRAWITEM:
+            case PInvoke.WM_DRAWITEM:
 
-            case PInvokeCore.WM_LBUTTONDBLCLK:
-            case PInvokeCore.WM_LBUTTONUP:
-            case PInvokeCore.WM_MBUTTONDBLCLK:
-            case PInvokeCore.WM_MBUTTONUP:
-            case PInvokeCore.WM_RBUTTONDBLCLK:
-            case PInvokeCore.WM_RBUTTONUP:
+            case PInvoke.WM_LBUTTONDBLCLK:
+            case PInvoke.WM_LBUTTONUP:
+            case PInvoke.WM_MBUTTONDBLCLK:
+            case PInvoke.WM_MBUTTONUP:
+            case PInvoke.WM_RBUTTONDBLCLK:
+            case PInvoke.WM_RBUTTONUP:
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_LBUTTONDOWN:
-            case PInvokeCore.WM_MBUTTONDOWN:
-            case PInvokeCore.WM_RBUTTONDOWN:
+            case PInvoke.WM_LBUTTONDOWN:
+            case PInvoke.WM_MBUTTONDOWN:
+            case PInvoke.WM_RBUTTONDOWN:
                 if (IsUserMode())
                 {
                     Focus();
@@ -3099,7 +3099,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_KILLFOCUS:
+            case PInvoke.WM_KILLFOCUS:
                 {
                     _hwndFocus = (HWND)(nint)m.WParamInternal;
                     try
@@ -3114,7 +3114,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                     break;
                 }
 
-            case PInvokeCore.WM_COMMAND:
+            case PInvoke.WM_COMMAND:
                 if (!ReflectMessage(m.LParamInternal, ref m))
                 {
                     DefWndProc(ref m);
@@ -3122,11 +3122,11 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
 
                 break;
 
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_CONTEXTMENU:
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_DESTROY:
+            case PInvoke.WM_DESTROY:
                 // If we are currently in a state of InPlaceActive or above, we should first reparent the ActiveX
                 // control to our parking window before we transition to a state below InPlaceActive. Otherwise we
                 // face all sorts of problems when we try to transition back to a state >= InPlaceActive.
@@ -3151,13 +3151,13 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
                 }
 
                 break;
-            case PInvokeCore.WM_HELP:
+            case PInvoke.WM_HELP:
                 // We want to both fire the event, and let the ActiveX Control have the message.
                 base.WndProc(ref m);
                 DefWndProc(ref m);
                 break;
 
-            case PInvokeCore.WM_KEYUP:
+            case PInvoke.WM_KEYUP:
                 // Pass WM_KEYUP messages to PreProcessControlMessage, which comes back to our PreProcessMessage
                 // to give the ActiveX control a chance to handle accelerator keys (command shortcuts).
 
@@ -3181,7 +3181,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
 
                 break;
 
-            case PInvokeCore.WM_NCDESTROY:
+            case PInvoke.WM_NCDESTROY:
                 // Need to detach it now.
                 DetachAndForward(ref m);
                 break;
@@ -3205,8 +3205,8 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         DetachWindow();
         if (!handle.IsNull)
         {
-            void* wndProc = (void*)PInvokeCore.GetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
-            m.ResultInternal = PInvokeCore.CallWindowProc(
+            void* wndProc = (void*)PInvoke.GetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
+            m.ResultInternal = PInvoke.CallWindowProc(
                 (delegate* unmanaged[Stdcall]<HWND, uint, WPARAM, LPARAM, LRESULT>)wndProc,
                 handle,
                 (uint)m.Msg,
@@ -3229,7 +3229,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
     private void InformOfNewHandle()
     {
         Debug.Assert(IsHandleCreated, "we got to have a handle to be here...");
-        _wndprocAddr = PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
+        _wndprocAddr = PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
     }
 
     private void AttachWindow(HWND hwnd)
@@ -3318,7 +3318,7 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         qaContainer.pPropertyNotifySink = ComHelpers.GetComPointer<IPropertyNotifySink>(_oleSite);
         qaContainer.pFont = GetIFontPointerFromFont(GetParentContainer()._parent.Font);
         qaContainer.dwAppearance = 0;
-        qaContainer.lcid = (int)PInvokeCore.GetThreadLocale();
+        qaContainer.lcid = (int)PInvoke.GetThreadLocale();
 
         Control? parent = ParentInternal;
 
@@ -3762,39 +3762,39 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
 
         try
         {
-            if ((bool)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_BOLD))
+            if ((bool)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_BOLD))
             {
                 style |= FontStyle.Bold;
             }
 
-            if ((bool)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_ITALIC))
+            if ((bool)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_ITALIC))
             {
                 style |= FontStyle.Italic;
             }
 
-            if ((bool)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_UNDER))
+            if ((bool)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_UNDER))
             {
                 style |= FontStyle.Underline;
             }
 
-            if ((bool)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_STRIKE))
+            if ((bool)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_STRIKE))
             {
                 style |= FontStyle.Strikeout;
             }
 
-            if ((short)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_WEIGHT) >= 700)
+            if ((short)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_WEIGHT) >= 700)
             {
                 style |= FontStyle.Bold;
             }
 
-            using BSTR name = (BSTR)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_NAME);
+            using BSTR name = (BSTR)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_NAME);
 
             return new Font(
                 name.ToString(),
-                (float)(CY)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_SIZE),
+                (float)(CY)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_SIZE),
                 style,
                 GraphicsUnit.Point,
-                (byte)(short)dispatch.Value->GetProperty(PInvokeCore.DISPID_FONT_CHARSET));
+                (byte)(short)dispatch.Value->GetProperty(PInvoke.DISPID_FONT_CHARSET));
         }
         catch (Exception)
         {

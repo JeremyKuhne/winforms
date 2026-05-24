@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms.Design;
@@ -74,10 +74,10 @@ public partial class ControlDesigner
                 // do not have a designer for these controls, and they prevent the ParentControlDesigner's
                 // drag-drop from working. What we do is to loop through all child controls that do not have a
                 // designer (in HookChildControls()), and RevokeDragDrop() after their handles have been created.
-                if (m.Msg == (int)PInvokeCore.WM_CREATE)
+                if (m.Msg == (int)PInvoke.WM_CREATE)
                 {
                     Debug.Assert(_handle != IntPtr.Zero, "Handle for control not created");
-                    PInvokeCore.RevokeDragDrop(_handle);
+                    PInvoke.RevokeDragDrop(_handle);
                 }
             }
         }

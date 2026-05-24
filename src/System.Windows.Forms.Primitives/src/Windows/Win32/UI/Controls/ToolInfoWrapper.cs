@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.UI.Controls;
@@ -44,7 +44,7 @@ internal unsafe struct ToolInfoWrapper<T>
                 Info.lpszText = c;
             }
 
-            LRESULT result = PInvokeCore.SendMessage(sender, message, (WPARAM)(BOOL)state, (LPARAM)i);
+            LRESULT result = PInvoke.SendMessage(sender, message, (WPARAM)(BOOL)state, (LPARAM)i);
             GC.KeepAlive(_handle);
             return result;
         }

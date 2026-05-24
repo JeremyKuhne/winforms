@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -249,7 +249,7 @@ public partial class GroupBox : Control
             {
                 if (suspendRedraw && IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
                 }
 
                 base.Text = value;
@@ -258,7 +258,7 @@ public partial class GroupBox : Control
             {
                 if (suspendRedraw && IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                 }
             }
 
@@ -659,7 +659,7 @@ public partial class GroupBox : Control
             return;
         }
 
-        PInvokeCore.GetClientRect(this, out RECT rect);
+        PInvoke.GetClientRect(this, out RECT rect);
         Color backColor = BackColor;
 
         if (backColor.HasTransparency())
@@ -687,11 +687,11 @@ public partial class GroupBox : Control
 
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_ERASEBKGND:
-            case PInvokeCore.WM_PRINTCLIENT:
+            case PInvoke.WM_ERASEBKGND:
+            case PInvoke.WM_PRINTCLIENT:
                 WmEraseBkgnd(ref m);
                 break;
-            case PInvokeCore.WM_GETOBJECT:
+            case PInvoke.WM_GETOBJECT:
                 base.WndProc(ref m);
 
                 // Force MSAA to always treat a group box as a custom window. This ensures its child controls

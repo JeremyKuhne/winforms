@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -14,18 +14,18 @@ public sealed class ImageFormat
 {
     // Format IDs
     // private static ImageFormat undefined = new ImageFormat(new Guid("{b96b3ca9-0728-11d3-9d7b-0000f81ef32e}"));
-    private static readonly ImageFormat s_memoryBMP = new(PInvokeCore.ImageFormatMemoryBMP);
-    private static readonly ImageFormat s_bmp = new(PInvokeCore.ImageFormatBMP);
-    private static readonly ImageFormat s_emf = new(PInvokeCore.ImageFormatEMF);
-    private static readonly ImageFormat s_wmf = new(PInvokeCore.ImageFormatWMF);
-    private static readonly ImageFormat s_jpeg = new(PInvokeCore.ImageFormatJPEG);
-    private static readonly ImageFormat s_png = new(PInvokeCore.ImageFormatPNG);
-    private static readonly ImageFormat s_gif = new(PInvokeCore.ImageFormatGIF);
-    private static readonly ImageFormat s_tiff = new(PInvokeCore.ImageFormatTIFF);
-    private static readonly ImageFormat s_exif = new(PInvokeCore.ImageFormatEXIF);
-    private static readonly ImageFormat s_icon = new(PInvokeCore.ImageFormatIcon);
-    private static readonly ImageFormat s_heif = new(PInvokeCore.ImageFormatHEIF);
-    private static readonly ImageFormat s_webp = new(PInvokeCore.ImageFormatWEBP);
+    private static readonly ImageFormat s_memoryBMP = new(PInvoke.ImageFormatMemoryBMP);
+    private static readonly ImageFormat s_bmp = new(PInvoke.ImageFormatBMP);
+    private static readonly ImageFormat s_emf = new(PInvoke.ImageFormatEMF);
+    private static readonly ImageFormat s_wmf = new(PInvoke.ImageFormatWMF);
+    private static readonly ImageFormat s_jpeg = new(PInvoke.ImageFormatJPEG);
+    private static readonly ImageFormat s_png = new(PInvoke.ImageFormatPNG);
+    private static readonly ImageFormat s_gif = new(PInvoke.ImageFormatGIF);
+    private static readonly ImageFormat s_tiff = new(PInvoke.ImageFormatTIFF);
+    private static readonly ImageFormat s_exif = new(PInvoke.ImageFormatEXIF);
+    private static readonly ImageFormat s_icon = new(PInvoke.ImageFormatIcon);
+    private static readonly ImageFormat s_heif = new(PInvoke.ImageFormatHEIF);
+    private static readonly ImageFormat s_webp = new(PInvoke.ImageFormatWEBP);
 
     private readonly Guid _guid;
 
@@ -128,62 +128,62 @@ public sealed class ImageFormat
     /// </summary>
     public override string ToString()
     {
-        if (Guid == PInvokeCore.ImageFormatMemoryBMP)
+        if (Guid == PInvoke.ImageFormatMemoryBMP)
         {
             return "MemoryBMP";
         }
 
-        if (Guid == PInvokeCore.ImageFormatBMP)
+        if (Guid == PInvoke.ImageFormatBMP)
         {
             return "Bmp";
         }
 
-        if (Guid == PInvokeCore.ImageFormatEMF)
+        if (Guid == PInvoke.ImageFormatEMF)
         {
             return "Emf";
         }
 
-        if (Guid == PInvokeCore.ImageFormatWMF)
+        if (Guid == PInvoke.ImageFormatWMF)
         {
             return "Wmf";
         }
 
-        if (Guid == PInvokeCore.ImageFormatGIF)
+        if (Guid == PInvoke.ImageFormatGIF)
         {
             return "Gif";
         }
 
-        if (Guid == PInvokeCore.ImageFormatJPEG)
+        if (Guid == PInvoke.ImageFormatJPEG)
         {
             return "Jpeg";
         }
 
-        if (Guid == PInvokeCore.ImageFormatPNG)
+        if (Guid == PInvoke.ImageFormatPNG)
         {
             return "Png";
         }
 
-        if (Guid == PInvokeCore.ImageFormatTIFF)
+        if (Guid == PInvoke.ImageFormatTIFF)
         {
             return "Tiff";
         }
 
-        if (Guid == PInvokeCore.ImageFormatEXIF)
+        if (Guid == PInvoke.ImageFormatEXIF)
         {
             return "Exif";
         }
 
-        if (Guid == PInvokeCore.ImageFormatIcon)
+        if (Guid == PInvoke.ImageFormatIcon)
         {
             return "Icon";
         }
 
-        if (Guid == PInvokeCore.ImageFormatHEIF)
+        if (Guid == PInvoke.ImageFormatHEIF)
         {
             return "Heif";
         }
 
-        if (Guid == PInvokeCore.ImageFormatWEBP)
+        if (Guid == PInvoke.ImageFormatWEBP)
         {
             return "Webp";
         }

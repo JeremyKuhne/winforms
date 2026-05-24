@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -87,7 +87,7 @@ internal partial class PropertyGridView
 
                 if (_thisProcessId == 0)
                 {
-                    PInvokeCore.GetWindowThreadProcessId(_control, out _thisProcessId);
+                    PInvoke.GetWindowThreadProcessId(_control, out _thisProcessId);
                 }
 
                 _callBack = MouseHookProc;
@@ -96,7 +96,7 @@ internal partial class PropertyGridView
                     WINDOWS_HOOK_ID.WH_MOUSE,
                     (delegate* unmanaged[Stdcall]<int, WPARAM, LPARAM, LRESULT>)hook,
                     HINSTANCE.Null,
-                    PInvokeCore.GetCurrentThreadId());
+                    PInvoke.GetCurrentThreadId());
 
                 Debug.Assert(!_mouseHookHandle.IsNull, "Failed to install mouse hook");
             }
@@ -114,13 +114,13 @@ internal partial class PropertyGridView
                 {
                     switch ((uint)wparam)
                     {
-                        case PInvokeCore.WM_LBUTTONDOWN:
-                        case PInvokeCore.WM_MBUTTONDOWN:
-                        case PInvokeCore.WM_RBUTTONDOWN:
-                        case PInvokeCore.WM_NCLBUTTONDOWN:
-                        case PInvokeCore.WM_NCMBUTTONDOWN:
-                        case PInvokeCore.WM_NCRBUTTONDOWN:
-                        case PInvokeCore.WM_MOUSEACTIVATE:
+                        case PInvoke.WM_LBUTTONDOWN:
+                        case PInvoke.WM_MBUTTONDOWN:
+                        case PInvoke.WM_RBUTTONDOWN:
+                        case PInvoke.WM_NCLBUTTONDOWN:
+                        case PInvoke.WM_NCMBUTTONDOWN:
+                        case PInvoke.WM_NCRBUTTONDOWN:
+                        case PInvoke.WM_MOUSEACTIVATE:
                             if (ProcessMouseDown(mhs->hwnd))
                             {
                                 return (LRESULT)1;
@@ -168,7 +168,7 @@ internal partial class PropertyGridView
                 Debug.Assert(_thisProcessId != 0, "Didn't get our process id!");
 
                 // Make sure the window is in our process.
-                PInvokeCore.GetWindowThreadProcessId(hwnd, out uint pid);
+                PInvoke.GetWindowThreadProcessId(hwnd, out uint pid);
 
                 // If this isn't our process, unhook the mouse.
                 if (pid != _thisProcessId)

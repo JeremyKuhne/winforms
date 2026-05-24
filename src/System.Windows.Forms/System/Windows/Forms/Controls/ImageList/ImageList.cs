@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -212,15 +212,15 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
             DestroyHandle();
             _originals = null;
             _nativeImageList = himl.Duplicate();
-            if (PInvoke.ImageList.GetIconSize(new HandleRef<HIMAGELIST>(this, _nativeImageList.HIMAGELIST), out int x, out int y))
+            if (PInvokeForms.ImageList.GetIconSize(new HandleRef<HIMAGELIST>(this, _nativeImageList.HIMAGELIST), out int x, out int y))
             {
                 _imageSize = new Size(x, y);
             }
 
             // need to get the image bpp
-            if (PInvoke.ImageList.GetImageInfo(new HandleRef<HIMAGELIST>(this, _nativeImageList.HIMAGELIST), 0, out IMAGEINFO imageInfo))
+            if (PInvokeForms.ImageList.GetImageInfo(new HandleRef<HIMAGELIST>(this, _nativeImageList.HIMAGELIST), 0, out IMAGEINFO imageInfo))
             {
-                PInvokeCore.GetObject(imageInfo.hbmImage, out BITMAP bmp);
+                PInvoke.GetObject(imageInfo.hbmImage, out BITMAP bmp);
                 _colorDepth = bmp.bmBitsPixel switch
                 {
                     4 => ColorDepth.Depth4Bit,
@@ -350,7 +350,7 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
         try
         {
             Debug.Assert(HandleCreated, "Calling AddIconToHandle when there is no handle");
-            int index = PInvoke.ImageList.ReplaceIcon(this, -1, new HandleRef<HICON>(icon, (HICON)icon.Handle));
+            int index = PInvokeForms.ImageList.ReplaceIcon(this, -1, new HandleRef<HICON>(icon, (HICON)icon.Handle));
             return index == -1 ? throw new InvalidOperationException(SR.ImageListAddFailed) : index;
         }
         finally
@@ -379,12 +379,12 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
         int index;
         try
         {
-            index = PInvoke.ImageList.Add(this, hBitmap, hMask);
+            index = PInvokeForms.ImageList.Add(this, hBitmap, hMask);
         }
         finally
         {
-            PInvokeCore.DeleteObject(hBitmap);
-            PInvokeCore.DeleteObject(hMask);
+            PInvoke.DeleteObject(hBitmap);
+            PInvoke.DeleteObject(hMask);
         }
 
         return index == -1 ? throw new InvalidOperationException(SR.ImageListAddFailed) : index;
@@ -431,7 +431,7 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
             _nativeImageList = new NativeImageList(_imageSize, flags);
         }
 
-        PInvoke.ImageList.SetBkColor(this, (COLORREF)PInvokeCore.CLR_NONE);
+        PInvokeForms.ImageList.SetBkColor(this, (COLORREF)PInvoke.CLR_NONE);
 
         Debug.Assert(_originals is not null, "Handle not yet created, yet original images are gone");
         for (int i = 0; i < _originals.Count; i++)
@@ -528,7 +528,7 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
         HDC dc = (HDC)g.GetHdc();
         try
         {
-            PInvoke.ImageList.DrawEx(
+            PInvokeForms.ImageList.DrawEx(
                 this,
                 index,
                 new HandleRef<HDC>(g, dc),
@@ -536,8 +536,8 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
                 y,
                 width,
                 height,
-                (COLORREF)PInvokeCore.CLR_NONE,
-                (COLORREF)PInvokeCore.CLR_NONE,
+                (COLORREF)PInvoke.CLR_NONE,
+                (COLORREF)PInvoke.CLR_NONE,
                 IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT);
         }
         finally
@@ -613,7 +613,7 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
 
         if (ColorDepth == ColorDepth.Depth32Bit)
         {
-            if (PInvoke.ImageList.GetImageInfo(this, index, out IMAGEINFO imageInfo))
+            if (PInvokeForms.ImageList.GetImageInfo(this, index, out IMAGEINFO imageInfo))
             {
                 Bitmap? tmpBitmap = null;
                 BitmapData? bmpData = null;
@@ -664,7 +664,7 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
                 HDC dc = (HDC)graphics.GetHdc();
                 try
                 {
-                    PInvoke.ImageList.DrawEx(
+                    PInvokeForms.ImageList.DrawEx(
                         this,
                         index,
                         new HandleRef<HDC>(graphics, dc),
@@ -672,8 +672,8 @@ public sealed partial class ImageList : Component, IHandle<HIMAGELIST>
                         0,
                         _imageSize.Width,
                         _imageSize.Height,
-                        (COLORREF)PInvokeCore.CLR_NONE,
-                        (COLORREF)PInvokeCore.CLR_NONE,
+                        (COLORREF)PInvoke.CLR_NONE,
+                        (COLORREF)PInvoke.CLR_NONE,
                         IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT);
                 }
                 finally

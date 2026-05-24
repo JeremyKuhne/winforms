@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -17,7 +17,7 @@ public class RegionTests
         using CreateBitmapScope hbitmap = new(hdc, 20, 20);
         Assert.False(hdc.IsNull);
 
-        PInvokeCore.SelectObject(hdc, hbitmap);
+        PInvoke.SelectObject(hdc, hbitmap);
         using RegionScope hregion = new(0, 0, 0, 0);
 
         Assert.False(hregion.IsNull);
@@ -53,7 +53,7 @@ public class RegionTests
 
         Rectangle rectangle = new(1, 2, 3, 4);
         using RegionScope originalRegion = new(rectangle);
-        PInvokeCore.SelectClipRgn(hdc, originalRegion);
+        PInvoke.SelectClipRgn(hdc, originalRegion);
         using RegionScope retrievedRegion = new(hdc);
         RECT rect = default;
         GDI_REGION_TYPE type = PInvoke.GetRgnBox(retrievedRegion, &rect);

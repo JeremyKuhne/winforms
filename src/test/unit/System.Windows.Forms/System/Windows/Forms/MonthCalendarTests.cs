@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -1028,7 +1028,7 @@ public class MonthCalendarTests
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         Span<SYSTEMTIME> range = stackalloc SYSTEMTIME[2];
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETSELRANGE, 0, ref range[0]));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETSELRANGE, 0, ref range[0]));
         Assert.Equal(2019, range[0].wYear);
         Assert.Equal(1, range[0].wMonth);
         Assert.Equal(30, range[0].wDay);
@@ -1055,7 +1055,7 @@ public class MonthCalendarTests
             MaxSelectionCount = 10
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(10, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETMAXSELCOUNT));
+        Assert.Equal(10, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETMAXSELCOUNT));
     }
 
     [WinFormsFact]
@@ -1067,7 +1067,7 @@ public class MonthCalendarTests
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         SYSTEMTIME date = default;
-        Assert.Equal(1, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETTODAY, 0, ref date));
+        Assert.Equal(1, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETTODAY, 0, ref date));
         Assert.Equal(2019, date.wYear);
         Assert.Equal(1, date.wMonth);
         Assert.Equal(30, date.wDay);
@@ -1086,7 +1086,7 @@ public class MonthCalendarTests
             ForeColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TEXT));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TEXT));
     }
 
     [WinFormsFact]
@@ -1097,7 +1097,7 @@ public class MonthCalendarTests
             BackColor = Color.FromArgb(0xFF, 0x12, 0x34, 0x56)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x563412, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_MONTHBK));
+        Assert.Equal(0x563412, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_MONTHBK));
     }
 
     [WinFormsFact]
@@ -1108,7 +1108,7 @@ public class MonthCalendarTests
             TitleBackColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TITLEBK));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TITLEBK));
     }
 
     [WinFormsFact]
@@ -1119,7 +1119,7 @@ public class MonthCalendarTests
             TitleForeColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TITLETEXT));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TITLETEXT));
     }
 
     [WinFormsFact]
@@ -1130,7 +1130,7 @@ public class MonthCalendarTests
             TrailingForeColor = Color.FromArgb(0x12, 0x34, 0x56, 0x78)
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x785634, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TRAILINGTEXT));
+        Assert.Equal(0x785634, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETCOLOR, (WPARAM)(int)PInvoke.MCSC_TRAILINGTEXT));
     }
 
     [WinFormsFact]
@@ -1147,7 +1147,7 @@ public class MonthCalendarTests
             expected -= 7;
         }
 
-        Assert.Equal(expected, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETFIRSTDAYOFWEEK));
+        Assert.Equal(expected, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETFIRSTDAYOFWEEK));
     }
 
     [WinFormsFact]
@@ -1158,7 +1158,7 @@ public class MonthCalendarTests
             FirstDayOfWeek = Day.Tuesday
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(0x10001, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETFIRSTDAYOFWEEK));
+        Assert.Equal(0x10001, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETFIRSTDAYOFWEEK));
     }
 
     [WinFormsFact]
@@ -1171,7 +1171,7 @@ public class MonthCalendarTests
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
         Span<SYSTEMTIME> range = stackalloc SYSTEMTIME[2];
-        Assert.Equal(3, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETRANGE, 0, ref range[0]));
+        Assert.Equal(3, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETRANGE, 0, ref range[0]));
         Assert.Equal(2019, range[0].wYear);
         Assert.Equal(1, range[0].wMonth);
         Assert.Equal(2, range[0].wDay);
@@ -1198,7 +1198,7 @@ public class MonthCalendarTests
             ScrollChange = 10
         };
         Assert.NotEqual(IntPtr.Zero, control.Handle);
-        Assert.Equal(10, (int)PInvokeCore.SendMessage(control, PInvoke.MCM_GETMONTHDELTA));
+        Assert.Equal(10, (int)PInvoke.SendMessage(control, PInvoke.MCM_GETMONTHDELTA));
     }
 
     public static IEnumerable<object[]> ImeMode_Set_TestData()
@@ -4368,7 +4368,7 @@ public class MonthCalendarTests
         monthCalendar.CreateControl();
         monthCalendar.FirstDayOfWeek = Day.Monday;
         monthCalendar.SelectionStart = new DateTime(2021, 6, 16);
-        PInvokeCore.SendMessage(monthCalendar, PInvoke.MCM_SETCURRENTVIEW, 0, view);
+        PInvoke.SendMessage(monthCalendar, PInvoke.MCM_SETCURRENTVIEW, 0, view);
 
         var (_, cellAccessibleObject) = CreateCalendarObjects(monthCalendar);
 

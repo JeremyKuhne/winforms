@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -54,7 +54,7 @@ public sealed class ListViewInsertionMark
         get
         {
             RECT bounds = default;
-            PInvokeCore.SendMessage(_listView, PInvoke.LVM_GETINSERTMARKRECT, (WPARAM)0, ref bounds);
+            PInvoke.SendMessage(_listView, PInvoke.LVM_GETINSERTMARKRECT, (WPARAM)0, ref bounds);
             return bounds;
         }
     }
@@ -68,7 +68,7 @@ public sealed class ListViewInsertionMark
         {
             if (_color.IsEmpty)
             {
-                _color = new COLORREF((uint)PInvokeCore.SendMessage(_listView, PInvoke.LVM_GETINSERTMARKCOLOR));
+                _color = new COLORREF((uint)PInvoke.SendMessage(_listView, PInvoke.LVM_GETINSERTMARKCOLOR));
             }
 
             return _color;
@@ -80,7 +80,7 @@ public sealed class ListViewInsertionMark
                 _color = value;
                 if (_listView.IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(_listView, PInvoke.LVM_SETINSERTMARKCOLOR, 0, _color.ToWin32());
+                    PInvoke.SendMessage(_listView, PInvoke.LVM_SETINSERTMARKCOLOR, 0, _color.ToWin32());
                 }
             }
         }
@@ -118,7 +118,7 @@ public sealed class ListViewInsertionMark
             cbSize = (uint)sizeof(LVINSERTMARK)
         };
 
-        PInvokeCore.SendMessage(_listView, PInvoke.LVM_INSERTMARKHITTEST, (WPARAM)(&pt), ref lvInsertMark);
+        PInvoke.SendMessage(_listView, PInvoke.LVM_INSERTMARKHITTEST, (WPARAM)(&pt), ref lvInsertMark);
 
         return lvInsertMark.iItem;
     }
@@ -129,15 +129,15 @@ public sealed class ListViewInsertionMark
         LVINSERTMARK lvInsertMark = new()
         {
             cbSize = (uint)sizeof(LVINSERTMARK),
-            dwFlags = _appearsAfterItem ? PInvoke.LVIM_AFTER : PInvoke.LVIM_BEFORE,
+            dwFlags = _appearsAfterItem ? PInvokeForms.LVIM_AFTER : PInvokeForms.LVIM_BEFORE,
             iItem = _index
         };
 
-        PInvokeCore.SendMessage(_listView, PInvoke.LVM_SETINSERTMARK, 0, ref lvInsertMark);
+        PInvoke.SendMessage(_listView, PInvoke.LVM_SETINSERTMARK, 0, ref lvInsertMark);
 
         if (!_color.IsEmpty)
         {
-            PInvokeCore.SendMessage(_listView, PInvoke.LVM_SETINSERTMARKCOLOR, 0, _color.ToWin32());
+            PInvoke.SendMessage(_listView, PInvoke.LVM_SETINSERTMARKCOLOR, 0, _color.ToWin32());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -24,7 +24,7 @@ internal readonly ref struct SelectObjectScope
 
     /// <summary>
     ///  Selects <paramref name="object"/> into the given <paramref name="hdc"/> using
-    ///  <see cref="PInvokeCore.SelectObject(HDC, HGDIOBJ)"/>.
+    ///  <see cref="PInvoke.SelectObject(HDC, HGDIOBJ)"/>.
     /// </summary>
     public SelectObjectScope(HDC hdc, HGDIOBJ @object)
     {
@@ -38,7 +38,7 @@ internal readonly ref struct SelectObjectScope
         else
         {
             _hdc = hdc;
-            PreviousObject = PInvokeCore.SelectObject(hdc, @object);
+            PreviousObject = PInvoke.SelectObject(hdc, @object);
         }
     }
 
@@ -46,7 +46,7 @@ internal readonly ref struct SelectObjectScope
     {
         if (!_hdc.IsNull)
         {
-            PInvokeCore.SelectObject(_hdc, PreviousObject);
+            PInvoke.SelectObject(_hdc, PreviousObject);
         }
 
 #if DEBUG

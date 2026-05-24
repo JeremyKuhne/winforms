@@ -17,12 +17,8 @@ ColorMatrixEffectGuid
 CreateIconFromResourceEx
 DeviceCapabilities
 DitherType
-DMBIN_*
-DMPAPER_*
-DMRES_*
 DocumentProperties
 DocumentProperties
-DT_*
 EndDoc
 EndPage
 EnumPrinters

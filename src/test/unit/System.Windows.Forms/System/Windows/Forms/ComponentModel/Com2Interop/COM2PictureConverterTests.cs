@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -110,7 +110,7 @@ public unsafe class COM2PictureConverterTests
         }
         finally
         {
-            PInvokeCore.DeleteObject((HGDIOBJ)hBitmap);
+            PInvoke.DeleteObject((HGDIOBJ)hBitmap);
         }
     }
 

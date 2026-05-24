@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -149,7 +149,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
         private static unsafe MemoryStream ReadByteStreamFromHGLOBAL(HGLOBAL hglobal, out bool isSerializedObject)
         {
-            void* buffer = PInvokeCore.GlobalLock(hglobal);
+            void* buffer = PInvoke.GlobalLock(hglobal);
             if (buffer is null)
             {
                 throw new ExternalException(SR.ExternalException, (int)HRESULT.E_OUTOFMEMORY);
@@ -157,7 +157,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
             try
             {
-                int size = checked((int)PInvokeCore.GlobalSize(hglobal));
+                int size = checked((int)PInvoke.GlobalSize(hglobal));
                 byte[] bytes =
 #if NET
                     GC.AllocateUninitializedArray<byte>(size);
@@ -180,13 +180,13 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
             finally
             {
-                PInvokeCore.GlobalUnlock(hglobal);
+                PInvoke.GlobalUnlock(hglobal);
             }
         }
 
         private static unsafe string ReadStringFromHGLOBAL(HGLOBAL hglobal, bool unicode)
         {
-            void* buffer = PInvokeCore.GlobalLock(hglobal);
+            void* buffer = PInvoke.GlobalLock(hglobal);
             if (buffer is null)
             {
                 throw new Win32Exception();
@@ -200,7 +200,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
             try
             {
-                int size = checked((int)PInvokeCore.GlobalSize(hglobal));
+                int size = checked((int)PInvoke.GlobalSize(hglobal));
                 if (size == 0)
                 {
                     throw new Win32Exception();
@@ -234,13 +234,13 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
             finally
             {
-                PInvokeCore.GlobalUnlock(hglobal);
+                PInvoke.GlobalUnlock(hglobal);
             }
         }
 
         private static unsafe string ReadRegisteredFormatStringFromHGLOBAL(HGLOBAL hglobal, Encoding encoding)
         {
-            void* buffer = PInvokeCore.GlobalLock(hglobal);
+            void* buffer = PInvoke.GlobalLock(hglobal);
             if (buffer is null)
             {
                 throw new Win32Exception();
@@ -248,7 +248,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
             try
             {
-                int size = checked((int)PInvokeCore.GlobalSize(hglobal));
+                int size = checked((int)PInvoke.GlobalSize(hglobal));
                 if (size == 0)
                 {
                     throw new Win32Exception();
@@ -268,13 +268,13 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
             finally
             {
-                PInvokeCore.GlobalUnlock(hglobal);
+                PInvoke.GlobalUnlock(hglobal);
             }
         }
 
         private static string ReadUtf8StringFromHGLOBAL(HGLOBAL hglobal)
         {
-            void* buffer = PInvokeCore.GlobalLock(hglobal);
+            void* buffer = PInvoke.GlobalLock(hglobal);
             if (buffer is null)
             {
                 throw new Win32Exception();
@@ -282,7 +282,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
             try
             {
-                int size = checked((int)PInvokeCore.GlobalSize(hglobal));
+                int size = checked((int)PInvoke.GlobalSize(hglobal));
                 if (size == 0)
                 {
                     throw new Win32Exception();
@@ -302,26 +302,26 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
             finally
             {
-                PInvokeCore.GlobalUnlock(hglobal);
+                PInvoke.GlobalUnlock(hglobal);
             }
         }
 
         private static string[]? ReadFileListFromHDROP(HDROP hdrop)
         {
-            uint count = PInvokeCore.DragQueryFile(hdrop, iFile: 0xFFFFFFFF, lpszFile: null, cch: 0);
+            uint count = PInvoke.DragQueryFile(hdrop, iFile: 0xFFFFFFFF, lpszFile: null, cch: 0);
             if (count == 0)
             {
                 return null;
             }
 
-            Span<char> fileName = stackalloc char[(int)PInvokeCore.MAX_PATH + 1];
+            Span<char> fileName = stackalloc char[(int)PInvoke.MAX_PATH + 1];
             List<string> files = new((int)count);
 
             fixed (char* buffer = fileName)
             {
                 for (uint i = 0; i < count; i++)
                 {
-                    uint charactersCopied = PInvokeCore.DragQueryFile(hdrop, i, buffer, (uint)fileName.Length);
+                    uint charactersCopied = PInvoke.DragQueryFile(hdrop, i, buffer, (uint)fileName.Length);
                     if (charactersCopied == 0)
                     {
                         continue;
@@ -454,7 +454,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
             finally
             {
-                PInvokeCore.ReleaseStgMedium(ref medium);
+                PInvoke.ReleaseStgMedium(ref medium);
             }
 
             return result;
@@ -493,7 +493,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
                 Com.IStream* pStream = (Com.IStream*)medium.hGlobal;
                 pStream->Stat(out Com.STATSTG sstg, (uint)Com.STATFLAG.STATFLAG_DEFAULT);
 
-                hglobal = PInvokeCore.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT, (uint)sstg.cbSize);
+                hglobal = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT, (uint)sstg.cbSize);
 
                 // Not throwing here because the other out of memory condition on GlobalAlloc
                 // happens inside innerData.GetData and gets turned into a null return value.
@@ -502,9 +502,9 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
                     return false;
                 }
 
-                void* ptr = PInvokeCore.GlobalLock(hglobal);
+                void* ptr = PInvoke.GlobalLock(hglobal);
                 pStream->Read((byte*)ptr, (uint)sstg.cbSize, null);
-                PInvokeCore.GlobalUnlock(hglobal);
+                PInvoke.GlobalUnlock(hglobal);
 
                 return TryGetDataFromHGLOBAL(hglobal, in request, out data);
             }
@@ -512,10 +512,10 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             {
                 if (!hglobal.IsNull)
                 {
-                    PInvokeCore.GlobalFree(hglobal);
+                    PInvoke.GlobalFree(hglobal);
                 }
 
-                PInvokeCore.ReleaseStgMedium(ref medium);
+                PInvoke.ReleaseStgMedium(ref medium);
             }
         }
 

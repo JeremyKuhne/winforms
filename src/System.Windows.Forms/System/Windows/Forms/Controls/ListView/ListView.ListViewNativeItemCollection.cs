@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -199,7 +199,7 @@ public partial class ListView
                     iItem = displayIndex
                 };
 
-                PInvokeCore.SendMessage(_owner, PInvoke.LVM_GETITEMW, (WPARAM)0, ref lvItem);
+                PInvoke.SendMessage(_owner, PInvoke.LVM_GETITEMW, (WPARAM)0, ref lvItem);
                 return PARAM.ToInt(lvItem.lParam);
             }
             else
@@ -223,7 +223,7 @@ public partial class ListView
                 // We use the LVM_GETNEXTITEM message to see what the next selected item is
                 // so we can avoid checking selection for each one.
                 int count = _owner.Items.Count;
-                int nextSelected = (int)PInvokeCore.SendMessage(
+                int nextSelected = (int)PInvoke.SendMessage(
                     _owner,
                     PInvoke.LVM_GETNEXTITEM,
                     (WPARAM)(-1),
@@ -242,7 +242,7 @@ public partial class ListView
                     if (i == nextSelected)
                     {
                         item.StateSelected = true;
-                        nextSelected = (int)PInvokeCore.SendMessage(
+                        nextSelected = (int)PInvoke.SendMessage(
                             _owner,
                             PInvoke.LVM_GETNEXTITEM,
                             (WPARAM)nextSelected, (LPARAM)PInvoke.LVNI_SELECTED);
@@ -258,7 +258,7 @@ public partial class ListView
 
                 Debug.Assert(_owner._listViewItems is null, "listItemsArray not null, even though handle created");
 
-                PInvokeCore.SendMessage(_owner, PInvoke.LVM_DELETEALLITEMS);
+                PInvoke.SendMessage(_owner, PInvoke.LVM_DELETEALLITEMS);
 
                 // There's a problem in the list view that if it's in small icon, it won't pick up the small icon
                 // sizes until it changes from large icon, so we flip it twice here...
@@ -418,7 +418,7 @@ public partial class ListView
             if (_owner.IsHandleCreated)
             {
                 Debug.Assert(_owner._listViewItems is null, "listItemsArray not null, even though handle created");
-                if (PInvokeCore.SendMessage(_owner, PInvoke.LVM_DELETEITEM, (WPARAM)index) == 0)
+                if (PInvoke.SendMessage(_owner, PInvoke.LVM_DELETEITEM, (WPARAM)index) == 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), index, string.Format(SR.InvalidArgument, nameof(index), index));
                 }

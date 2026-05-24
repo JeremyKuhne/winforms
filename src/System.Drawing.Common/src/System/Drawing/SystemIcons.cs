@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -19,28 +19,28 @@ public static class SystemIcons
     private static Icon? s_winlogo;
     private static Icon? s_shield;
 
-    public static Icon Application => GetIcon(ref s_application, PInvokeCore.IDI_APPLICATION);
+    public static Icon Application => GetIcon(ref s_application, PInvoke.IDI_APPLICATION);
 
-    public static Icon Asterisk => GetIcon(ref s_asterisk, PInvokeCore.IDI_ASTERISK);
+    public static Icon Asterisk => GetIcon(ref s_asterisk, PInvoke.IDI_ASTERISK);
 
-    public static Icon Error => GetIcon(ref s_error, PInvokeCore.IDI_ERROR);
+    public static Icon Error => GetIcon(ref s_error, PInvoke.IDI_ERROR);
 
-    public static Icon Exclamation => GetIcon(ref s_exclamation, PInvokeCore.IDI_EXCLAMATION);
+    public static Icon Exclamation => GetIcon(ref s_exclamation, PInvoke.IDI_EXCLAMATION);
 
-    public static Icon Hand => GetIcon(ref s_hand, PInvokeCore.IDI_HAND);
+    public static Icon Hand => GetIcon(ref s_hand, PInvoke.IDI_HAND);
 
-    public static Icon Information => GetIcon(ref s_information, PInvokeCore.IDI_INFORMATION);
+    public static Icon Information => GetIcon(ref s_information, PInvoke.IDI_INFORMATION);
 
-    public static Icon Question => GetIcon(ref s_question, PInvokeCore.IDI_QUESTION);
+    public static Icon Question => GetIcon(ref s_question, PInvoke.IDI_QUESTION);
 
-    public static Icon Warning => GetIcon(ref s_warning, PInvokeCore.IDI_WARNING);
+    public static Icon Warning => GetIcon(ref s_warning, PInvoke.IDI_WARNING);
 
-    public static Icon WinLogo => GetIcon(ref s_winlogo, PInvokeCore.IDI_WINLOGO);
+    public static Icon WinLogo => GetIcon(ref s_winlogo, PInvoke.IDI_WINLOGO);
 
     public static Icon Shield => s_shield ??= new Icon(typeof(SystemIcons), "ShieldIcon.ico");
 
     private static Icon GetIcon(ref Icon? icon, PCWSTR iconId) =>
-        icon ??= new Icon(PInvokeCore.LoadIcon(HINSTANCE.Null, iconId));
+        icon ??= new Icon(PInvoke.LoadIcon(HINSTANCE.Null, iconId));
 
 #if NET8_0_OR_GREATER
     /// <summary>
@@ -67,7 +67,7 @@ public static class SystemIcons
             cbSize = (uint)sizeof(SHSTOCKICONINFO),
         };
 
-        HRESULT result = PInvoke.SHGetStockIconInfo(
+        HRESULT result = PInvokeDrawing.SHGetStockIconInfo(
             (SHSTOCKICONID)stockIcon,
             (SHGSI_FLAGS)options | SHGSI_FLAGS.SHGSI_ICON,
             &info);
@@ -93,7 +93,7 @@ public static class SystemIcons
             cbSize = (uint)sizeof(SHSTOCKICONINFO),
         };
 
-        HRESULT result = PInvoke.SHGetStockIconInfo(
+        HRESULT result = PInvokeDrawing.SHGetStockIconInfo(
             (SHSTOCKICONID)stockIcon,
             SHGSI_FLAGS.SHGSI_ICONLOCATION,
             &info);

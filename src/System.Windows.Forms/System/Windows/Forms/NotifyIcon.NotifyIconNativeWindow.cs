@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -28,7 +28,7 @@ public sealed partial class NotifyIcon
             // This same post is done in Control's Dispose method, so if you change it, change it there too.
             if (Handle != 0)
             {
-                PInvokeCore.PostMessage(this, PInvokeCore.WM_CLOSE);
+                PInvoke.PostMessage(this, PInvoke.WM_CLOSE);
             }
 
             // This releases the handle from our window proc, re-routing it back to the system.

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms;
@@ -319,7 +319,7 @@ public static partial class ToolStripManager
                 if (activeToolStrip is not null)
                 {
                     Point translatedLocation = location;
-                    PInvokeCore.MapWindowPoints(hwndMouseMessageIsFrom, activeToolStrip, ref translatedLocation);
+                    PInvoke.MapWindowPoints(hwndMouseMessageIsFrom, activeToolStrip, ref translatedLocation);
                     if (!activeToolStrip.ClientRectangle.Contains(translatedLocation))
                     {
                         if (activeToolStrip is ToolStripDropDown activeToolStripDropDown)
@@ -493,7 +493,7 @@ public static partial class ToolStripManager
             {
                 return true;
             }
-            else if (m.Msg is >= ((int)PInvokeCore.WM_NCLBUTTONDOWN) and <= ((int)PInvokeCore.WM_NCMBUTTONDBLCLK))
+            else if (m.Msg is >= ((int)PInvoke.WM_NCLBUTTONDOWN) and <= ((int)PInvoke.WM_NCMBUTTONDBLCLK))
             {
                 return true;
             }
@@ -559,8 +559,8 @@ public static partial class ToolStripManager
             {
                 switch (m.MsgInternal)
                 {
-                    case PInvokeCore.WM_MOUSEMOVE:
-                    case PInvokeCore.WM_NCMOUSEMOVE:
+                    case PInvoke.WM_MOUSEMOVE:
+                    case PInvoke.WM_NCMOUSEMOVE:
                         // Mouse move messages should be eaten if they aren't for a dropdown.
                         // this prevents things like ToolTips and mouse over highlights from
                         // being processed.
@@ -599,29 +599,29 @@ public static partial class ToolStripManager
                         }
 
                         break;
-                    case PInvokeCore.WM_LBUTTONDOWN:
-                    case PInvokeCore.WM_RBUTTONDOWN:
-                    case PInvokeCore.WM_MBUTTONDOWN:
+                    case PInvoke.WM_LBUTTONDOWN:
+                    case PInvoke.WM_RBUTTONDOWN:
+                    case PInvoke.WM_MBUTTONDOWN:
                         // When a mouse button is pressed, we should determine if it is within the client coordinates
                         // of the active dropdown. If not, we should dismiss it.
                         ProcessMouseButtonPressed(m.HWND, PARAM.ToPoint(m.LParamInternal));
                         break;
-                    case PInvokeCore.WM_NCLBUTTONDOWN:
-                    case PInvokeCore.WM_NCRBUTTONDOWN:
-                    case PInvokeCore.WM_NCMBUTTONDOWN:
+                    case PInvoke.WM_NCLBUTTONDOWN:
+                    case PInvoke.WM_NCRBUTTONDOWN:
+                    case PInvoke.WM_NCMBUTTONDOWN:
                         // When a mouse button is pressed, we should determine if it is within the client coordinates
                         // of the active dropdown. If not, we should dismiss it.
                         ProcessMouseButtonPressed(default, PARAM.ToPoint(m.LParamInternal));
                         break;
 
-                    case PInvokeCore.WM_KEYDOWN:
-                    case PInvokeCore.WM_KEYUP:
-                    case PInvokeCore.WM_CHAR:
-                    case PInvokeCore.WM_DEADCHAR:
-                    case PInvokeCore.WM_SYSKEYDOWN:
-                    case PInvokeCore.WM_SYSKEYUP:
-                    case PInvokeCore.WM_SYSCHAR:
-                    case PInvokeCore.WM_SYSDEADCHAR:
+                    case PInvoke.WM_KEYDOWN:
+                    case PInvoke.WM_KEYUP:
+                    case PInvoke.WM_CHAR:
+                    case PInvoke.WM_DEADCHAR:
+                    case PInvoke.WM_SYSKEYDOWN:
+                    case PInvoke.WM_SYSKEYUP:
+                    case PInvoke.WM_SYSCHAR:
+                    case PInvoke.WM_SYSDEADCHAR:
 
                         if (!activeToolStrip.ContainsFocus)
                         {

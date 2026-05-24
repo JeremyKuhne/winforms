@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -29,7 +29,7 @@ public partial class ListView
             {
                 if (_owner.IsHandleCreated)
                 {
-                    return (int)PInvokeCore.SendMessage(_owner, PInvoke.LVM_GETSELECTEDCOUNT);
+                    return (int)PInvoke.SendMessage(_owner, PInvoke.LVM_GETSELECTEDCOUNT);
                 }
                 else
                 {
@@ -55,7 +55,7 @@ public partial class ListView
                     int displayIndex = -1;
                     for (int i = 0; i < count; i++)
                     {
-                        int fidx = (int)PInvokeCore.SendMessage(
+                        int fidx = (int)PInvoke.SendMessage(
                             _owner,
                             PInvoke.LVM_GETNEXTITEM,
                             (WPARAM)displayIndex,
@@ -103,7 +103,7 @@ public partial class ListView
                     int fidx = -1;
                     for (int count = 0; count <= index; count++)
                     {
-                        fidx = (int)PInvokeCore.SendMessage(
+                        fidx = (int)PInvoke.SendMessage(
                             _owner,
                             PInvoke.LVM_GETNEXTITEM,
                             (WPARAM)fidx,

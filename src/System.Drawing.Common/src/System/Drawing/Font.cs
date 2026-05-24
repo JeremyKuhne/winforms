@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -548,7 +548,7 @@ public sealed unsafe class Font : MarshalByRefObject, ICloneable, IDisposable, I
     /// </summary>
     public static Font FromHfont(IntPtr hfont)
     {
-        PInvokeCore.GetObject((HGDIOBJ)hfont, out LOGFONT logFont);
+        PInvoke.GetObject((HGDIOBJ)hfont, out LOGFONT logFont);
 
         using var hdc = GetDcScope.ScreenDC;
         return FromLogFont(in logFont, hdc);
@@ -716,7 +716,7 @@ public sealed unsafe class Font : MarshalByRefObject, ICloneable, IDisposable, I
         using var hdc = GetDcScope.ScreenDC;
         using Graphics graphics = Graphics.FromHdcInternal(hdc);
         ToLogFont(out LOGFONT lf, graphics);
-        HFONT handle = PInvokeCore.CreateFontIndirect((LOGFONTW*)&lf);
+        HFONT handle = PInvoke.CreateFontIndirect((LOGFONTW*)&lf);
         return handle.IsNull ? throw new Win32Exception() : handle;
     }
 

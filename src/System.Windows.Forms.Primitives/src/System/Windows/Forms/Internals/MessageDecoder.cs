@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms;
@@ -23,7 +23,7 @@ internal static class MessageDecoder
         string id = Parenthesize(messageId.MessageIdToString());
 
         string lDescription = string.Empty;
-        if (messageId == PInvokeCore.WM_PARENTNOTIFY)
+        if (messageId == PInvoke.WM_PARENTNOTIFY)
         {
             lDescription = Parenthesize(((MessageId)(uint)wparam.LOWORD).MessageIdToString());
         }

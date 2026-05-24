@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -113,7 +113,7 @@ internal partial class DesignerActionUI
                 }
 
                 // What's the owner of the windows being activated?
-                HWND parent = (HWND)PInvokeCore.GetWindowLong(
+                HWND parent = (HWND)PInvoke.GetWindowLong(
                     new HandleRef<HWND>(this, hwndActivating),
                     WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
 
@@ -200,7 +200,7 @@ internal partial class DesignerActionUI
 
             while (!hWndDescendant.IsNull)
             {
-                hWndDescendant = (HWND)PInvokeCore.GetWindowLong(hWndDescendant, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
+                hWndDescendant = (HWND)PInvoke.GetWindowLong(hWndDescendant, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
                 if (hWndDescendant.IsNull)
                 {
                     return false;
@@ -217,7 +217,7 @@ internal partial class DesignerActionUI
 
         private bool IsWindowEnabled(IntPtr handle)
         {
-            int style = (int)PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            int style = (int)PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             return (style & (int)WINDOW_STYLE.WS_DISABLED) == 0;
         }
 
@@ -240,7 +240,7 @@ internal partial class DesignerActionUI
         {
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_ACTIVATE:
+                case PInvoke.WM_ACTIVATE:
                     WmActivate(ref m);
                     return;
             }

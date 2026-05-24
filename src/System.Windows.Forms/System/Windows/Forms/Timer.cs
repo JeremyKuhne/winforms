@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -238,7 +238,7 @@ public class Timer : Component
         {
             if (!hwnd.IsNull)
             {
-                return PInvokeCore.GetWindowThreadProcessId(hwnd, out _) != PInvokeCore.GetCurrentThreadId();
+                return PInvoke.GetWindowThreadProcessId(hwnd, out _) != PInvoke.GetCurrentThreadId();
             }
 
             return false;
@@ -281,7 +281,7 @@ public class Timer : Component
             // Fire a message across threads to destroy the timer and HWND on the thread that created it.
             if (GetInvokeRequired(hwnd))
             {
-                PInvokeCore.PostMessage(hwnd, PInvokeCore.WM_CLOSE);
+                PInvoke.PostMessage(hwnd, PInvoke.WM_CLOSE);
                 return;
             }
 
@@ -344,7 +344,7 @@ public class Timer : Component
             Debug.Assert(m.HWND == HWND && !HWND.IsNull, "Timer getting messages for other windows?");
 
             // For timer messages call the timer event.
-            if (m.MsgInternal == PInvokeCore.WM_TIMER)
+            if (m.MsgInternal == PInvoke.WM_TIMER)
             {
                 if (m.WParamInternal == _timerID)
                 {
@@ -352,7 +352,7 @@ public class Timer : Component
                     return;
                 }
             }
-            else if (m.MsgInternal == PInvokeCore.WM_CLOSE)
+            else if (m.MsgInternal == PInvoke.WM_CLOSE)
             {
                 // This is a posted method from another thread that tells us we need
                 // to kill the timer. The handle may already be gone, so we specify it here.

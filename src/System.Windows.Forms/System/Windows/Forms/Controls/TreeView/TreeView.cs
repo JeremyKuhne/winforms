@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -198,12 +198,12 @@ public partial class TreeView : Control
             base.BackColor = value;
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SETBKCOLOR, 0, BackColor.ToWin32());
+                PInvoke.SendMessage(this, PInvoke.TVM_SETBKCOLOR, 0, BackColor.ToWin32());
 
                 // This is to get around a problem in the comctl control where the lines
                 // connecting nodes don't get the new BackColor. This messages forces
                 // reconstruction of the line bitmaps without changing anything else.
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)Indent);
+                PInvoke.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)Indent);
             }
         }
     }
@@ -245,7 +245,7 @@ public partial class TreeView : Control
     /// </summary>
     [SRCategory(nameof(SR.CatAppearance))]
     [DefaultValue(BorderStyle.Fixed3D)]
-    [DispId(PInvokeCore.DISPID_BORDERSTYLE)]
+    [DispId(PInvoke.DISPID_BORDERSTYLE)]
     [SRDescription(nameof(SR.borderStyleDescr))]
     public BorderStyle BorderStyle
     {
@@ -312,7 +312,7 @@ public partial class TreeView : Control
             // Keep the scrollbar if we are just updating styles...
             if (IsHandleCreated)
             {
-                int currentStyle = unchecked((int)((long)PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE)));
+                int currentStyle = unchecked((int)((long)PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE)));
                 cp.Style |= currentStyle & (int)(WINDOW_STYLE.WS_HSCROLL | WINDOW_STYLE.WS_VSCROLL);
             }
 
@@ -443,7 +443,7 @@ public partial class TreeView : Control
             base.ForeColor = value;
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SETTEXTCOLOR, 0, ForeColor.ToWin32());
+                PInvoke.SendMessage(this, PInvoke.TVM_SETTEXTCOLOR, 0, ForeColor.ToWin32());
             }
         }
     }
@@ -625,7 +625,7 @@ public partial class TreeView : Control
                 // Update TreeView's images
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, value is null ? 0 : value.Handle);
+                    PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, value is null ? 0 : value.Handle);
                     if (StateImageList is not null && StateImageList.Images.Count > 0 && _internalStateImageList is not null)
                     {
                         SetStateImageList(_internalStateImageList.Handle);
@@ -738,7 +738,7 @@ public partial class TreeView : Control
             }
             else if (IsHandleCreated)
             {
-                return (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETINDENT);
+                return (int)PInvoke.SendMessage(this, PInvoke.TVM_GETINDENT);
             }
 
             return DefaultTreeViewIndent;
@@ -753,8 +753,8 @@ public partial class TreeView : Control
                 _indent = value;
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)value);
-                    _indent = (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETINDENT);
+                    PInvoke.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)value);
+                    _indent = (int)PInvoke.SendMessage(this, PInvoke.TVM_GETINDENT);
                 }
             }
         }
@@ -776,7 +776,7 @@ public partial class TreeView : Control
 
             if (IsHandleCreated)
             {
-                return (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
+                return (int)PInvoke.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
             }
             else
             {
@@ -811,8 +811,8 @@ public partial class TreeView : Control
                         }
                     }
 
-                    PInvokeCore.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)value);
-                    _itemHeight = (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
+                    PInvoke.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)value);
+                    _itemHeight = (int)PInvoke.SendMessage(this, PInvoke.TVM_GETITEMHEIGHT);
                 }
             }
         }
@@ -855,7 +855,7 @@ public partial class TreeView : Control
         {
             if (IsHandleCreated)
             {
-                int intColor = (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETLINECOLOR);
+                int intColor = (int)PInvoke.SendMessage(this, PInvoke.TVM_GETLINECOLOR);
                 return ColorTranslator.FromWin32(intColor);
             }
 
@@ -868,7 +868,7 @@ public partial class TreeView : Control
                 _lineColor = value;
                 if (IsHandleCreated)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.TVM_SETLINECOLOR, 0, _lineColor.ToWin32());
+                    PInvoke.SendMessage(this, PInvoke.TVM_SETLINECOLOR, 0, _lineColor.ToWin32());
                 }
             }
         }
@@ -1087,7 +1087,7 @@ public partial class TreeView : Control
         {
             if (IsHandleCreated)
             {
-                IntPtr hItem = PInvokeCore.SendMessage(this, PInvoke.TVM_GETNEXTITEM, (WPARAM)PInvoke.TVGN_CARET);
+                IntPtr hItem = PInvoke.SendMessage(this, PInvoke.TVM_GETNEXTITEM, (WPARAM)PInvoke.TVGN_CARET);
                 if (hItem == IntPtr.Zero)
                 {
                     return null;
@@ -1114,7 +1114,7 @@ public partial class TreeView : Control
                 Debug.Assert(_selectedNode is null || _selectedNode.TreeView != this, "handle is created, but we're still caching selectedNode");
 
                 nint hnode = (value is null ? 0 : value.Handle);
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_CARET, (LPARAM)hnode);
+                PInvoke.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_CARET, (LPARAM)hnode);
                 _selectedNode = null;
             }
             else
@@ -1300,7 +1300,7 @@ public partial class TreeView : Control
         {
             if (IsHandleCreated)
             {
-                IntPtr hitem = PInvokeCore.SendMessage(this, PInvoke.TVM_GETNEXTITEM, (WPARAM)PInvoke.TVGN_FIRSTVISIBLE);
+                IntPtr hitem = PInvoke.SendMessage(this, PInvoke.TVM_GETNEXTITEM, (WPARAM)PInvoke.TVGN_FIRSTVISIBLE);
                 return (hitem == IntPtr.Zero ? null : NodeFromHandle(hitem));
             }
 
@@ -1316,7 +1316,7 @@ public partial class TreeView : Control
                 Debug.Assert(_topNode is null || _topNode.TreeView != this, "handle is created, but we're still caching selectedNode");
 
                 nint hnode = (value is null ? 0 : value.Handle);
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_FIRSTVISIBLE, (LPARAM)hnode);
+                PInvoke.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_FIRSTVISIBLE, (LPARAM)hnode);
                 _topNode = null;
             }
             else
@@ -1336,7 +1336,7 @@ public partial class TreeView : Control
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [SRDescription(nameof(SR.TreeViewVisibleCountDescr))]
-    public int VisibleCount => IsHandleCreated ? (int)PInvokeCore.SendMessage(this, PInvoke.TVM_GETVISIBLECOUNT) : 0;
+    public int VisibleCount => IsHandleCreated ? (int)PInvoke.SendMessage(this, PInvoke.TVM_GETVISIBLECOUNT) : 0;
 
     [SRCategory(nameof(SR.CatBehavior))]
     [SRDescription(nameof(SR.TreeViewBeforeEditDescr))]
@@ -1596,14 +1596,14 @@ public partial class TreeView : Control
         {
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)false);
+                PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)false);
                 if (delayed)
                 {
-                    PInvokeCore.PostMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                    PInvoke.PostMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                 }
                 else
                 {
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETREDRAW, (WPARAM)(BOOL)true);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETREDRAW, (WPARAM)(BOOL)true);
                 }
             }
         }
@@ -1619,8 +1619,8 @@ public partial class TreeView : Control
             return;
         }
 
-        PInvokeCore.SendMessage(toolTip, PInvoke.TTM_SETMAXTIPWIDTH, 0, SystemInformation.MaxWindowTrackSize.Width);
-        PInvokeCore.SendMessage(this, PInvoke.TVM_SETTOOLTIPS, (WPARAM)toolTip.Handle);
+        PInvoke.SendMessage(toolTip, PInvoke.TTM_SETMAXTIPWIDTH, 0, SystemInformation.MaxWindowTrackSize.Width);
+        PInvoke.SendMessage(this, PInvoke.TVM_SETTOOLTIPS, (WPARAM)toolTip.Handle);
         _controlToolTipText = toolTip.GetToolTip(this);
     }
 
@@ -1639,7 +1639,7 @@ public partial class TreeView : Control
             pt = new Point(x, y)
         };
 
-        nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
+        nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
         TreeNode? node = hnode == 0 ? null : NodeFromHandle(hnode);
         TreeViewHitTestLocations loc = (TreeViewHitTestLocations)tvhi.flags;
         return new TreeViewHitTestInfo(node, loc);
@@ -1680,7 +1680,7 @@ public partial class TreeView : Control
             pt = new Point(x, y)
         };
 
-        nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
+        nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
         return (hnode == 0 ? null : NodeFromHandle(hnode));
     }
 
@@ -1689,7 +1689,7 @@ public partial class TreeView : Control
         if (IsHandleCreated)
         {
             IntPtr handle = (ImageList is null) ? IntPtr.Zero : ImageList.Handle;
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, handle);
+            PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, handle);
         }
     }
 
@@ -1853,10 +1853,10 @@ public partial class TreeView : Control
         // The TreeView extended styles are independent of the window extended styles.
         UpdateTreeViewExtendedStyles();
 
-        int version = (int)PInvokeCore.SendMessage(this, PInvoke.CCM_GETVERSION);
+        int version = (int)PInvoke.SendMessage(this, PInvoke.CCM_GETVERSION);
         if (version < 5)
         {
-            PInvokeCore.SendMessage(this, PInvoke.CCM_SETVERSION, 5);
+            PInvoke.SendMessage(this, PInvoke.CCM_SETVERSION, 5);
         }
 
         // Workaround for problem in TreeView where it doesn't recognize the TVS_CHECKBOXES
@@ -1866,41 +1866,41 @@ public partial class TreeView : Control
         // This seems to make the TreeView happy.
         if (CheckBoxes)
         {
-            int style = (int)PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            int style = (int)PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             style |= (int)PInvoke.TVS_CHECKBOXES;
-            PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE, style);
+            PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE, style);
         }
 
         if (ShowNodeToolTips && !DesignMode)
         {
-            int style = (int)PInvokeCore.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            int style = (int)PInvoke.GetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             style |= (int)PInvoke.TVS_INFOTIP;
-            PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE, style);
+            PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_STYLE, style);
         }
 
         Color c = BackColor;
 
         if (c != SystemColors.Window || Application.IsDarkModeEnabled)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETBKCOLOR, 0, c.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.TVM_SETBKCOLOR, 0, c.ToWin32());
         }
 
         c = ForeColor;
 
         if (c != SystemColors.WindowText || Application.IsDarkModeEnabled)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETTEXTCOLOR, 0, c.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.TVM_SETTEXTCOLOR, 0, c.ToWin32());
         }
 
         // Put the LineColor into the native control only if set.
         if (_lineColor != Color.Empty)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETLINECOLOR, 0, _lineColor.ToWin32());
+            PInvoke.SendMessage(this, PInvoke.TVM_SETLINECOLOR, 0, _lineColor.ToWin32());
         }
 
         if (_imageList is not null)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, _imageList.Handle);
+            PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, 0, _imageList.Handle);
         }
 
         if (_stateImageList is not null)
@@ -1910,12 +1910,12 @@ public partial class TreeView : Control
 
         if (_indent != -1)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)_indent);
+            PInvoke.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)_indent);
         }
 
         if (_itemHeight != -1)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)ItemHeight);
+            PInvoke.SendMessage(this, PInvoke.TVM_SETITEMHEIGHT, (WPARAM)ItemHeight);
         }
 
         // Essentially we are setting the width to be infinite so that the
@@ -1985,7 +1985,7 @@ public partial class TreeView : Control
         }
 
         newImageList.Images.AddRange(images);
-        PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE, (LPARAM)newImageList.Handle);
+        PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE, (LPARAM)newImageList.Handle);
 
         _internalStateImageList?.Dispose();
         _internalStateImageList = newImageList;
@@ -1995,10 +1995,10 @@ public partial class TreeView : Control
     {
         // In certain cases (TREEVIEWSTATE_checkBoxes) e.g., the Native TreeView leaks the imageList
         // even if set by us. To prevent any leaks, we always destroy what was there after setting a new list.
-        IntPtr handleOld = PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE, (LPARAM)handle);
+        IntPtr handleOld = PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE, (LPARAM)handle);
         if ((handleOld != IntPtr.Zero) && (handleOld != handle))
         {
-            PInvoke.ImageList.Destroy(new HandleRef<HIMAGELIST>(this, (HIMAGELIST)handleOld));
+            PInvokeForms.ImageList.Destroy(new HandleRef<HIMAGELIST>(this, (HIMAGELIST)handleOld));
         }
     }
 
@@ -2006,13 +2006,13 @@ public partial class TreeView : Control
     // We must destroy it explicitly.
     private void DestroyNativeStateImageList(bool reset)
     {
-        IntPtr handle = PInvokeCore.SendMessage(this, PInvoke.TVM_GETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE);
+        IntPtr handle = PInvoke.SendMessage(this, PInvoke.TVM_GETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE);
         if (handle != IntPtr.Zero)
         {
-            PInvoke.ImageList.Destroy(new HandleRef<HIMAGELIST>(this, (HIMAGELIST)handle));
+            PInvokeForms.ImageList.Destroy(new HandleRef<HIMAGELIST>(this, (HIMAGELIST)handle));
             if (reset)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE);
+                PInvoke.SendMessage(this, PInvoke.TVM_SETIMAGELIST, (WPARAM)PInvoke.TVSIL_STATE);
             }
         }
     }
@@ -2056,7 +2056,7 @@ public partial class TreeView : Control
             pt = PointToClient(Cursor.Position)
         };
 
-        nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
+        nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
         if (hnode != 0 && ((tvhip.flags & TVHITTESTINFO_FLAGS.TVHT_ONITEM) != 0))
         {
             TreeNode? tn = NodeFromHandle(hnode);
@@ -2538,7 +2538,7 @@ public partial class TreeView : Control
         *((IntPtr*)&rc.left) = nmtv->itemOld.hItem;
         if (nmtv->itemOld.hItem != IntPtr.Zero)
         {
-            if (PInvokeCore.SendMessage(this, PInvoke.TVM_GETITEMRECT, 1, ref rc) != 0)
+            if (PInvoke.SendMessage(this, PInvoke.TVM_GETITEMRECT, 1, ref rc) != 0)
             {
                 PInvoke.InvalidateRect(this, &rc, bErase: true);
             }
@@ -2566,7 +2566,7 @@ public partial class TreeView : Control
         {
             _editNode = editingNode;
             _labelEdit = new TreeViewLabelEditNativeWindow(this);
-            _labelEdit.AssignHandle(PInvokeCore.SendMessage(this, PInvoke.TVM_GETEDITCONTROL));
+            _labelEdit.AssignHandle(PInvoke.SendMessage(this, PInvoke.TVM_GETEDITCONTROL));
         }
 
         return (LRESULT)(e.CancelEdit ? 1 : 0);
@@ -2633,7 +2633,7 @@ public partial class TreeView : Control
         // This stops the style from being removed for any derived classes that set it using P/Invoke.
         if (_treeViewState[TREEVIEWSTATE_doubleBufferedPropertySet])
         {
-            PInvokeCore.SendMessage(this,
+            PInvoke.SendMessage(this,
                 PInvoke.TVM_SETEXTENDEDSTYLE,
                 (WPARAM)(nint)PInvoke.TVS_EX_DOUBLEBUFFER,
                 (LPARAM)(nint)(DoubleBuffered ? PInvoke.TVS_EX_DOUBLEBUFFER : 0));
@@ -2671,7 +2671,7 @@ public partial class TreeView : Control
         // If the user shows the ContextMenu bu overriding the WndProc( ), then the treeView
         // goes into the weird state where the high-light gets locked to the node on which the ContextMenu was shown.
         // So we need to get the native TREEVIEW out of this weird state.
-        PInvokeCore.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE);
+        PInvoke.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE);
 
         // Windows TreeView pushes its own message loop in WM_xBUTTONDOWN, so fire the
         // event before calling defWndProc or else it won't get fired until the button
@@ -2782,7 +2782,7 @@ public partial class TreeView : Control
                 if (renderinfo is not null && renderinfo.Font is not null)
                 {
                     // Mess with the DC directly...
-                    PInvokeCore.SelectObject(nmtvcd->nmcd.hdc, renderinfo.FontHandle);
+                    PInvoke.SelectObject(nmtvcd->nmcd.hdc, renderinfo.FontHandle);
 
                     // There is a problem in winctl that clips node fonts if the fontSize
                     // is larger than the treeView font size. The behavior is much better in comctl 5 and above.
@@ -2910,13 +2910,13 @@ public partial class TreeView : Control
             pt = PointToClient(Cursor.Position)
         };
 
-        nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
+        nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
         if (hnode != 0 && tvhip.flags.HasFlag(TVHITTESTINFO_FLAGS.TVHT_ONITEM) && NodeFromHandle(hnode) is { } tn && !ShowNodeToolTips)
         {
             Rectangle bounds = tn.Bounds;
             bounds.Location = PointToScreen(bounds.Location);
 
-            PInvokeCore.SendMessage(tooltipHandle, PInvoke.TTM_ADJUSTRECT, (WPARAM)(BOOL)true, ref bounds);
+            PInvoke.SendMessage(tooltipHandle, PInvoke.TTM_ADJUSTRECT, (WPARAM)(BOOL)true, ref bounds);
             PInvoke.SetWindowPos(
                 tooltipHandle,
                 HWND.HWND_TOPMOST,
@@ -2941,7 +2941,7 @@ public partial class TreeView : Control
             pt = PointToClient(Cursor.Position)
         };
 
-        nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
+        nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
         if (hnode != 0 && ((tvhip.flags & TVHITTESTINFO_FLAGS.TVHT_ONITEM) != 0))
         {
             TreeNode? tn = NodeFromHandle(hnode);
@@ -3018,7 +3018,7 @@ public partial class TreeView : Control
                         pt = pos
                     };
 
-                    nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
+                    nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
                     if (nmtv->hdr.code != PInvoke.NM_CLICK || (tvhip.flags & TVHITTESTINFO_FLAGS.TVHT_ONITEM) != 0)
                     {
                         button = nmtv->hdr.code == PInvoke.NM_CLICK ? MouseButtons.Left : MouseButtons.Right;
@@ -3048,7 +3048,7 @@ public partial class TreeView : Control
                         else
                         {
                             _treeViewState[TREEVIEWSTATE_showTreeViewContextMenu] = true;
-                            PInvokeCore.SendMessage(this, PInvokeCore.WM_CONTEXTMENU, (WPARAM)HWND, (LPARAM)PInvoke.GetMessagePos());
+                            PInvoke.SendMessage(this, PInvoke.WM_CONTEXTMENU, (WPARAM)HWND, (LPARAM)PInvoke.GetMessagePos());
                         }
 
                         m.ResultInternal = (LRESULT)1;
@@ -3100,7 +3100,7 @@ public partial class TreeView : Control
             ContextMenuStrip menu = treeNode.ContextMenuStrip;
 
             // Need to send TVM_SELECTITEM to highlight the node while the contextMenuStrip is being shown.
-            PInvokeCore.PostMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE, (LPARAM)treeNode.Handle);
+            PInvoke.PostMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE, (LPARAM)treeNode.Handle);
             menu.ShowInternal(this, PointToClient(MousePosition), isKeyboardActivated: false);
             menu.Closing += ContextMenuStripClosing;
         }
@@ -3113,7 +3113,7 @@ public partial class TreeView : Control
         ContextMenuStrip strip = (ContextMenuStrip)sender!;
         // Unhook the Event.
         strip.Closing -= ContextMenuStripClosing;
-        PInvokeCore.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE);
+        PInvoke.SendMessage(this, PInvoke.TVM_SELECTITEM, (WPARAM)PInvoke.TVGN_DROPHILITE);
     }
 
     private void UnhookNodes()
@@ -3147,10 +3147,10 @@ public partial class TreeView : Control
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_WINDOWPOSCHANGING:
-            case PInvokeCore.WM_NCCALCSIZE:
-            case PInvokeCore.WM_WINDOWPOSCHANGED:
-            case PInvokeCore.WM_SIZE:
+            case PInvoke.WM_WINDOWPOSCHANGING:
+            case PInvoke.WM_NCCALCSIZE:
+            case PInvoke.WM_WINDOWPOSCHANGED:
+            case PInvoke.WM_SIZE:
                 // While we are changing size of treeView to avoid the scrollbar; don't respond to the window-sizing messages.
                 if (_treeViewState[TREEVIEWSTATE_stopResizeWindowMsgs])
                 {
@@ -3162,7 +3162,7 @@ public partial class TreeView : Control
                 }
 
                 break;
-            case PInvokeCore.WM_HSCROLL:
+            case PInvoke.WM_HSCROLL:
                 base.WndProc(ref m);
                 if (DrawMode == TreeViewDrawMode.OwnerDrawAll)
                 {
@@ -3171,7 +3171,7 @@ public partial class TreeView : Control
 
                 break;
 
-            case PInvokeCore.WM_PRINT:
+            case PInvoke.WM_PRINT:
                 WmPrint(ref m);
                 break;
             case PInvoke.TVM_SETITEMW:
@@ -3190,7 +3190,7 @@ public partial class TreeView : Control
                             stateMask = TREE_VIEW_ITEM_STATE_FLAGS.TVIS_STATEIMAGEMASK
                         };
 
-                        PInvokeCore.SendMessage(this, PInvoke.TVM_GETITEMW, 0, ref item1);
+                        PInvoke.SendMessage(this, PInvoke.TVM_GETITEMW, 0, ref item1);
 
                         TreeNode node = NodeFromHandle(item->hItem)!;
                         node.CheckedStateInternal = (((int)item1.state >> SHIFTVAL) > 1);
@@ -3198,13 +3198,13 @@ public partial class TreeView : Control
                 }
 
                 break;
-            case PInvokeCore.WM_NOTIFY:
+            case PInvoke.WM_NOTIFY:
                 NMHDR* nmhdr = (NMHDR*)(nint)m.LParamInternal;
                 switch (nmhdr->code)
                 {
                     case PInvoke.TTN_GETDISPINFOW:
                         // Setting the max width has the added benefit of enabling multiline tool tips
-                        PInvokeCore.SendMessage(nmhdr->hwndFrom, PInvoke.TTM_SETMAXTIPWIDTH, 0, SystemInformation.MaxWindowTrackSize.Width);
+                        PInvoke.SendMessage(nmhdr->hwndFrom, PInvoke.TTM_SETMAXTIPWIDTH, 0, SystemInformation.MaxWindowTrackSize.Width);
                         WmNeedText(ref m);
                         m.ResultInternal = (LRESULT)1;
                         return;
@@ -3229,7 +3229,7 @@ public partial class TreeView : Control
             case MessageId.WM_REFLECT_NOTIFY:
                 WmNotify(ref m);
                 break;
-            case PInvokeCore.WM_LBUTTONDBLCLK:
+            case PInvoke.WM_LBUTTONDBLCLK:
                 WmMouseDown(ref m, MouseButtons.Left, 2);
 
                 // Just maintain state and fire double click in final mouseUp.
@@ -3241,7 +3241,7 @@ public partial class TreeView : Control
                 // Make sure we get the mouse up if it happens outside the control.
                 Capture = true;
                 break;
-            case PInvokeCore.WM_LBUTTONDOWN:
+            case PInvoke.WM_LBUTTONDOWN:
                 try
                 {
                     _treeViewState[TREEVIEWSTATE_ignoreSelects] = true;
@@ -3259,7 +3259,7 @@ public partial class TreeView : Control
                     pt = PARAM.ToPoint(m.LParamInternal)
                 };
 
-                _mouseDownNode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
+                _mouseDownNode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhip);
 
                 // This gets around the TreeView behavior of temporarily moving the selection
                 // highlight to a node when the user clicks on its checkbox.
@@ -3287,8 +3287,8 @@ public partial class TreeView : Control
 
                 _downButton = MouseButtons.Left;
                 break;
-            case PInvokeCore.WM_LBUTTONUP:
-            case PInvokeCore.WM_RBUTTONUP:
+            case PInvoke.WM_LBUTTONUP:
+            case PInvoke.WM_RBUTTONUP:
                 Point point = PARAM.ToPoint(m.LParamInternal);
 
                 TVHITTESTINFO tvhi = new()
@@ -3296,7 +3296,7 @@ public partial class TreeView : Control
                     pt = point
                 };
 
-                nint hnode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
+                nint hnode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhi);
 
                 // Important for CheckBoxes. Click needs to be fired.
                 if (hnode != 0)
@@ -3338,24 +3338,24 @@ public partial class TreeView : Control
                 // Always clear our hit-tested node we cached on mouse down
                 _mouseDownNode = IntPtr.Zero;
                 break;
-            case PInvokeCore.WM_MBUTTONDBLCLK:
+            case PInvoke.WM_MBUTTONDBLCLK:
                 // Fire mouse up in the Wndproc.
                 _treeViewState[TREEVIEWSTATE_mouseUpFired] = false;
                 WmMouseDown(ref m, MouseButtons.Middle, 2);
                 break;
-            case PInvokeCore.WM_MBUTTONDOWN:
+            case PInvoke.WM_MBUTTONDOWN:
                 // Always reset MouseUpFired.
                 _treeViewState[TREEVIEWSTATE_mouseUpFired] = false;
                 WmMouseDown(ref m, MouseButtons.Middle, 1);
                 _downButton = MouseButtons.Middle;
                 break;
-            case PInvokeCore.WM_MOUSELEAVE:
+            case PInvoke.WM_MOUSELEAVE:
                 // if the mouse leaves and then reenters the TreeView
                 // NodeHovered events should be raised.
                 _prevHoveredNode = null;
                 base.WndProc(ref m);
                 break;
-            case PInvokeCore.WM_RBUTTONDBLCLK:
+            case PInvoke.WM_RBUTTONDBLCLK:
                 WmMouseDown(ref m, MouseButtons.Right, 2);
 
                 // Just maintain state and fire double click in the final mouseUp.
@@ -3367,7 +3367,7 @@ public partial class TreeView : Control
                 // Make sure we get the mouse up if it happens outside the control.
                 Capture = true;
                 break;
-            case PInvokeCore.WM_RBUTTONDOWN:
+            case PInvoke.WM_RBUTTONDOWN:
                 // Always Reset the MouseUpFired....
                 _treeViewState[TREEVIEWSTATE_mouseUpFired] = false;
 
@@ -3377,16 +3377,16 @@ public partial class TreeView : Control
                     pt = PARAM.ToPoint(m.LParamInternal)
                 };
 
-                _mouseDownNode = PInvokeCore.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhit);
+                _mouseDownNode = PInvoke.SendMessage(this, PInvoke.TVM_HITTEST, 0, ref tvhit);
 
                 WmMouseDown(ref m, MouseButtons.Right, 1);
                 _downButton = MouseButtons.Right;
                 break;
-            case PInvokeCore.WM_SYSCOLORCHANGE:
-                PInvokeCore.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)Indent);
+            case PInvoke.WM_SYSCOLORCHANGE:
+                PInvoke.SendMessage(this, PInvoke.TVM_SETINDENT, (WPARAM)Indent);
                 base.WndProc(ref m);
                 break;
-            case PInvokeCore.WM_SETFOCUS:
+            case PInvoke.WM_SETFOCUS:
                 // If we get focus through the LButtonDown .. we might have done the validation...
                 // so skip it..
                 if (_treeViewState[TREEVIEWSTATE_lastControlValidated])
@@ -3402,7 +3402,7 @@ public partial class TreeView : Control
                 }
 
                 break;
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_CONTEXTMENU:
                 if (_treeViewState[TREEVIEWSTATE_showTreeViewContextMenu])
                 {
                     _treeViewState[TREEVIEWSTATE_showTreeViewContextMenu] = false;
@@ -3432,7 +3432,7 @@ public partial class TreeView : Control
                 }
 
                 break;
-            case PInvokeCore.WM_GETOBJECT:
+            case PInvoke.WM_GETOBJECT:
                 // When TreeView is the first control in TabOrder on a form, selection will not be announced when the forms is first opened
                 // because TreeView's AccessibilityObject has not been created yet. We create this object proactively to support that case.
                 // You can also refer to this PR. https://github.com/dotnet/winforms/pull/9925

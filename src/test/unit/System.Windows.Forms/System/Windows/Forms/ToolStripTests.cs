@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -460,7 +460,7 @@ public partial class ToolStripTests : IDisposable
 
         DropTargetMock dropTarget = new();
         Assert.Equal(ApartmentState.STA, Application.OleRequired());
-        Assert.Equal(HRESULT.S_OK, PInvokeCore.RegisterDragDrop(control, dropTarget));
+        Assert.Equal(HRESULT.S_OK, PInvoke.RegisterDragDrop(control, dropTarget));
 
         try
         {
@@ -489,7 +489,7 @@ public partial class ToolStripTests : IDisposable
         }
         finally
         {
-            PInvokeCore.RevokeDragDrop((HWND)control.Handle);
+            PInvoke.RevokeDragDrop((HWND)control.Handle);
         }
     }
 
@@ -7151,7 +7151,7 @@ public partial class ToolStripTests : IDisposable
         using SubToolStrip control = new();
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEACTIVATE,
+            Msg = (int)PInvoke.WM_MOUSEACTIVATE,
             Result = 250
         };
         control.WndProc(ref m);
@@ -7178,7 +7178,7 @@ public partial class ToolStripTests : IDisposable
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEACTIVATE,
+            Msg = (int)PInvoke.WM_MOUSEACTIVATE,
             Result = 250
         };
         control.WndProc(ref m);
@@ -7213,7 +7213,7 @@ public partial class ToolStripTests : IDisposable
 
         Message m = new()
         {
-            Msg = (int)PInvokeCore.WM_MOUSEHOVER,
+            Msg = (int)PInvoke.WM_MOUSEHOVER,
             Result = 250
         };
 
@@ -7244,7 +7244,7 @@ public partial class ToolStripTests : IDisposable
 
         try
         {
-            Message m = Message.Create(currentToolStrip.Handle, (int)PInvokeCore.WM_SETFOCUS, previousToolStrip.Handle, IntPtr.Zero);
+            Message m = Message.Create(currentToolStrip.Handle, (int)PInvoke.WM_SETFOCUS, previousToolStrip.Handle, IntPtr.Zero);
             currentToolStrip.WndProc(ref m);
 
             Assert.Same(currentToolStrip, ToolStripManager.ModalMenuFilter.GetActiveToolStrip());

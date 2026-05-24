@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -449,15 +449,15 @@ public unsafe partial class PrinterSettings : ICloneable
         }
         finally
         {
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
         }
     }
 
     internal CreateDcScope CreateDeviceContext(HGLOBAL hdevmode)
     {
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(hdevmode);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(hdevmode);
         CreateDcScope hdc = new(DriverName, PrinterNameInternal, devmode, informationOnly: false);
-        PInvokeCore.GlobalUnlock(hdevmode);
+        PInvoke.GlobalUnlock(hdevmode);
         return hdc;
     }
 
@@ -474,16 +474,16 @@ public unsafe partial class PrinterSettings : ICloneable
         }
         finally
         {
-            PInvokeCore.GlobalFree(modeHandle);
+            PInvoke.GlobalFree(modeHandle);
         }
     }
 
     // A read-only DC, which is faster than CreateHdc
     internal unsafe CreateDcScope CreateInformationContext(HGLOBAL hdevmode)
     {
-        void* modePointer = PInvokeCore.GlobalLock(hdevmode);
+        void* modePointer = PInvoke.GlobalLock(hdevmode);
         CreateDcScope dc = new(DriverName, PrinterNameInternal, (DEVMODEW*)modePointer, informationOnly: true);
-        PInvokeCore.GlobalUnlock(hdevmode);
+        PInvoke.GlobalUnlock(hdevmode);
         return dc;
     }
 
@@ -551,18 +551,18 @@ public unsafe partial class PrinterSettings : ICloneable
             lStructSize = (uint)sizeof(PRINTDLGEXW),
             Flags = PRINTDLGEX_FLAGS.PD_RETURNDEFAULT | PRINTDLGEX_FLAGS.PD_NOPAGENUMS,
             // PrintDlgEx requires a valid HWND
-            hwndOwner = PInvokeCore.GetDesktopWindow(),
-            nStartPage = PInvokeCore.START_PAGE_GENERAL
+            hwndOwner = PInvoke.GetDesktopWindow(),
+            nStartPage = PInvoke.START_PAGE_GENERAL
         };
 
-        HRESULT status = PInvokeCore.PrintDlgEx(&dialogSettings);
+        HRESULT status = PInvoke.PrintDlgEx(&dialogSettings);
         if (status.Failed)
         {
             return SR.NoDefaultPrinter;
         }
 
         HGLOBAL handle = dialogSettings.hDevNames;
-        DEVNAMES* names = (DEVNAMES*)PInvokeCore.GlobalLock(handle);
+        DEVNAMES* names = (DEVNAMES*)PInvoke.GlobalLock(handle);
         if (names is null)
         {
             throw new Win32Exception();
@@ -575,11 +575,11 @@ public unsafe partial class PrinterSettings : ICloneable
             _ => throw new InvalidOperationException()
         };
 
-        PInvokeCore.GlobalUnlock(handle);
+        PInvoke.GlobalUnlock(handle);
 
         // Windows allocates them, but we have to free them
-        PInvokeCore.GlobalFree(dialogSettings.hDevNames);
-        PInvokeCore.GlobalFree(dialogSettings.hDevMode);
+        PInvoke.GlobalFree(dialogSettings.hDevNames);
+        PInvoke.GlobalFree(dialogSettings.hDevMode);
 
         return name;
     }
@@ -587,7 +587,7 @@ public unsafe partial class PrinterSettings : ICloneable
     private int GetDeviceCaps(GET_DEVICE_CAPS_INDEX capability)
     {
         using var hdc = CreateInformationContext(DefaultPageSettings);
-        return PInvokeCore.GetDeviceCaps(hdc, capability);
+        return PInvoke.GetDeviceCaps(hdc, capability);
     }
 
     /// <summary>
@@ -631,8 +631,8 @@ public unsafe partial class PrinterSettings : ICloneable
             throw new InvalidPrinterException(this);
         }
 
-        HGLOBAL handle = PInvokeCore.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE, (uint)result);
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(handle);
+        HGLOBAL handle = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE, (uint)result);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(handle);
 
         // Get the DevMode only if its not cached.
         if (_cachedDevmode is not null)
@@ -690,12 +690,12 @@ public unsafe partial class PrinterSettings : ICloneable
 
         if (result < 0)
         {
-            PInvokeCore.GlobalFree(handle);
-            PInvokeCore.GlobalUnlock(handle);
+            PInvoke.GlobalFree(handle);
+            PInvoke.GlobalUnlock(handle);
             return default;
         }
 
-        PInvokeCore.GlobalUnlock(handle);
+        PInvoke.GlobalUnlock(handle);
         return handle;
     }
 
@@ -732,11 +732,11 @@ public unsafe partial class PrinterSettings : ICloneable
         int offsetInChars = sizeof(DEVNAMES) / sizeof(char);
         int sizeInChars = checked(offsetInChars + namesChars);
 
-        HGLOBAL handle = PInvokeCore.GlobalAlloc(
+        HGLOBAL handle = PInvoke.GlobalAlloc(
             GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT,
             (uint)(sizeof(char) * sizeInChars));
 
-        DEVNAMES* devnames = (DEVNAMES*)PInvokeCore.GlobalLock(handle);
+        DEVNAMES* devnames = (DEVNAMES*)PInvoke.GlobalLock(handle);
         Span<char> names = new((char*)devnames, sizeInChars);
 
         devnames->wDriverOffset = checked((ushort)offsetInChars);
@@ -753,7 +753,7 @@ public unsafe partial class PrinterSettings : ICloneable
 
         devnames->wDefault = checked((ushort)offsetInChars);
 
-        PInvokeCore.GlobalUnlock(handle);
+        PInvoke.GlobalUnlock(handle);
         return handle;
     }
 
@@ -779,7 +779,7 @@ public unsafe partial class PrinterSettings : ICloneable
                 }
             }
 
-            DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock(modeHandle);
+            DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock(modeHandle);
             switch (field)
             {
                 case ModeField.Orientation:
@@ -824,13 +824,13 @@ public unsafe partial class PrinterSettings : ICloneable
                     break;
             }
 
-            PInvokeCore.GlobalUnlock(modeHandle);
+            PInvoke.GlobalUnlock(modeHandle);
         }
         finally
         {
             if (ownHandle)
             {
-                PInvokeCore.GlobalFree(modeHandle);
+                PInvoke.GlobalFree(modeHandle);
             }
         }
 
@@ -986,7 +986,7 @@ public unsafe partial class PrinterSettings : ICloneable
         if (hdevmode == 0)
             throw new ArgumentException(SR.Format(SR.InvalidPrinterHandle, hdevmode));
 
-        DEVMODEW* devmode = (DEVMODEW*)PInvokeCore.GlobalLock((HGLOBAL)hdevmode);
+        DEVMODEW* devmode = (DEVMODEW*)PInvoke.GlobalLock((HGLOBAL)hdevmode);
 
         // Copy entire public devmode as a byte array.
         _devmodeBytes = devmode->dmSize;
@@ -1019,7 +1019,7 @@ public unsafe partial class PrinterSettings : ICloneable
             _collate = devmode->dmCollate == DEVMODE_COLLATE.DMCOLLATE_TRUE;
         }
 
-        PInvokeCore.GlobalUnlock((HGLOBAL)hdevmode);
+        PInvoke.GlobalUnlock((HGLOBAL)hdevmode);
     }
 
     /// <summary>
@@ -1032,7 +1032,7 @@ public unsafe partial class PrinterSettings : ICloneable
             throw new ArgumentException(SR.Format(SR.InvalidPrinterHandle, hdevnames));
         }
 
-        DEVNAMES* names = (DEVNAMES*)PInvokeCore.GlobalLock((HGLOBAL)hdevnames);
+        DEVNAMES* names = (DEVNAMES*)PInvoke.GlobalLock((HGLOBAL)hdevnames);
 
         _driverName = new((char*)names + names->wDriverOffset);
         _printerName = new((char*)names + names->wDeviceOffset);
@@ -1040,7 +1040,7 @@ public unsafe partial class PrinterSettings : ICloneable
 
         PrintDialogDisplayed = true;
 
-        PInvokeCore.GlobalUnlock((HGLOBAL)hdevnames);
+        PInvoke.GlobalUnlock((HGLOBAL)hdevnames);
     }
 
     public override string ToString() =>

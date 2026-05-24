@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -115,7 +115,7 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
         GpGraphics* nativeGraphics;
 
         // This is one of the few places we need to manually ensure GDI+ is initialized. Other calls to PInvoke will do
-        // this automatically, PInvokeCore cannot and as such needs to be manually initialized if we've never called
+        // this automatically, PInvoke cannot and as such needs to be manually initialized if we've never called
         // another PInvoke method.
         GdiPlusInitialization.EnsureInitialized();
         Gdip.CheckStatus(PInvokeGdiPlus.GdipCreateFromHWND((HWND)hwnd, &nativeGraphics));
@@ -2743,7 +2743,7 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
         HDC targetDC = (HDC)GetHdc();
         try
         {
-            BOOL result = PInvokeCore.BitBlt(
+            BOOL result = PInvoke.BitBlt(
                 targetDC,
                 destinationX,
                 destinationY,
@@ -3315,7 +3315,7 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
 
             if (alwaysSaveState || applyClipping || applyTransform)
             {
-                saveState = PInvokeCore.SaveDC(hdc);
+                saveState = PInvoke.SaveDC(hdc);
             }
 
             if (applyClipping)
@@ -3329,14 +3329,14 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
                 using RegionScope dcRegion = new(hdc);
                 if (!dcRegion.IsNull)
                 {
-                    type = PInvokeCore.CombineRgn(graphicsRegion!, dcRegion, graphicsRegion!, RGN_COMBINE_MODE.RGN_AND);
+                    type = PInvoke.CombineRgn(graphicsRegion!, dcRegion, graphicsRegion!, RGN_COMBINE_MODE.RGN_AND);
                     if (type == GDI_REGION_TYPE.RGN_ERROR)
                     {
                         throw new Win32Exception();
                     }
                 }
 
-                type = PInvokeCore.SelectClipRgn(hdc, graphicsRegion!);
+                type = PInvoke.SelectClipRgn(hdc, graphicsRegion!);
                 if (type == GDI_REGION_TYPE.RGN_ERROR)
                 {
                     throw new Win32Exception();
@@ -3345,7 +3345,7 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
 
             if (applyTransform)
             {
-                PInvokeCore.OffsetViewportOrgEx(hdc, (int)offset.X, (int)offset.Y, lppt: null);
+                PInvoke.OffsetViewportOrgEx(hdc, (int)offset.X, (int)offset.Y, lppt: null);
             }
         }
 
@@ -3562,7 +3562,7 @@ public sealed unsafe partial class Graphics : MarshalByRefObject, IDisposable, I
             WIN32_ERROR error = (WIN32_ERROR)Marshal.GetLastWin32Error();
             if (error == WIN32_ERROR.ERROR_ACCESS_DENIED || error == WIN32_ERROR.ERROR_PROC_NOT_FOUND ||
                     // Here, we'll check to see if we are in a terminal services session.
-                    (((PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_REMOTESESSION) & 0x00000001) != 0) && (error == 0)))
+                    (((PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_REMOTESESSION) & 0x00000001) != 0) && (error == 0)))
             {
                 return;
             }

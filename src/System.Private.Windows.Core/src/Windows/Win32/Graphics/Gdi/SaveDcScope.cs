@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -26,12 +26,12 @@ internal readonly ref struct SaveDcScope
     private readonly int _savedState;
 
     /// <summary>
-    ///  Saves the device context state using <see cref="PInvokeCore.SaveDC(HDC)"/>.
+    ///  Saves the device context state using <see cref="PInvoke.SaveDC(HDC)"/>.
     /// </summary>
     /// <param name="hdc"></param>
     public SaveDcScope(HDC hdc)
     {
-        _savedState = PInvokeCore.SaveDC(hdc);
+        _savedState = PInvoke.SaveDC(hdc);
         HDC = hdc;
     }
 
@@ -39,7 +39,7 @@ internal readonly ref struct SaveDcScope
     {
         if (_savedState != 0)
         {
-            PInvokeCore.RestoreDC(HDC, _savedState);
+            PInvoke.RestoreDC(HDC, _savedState);
         }
     }
 }

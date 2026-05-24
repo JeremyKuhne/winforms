@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -70,7 +70,7 @@ public class ImageListTests : ControlTestBase
         {
             GC.GetTotalMemory(true);
 
-            uint result = PInvokeCore.GetGuiResources(
+            uint result = PInvoke.GetGuiResources(
                 (HANDLE)Process.GetCurrentProcess().Handle,
                 GET_GUI_RESOURCES_FLAGS.GR_GDIOBJECTS);
 

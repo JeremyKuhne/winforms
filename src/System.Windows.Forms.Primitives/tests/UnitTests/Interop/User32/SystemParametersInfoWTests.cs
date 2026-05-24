@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -12,7 +12,7 @@ public class SystemParametersInfoWTests
     {
         NONCLIENTMETRICSW data = default;
 
-        bool result = PInvokeCore.SystemParametersInfo(ref data);
+        bool result = PInvoke.SystemParametersInfo(ref data);
         Assert.True(result);
 
         Font captionFont = Font.FromLogFont(data.lfCaptionFont);

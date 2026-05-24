@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Specialized;
@@ -1428,14 +1428,14 @@ public partial class ToolStripDropDown : ToolStrip
     private void ReparentToActiveToolStripWindow()
     {
         ToolStripManager.ModalMenuFilter.SetActiveToolStrip(this);
-        PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, ToolStripManager.ModalMenuFilter.ActiveHwnd);
+        PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, ToolStripManager.ModalMenuFilter.ActiveHwnd);
     }
 
     private void ReparentToDropDownOwnerWindow()
     {
         // when we're toplevel we need to parent ourselves to a hidden window
         // this prevents a taskbar entry.
-        PInvokeCore.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, DropDownOwnerWindow);
+        PInvoke.SetWindowLong(this, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT, DropDownOwnerWindow);
     }
 
     internal override void ResetScaling(int newDpi)
@@ -1578,7 +1578,7 @@ public partial class ToolStripDropDown : ToolStrip
                     // Snap the foreground window BEFORE calling any user events so they
                     // don't have a chance to activate something else. This covers the case
                     // where someone handles the opening event and throws up a messagebox.
-                    HWND foregroundWindow = PInvokeCore.GetForegroundWindow();
+                    HWND foregroundWindow = PInvoke.GetForegroundWindow();
 
                     // Fire Opening event
                     // Cancellable event in which default value of e.Cancel depends on
@@ -1889,14 +1889,14 @@ public partial class ToolStripDropDown : ToolStrip
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_NCACTIVATE:
+            case PInvoke.WM_NCACTIVATE:
                 // if someone clicks on a child control of the toolstrip dropdown, we want
                 // the title bar to continue appearing active. Normally we just show without
                 // taking window activation (ShowWindow(SHOWNOACTIVATE)) but we can't stop
                 // child controls from taking focus.
                 WmNCActivate(ref m);
                 return;
-            case PInvokeCore.WM_ACTIVATE:
+            case PInvoke.WM_ACTIVATE:
                 // This is the Chrome Panel collection editor scenario
                 // we had focus, then the Chrome panel was activated and we never went away
                 // when we get focus again, we should reactivate our message filter.
@@ -1981,7 +1981,7 @@ public partial class ToolStripDropDown : ToolStrip
                     // We're activating - notify the previous guy that we're activating.
                     HandleRef<HWND> activeWindow = ToolStripManager.ModalMenuFilter.ActiveHwnd;
 
-                    PInvokeCore.SendMessage(activeWindow, PInvokeCore.WM_NCACTIVATE, (WPARAM)(BOOL)true, (LPARAM)(-1));
+                    PInvoke.SendMessage(activeWindow, PInvoke.WM_NCACTIVATE, (WPARAM)(BOOL)true, (LPARAM)(-1));
                     PInvoke.RedrawWindow(
                         activeWindow,
                         lprcUpdate: null,

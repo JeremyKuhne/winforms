@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -274,11 +274,11 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
         if (hpalette.IsNull)
         {
             HPALETTE halftonePalette = (HPALETTE)Graphics.GetHalftonePalette();
-            entries = PInvokeCore.GetPaletteEntries(halftonePalette, 0, (uint)colorCount, paletteEntries);
+            entries = PInvoke.GetPaletteEntries(halftonePalette, 0, (uint)colorCount, paletteEntries);
         }
         else
         {
-            entries = PInvokeCore.GetPaletteEntries(hpalette, 0, (uint)colorCount, paletteEntries);
+            entries = PInvoke.GetPaletteEntries(hpalette, 0, (uint)colorCount, paletteEntries);
         }
 
         if (entries == 0)
@@ -307,7 +307,7 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
         _busy = BufferBusyDisposing;
         DisposeDC();
         _busy = BufferBusyPainting;
-        _compatDC = PInvokeCore.CreateCompatibleDC(src);
+        _compatDC = PInvoke.CreateCompatibleDC(src);
 
         // Recreate the bitmap if necessary.
         if (width > _bufferSize.Width || height > _bufferSize.Height)
@@ -324,7 +324,7 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
         }
 
         // Select the bitmap.
-        _oldBitmap = (HBITMAP)PInvokeCore.SelectObject(_compatDC, _dib);
+        _oldBitmap = (HBITMAP)PInvoke.SelectObject(_compatDC, _dib);
 
         // Create compat graphics.
         _compatGraphics = Graphics.FromHdcInternal(_compatDC);
@@ -363,7 +363,7 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
         BITMAPINFO* bitmapInfo = (BITMAPINFO*)buffer;
 
         // Validate hdc.
-        OBJ_TYPE objType = (OBJ_TYPE)PInvokeCore.GetObjectType(hdc);
+        OBJ_TYPE objType = (OBJ_TYPE)PInvoke.GetObjectType(hdc);
         switch (objType)
         {
             case OBJ_TYPE.OBJ_DC:
@@ -406,7 +406,7 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
             // Create the DIB section. Let Win32 allocate the memory and return a pointer to the bitmap surface.
 
             void* pvBits = null;
-            hbitmap = PInvokeCore.CreateDIBSection(hdc, bitmapInfo, DIB_USAGE.DIB_RGB_COLORS, &pvBits, HANDLE.Null, 0);
+            hbitmap = PInvoke.CreateDIBSection(hdc, bitmapInfo, DIB_USAGE.DIB_RGB_COLORS, &pvBits, HANDLE.Null, 0);
             if (hbitmap.IsNull)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -423,13 +423,13 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
     {
         if (!_oldBitmap.IsNull && !_compatDC.IsNull)
         {
-            PInvokeCore.SelectObject(_compatDC, _oldBitmap);
+            PInvoke.SelectObject(_compatDC, _oldBitmap);
             _oldBitmap = HBITMAP.Null;
         }
 
         if (!_compatDC.IsNull)
         {
-            PInvokeCore.DeleteDC(_compatDC);
+            PInvoke.DeleteDC(_compatDC);
             _compatDC = HDC.Null;
         }
 
@@ -445,7 +445,7 @@ public sealed unsafe class BufferedGraphicsContext : IDisposable
         {
             Debug.Assert(_oldBitmap.IsNull);
 
-            PInvokeCore.DeleteObject(_dib);
+            PInvoke.DeleteObject(_dib);
             _dib = HBITMAP.Null;
         }
 

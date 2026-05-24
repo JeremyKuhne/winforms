@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -724,16 +724,16 @@ public abstract partial class ScrollBar : Control
                 WmReflectScroll(ref m);
                 break;
 
-            case PInvokeCore.WM_ERASEBKGND:
+            case PInvoke.WM_ERASEBKGND:
                 break;
 
-            case PInvokeCore.WM_SIZE:
+            case PInvoke.WM_SIZE:
                 // Fixes the scrollbar focus rect
                 if (PInvoke.GetFocus() == HWND)
                 {
                     DefWndProc(ref m);
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_KILLFOCUS);
-                    PInvokeCore.SendMessage(this, PInvokeCore.WM_SETFOCUS);
+                    PInvoke.SendMessage(this, PInvoke.WM_KILLFOCUS);
+                    PInvoke.SendMessage(this, PInvoke.WM_SETFOCUS);
                 }
 
                 break;

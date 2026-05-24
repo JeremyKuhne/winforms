@@ -1,15 +1,18 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="SetForegroundWindow(HWND)"/>
-    public static BOOL SetForegroundWindow<T>(T hWnd) where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        BOOL result = SetForegroundWindow(hWnd.Handle);
-        GC.KeepAlive(hWnd.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.SetForegroundWindow(HWND)"/>
+        public static BOOL SetForegroundWindow<T>(T hWnd) where T : IHandle<HWND>
+        {
+            BOOL result = PInvoke.SetForegroundWindow(hWnd.Handle);
+            GC.KeepAlive(hWnd.Wrapper);
+            return result;
+        }
     }
 }

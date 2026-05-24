@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -65,6 +65,6 @@ internal unsafe class ComClassFactory : IDisposable
     public void Dispose()
     {
         _classFactory->Release();
-        PInvokeCore.FreeLibrary(_instance);
+        PInvoke.FreeLibrary(_instance);
     }
 }

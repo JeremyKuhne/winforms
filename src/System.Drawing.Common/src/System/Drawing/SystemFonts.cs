@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing.Interop;
@@ -51,7 +51,7 @@ public static class SystemFonts
     private static unsafe bool GetNonClientMetrics(out NONCLIENTMETRICSW metrics)
     {
         metrics = new NONCLIENTMETRICSW { cbSize = (uint)sizeof(NONCLIENTMETRICSW) };
-        return PInvokeCore.SystemParametersInfo(ref metrics);
+        return PInvoke.SystemParametersInfo(ref metrics);
     }
 
     public static Font? CaptionFont
@@ -151,7 +151,7 @@ public static class SystemFonts
             Font? iconTitleFont = null;
 
             LOGFONT itfont = default;
-            if (PInvokeCore.SystemParametersInfo(SYSTEM_PARAMETERS_INFO_ACTION.SPI_GETICONTITLELOGFONT, (uint)sizeof(LOGFONT), &itfont, 0))
+            if (PInvoke.SystemParametersInfo(SYSTEM_PARAMETERS_INFO_ACTION.SPI_GETICONTITLELOGFONT, (uint)sizeof(LOGFONT), &itfont, 0))
             {
                 iconTitleFont = GetFontFromData(in itfont);
                 iconTitleFont.SetSystemFontName(nameof(IconTitleFont));
@@ -168,7 +168,7 @@ public static class SystemFonts
             Font? defaultFont = null;
 
             // For Arabic systems, always return Tahoma 8.
-            if (PInvokeCore.GetSystemDefaultLCID() == PInvoke.LANG_ARABIC)
+            if (PInvoke.GetSystemDefaultLCID() == PInvoke.LANG_ARABIC)
             {
                 try
                 {
@@ -180,7 +180,7 @@ public static class SystemFonts
             // First try DEFAULT_GUI.
             if (defaultFont is null)
             {
-                HFONT handle = (HFONT)PInvokeCore.GetStockObject(GET_STOCK_OBJECT_FLAGS.DEFAULT_GUI_FONT);
+                HFONT handle = (HFONT)PInvoke.GetStockObject(GET_STOCK_OBJECT_FLAGS.DEFAULT_GUI_FONT);
                 try
                 {
                     using Font fontInWorldUnits = Font.FromHfont(handle);
@@ -225,7 +225,7 @@ public static class SystemFonts
         {
             Font? dialogFont = null;
 
-            if (PInvokeCore.GetSystemDefaultLCID() == PInvoke.LANG_JAPANESE)
+            if (PInvoke.GetSystemDefaultLCID() == PInvoke.LANG_JAPANESE)
             {
                 // Always return DefaultFont for Japanese cultures.
                 dialogFont = DefaultFont;

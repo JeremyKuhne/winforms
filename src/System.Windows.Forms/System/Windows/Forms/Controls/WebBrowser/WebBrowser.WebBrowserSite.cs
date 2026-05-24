@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Ole;
@@ -162,7 +162,7 @@ public partial class WebBrowser
             if (!wb.WebBrowserShortcutsEnabled)
             {
                 int keyCode = (int)(uint)lpMsg->wParam | (int)ModifierKeys;
-                if (lpMsg->message != PInvokeCore.WM_CHAR && Enum.IsDefined((Shortcut)keyCode))
+                if (lpMsg->message != PInvoke.WM_CHAR && Enum.IsDefined((Shortcut)keyCode))
                 {
                     return HRESULT.S_OK;
                 }
@@ -189,7 +189,7 @@ public partial class WebBrowser
 
         internal override void OnPropertyChanged(int dispid)
         {
-            if (dispid != PInvokeCore.DISPID_READYSTATE)
+            if (dispid != PInvoke.DISPID_READYSTATE)
             {
                 base.OnPropertyChanged(dispid);
             }

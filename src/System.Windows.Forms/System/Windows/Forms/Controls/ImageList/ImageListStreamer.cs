@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.IO.Compression;
@@ -127,7 +127,7 @@ public sealed class ImageListStreamer : ISerializable, IDisposable
 
         try
         {
-            return PInvoke.ImageList.WriteEx(
+            return PInvokeForms.ImageList.WriteEx(
                 handle,
                 IMAGE_LIST_WRITE_STREAM_FLAGS.ILP_DOWNLEVEL,
                 stream).Succeeded;
@@ -137,7 +137,7 @@ public sealed class ImageListStreamer : ISerializable, IDisposable
             // Not running on ComCtl32 v6, fall back to the old API.
         }
 
-        return PInvoke.ImageList.Write(handle, stream);
+        return PInvokeForms.ImageList.Write(handle, stream);
     }
 
     public void Dispose()

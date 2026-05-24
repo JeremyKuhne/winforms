@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -18,11 +18,11 @@ public class DeviceContextScopeTests
         // Create a bitmap using the screen's stats
         using CreateDcScope dcScope = new(default);
         using CreateBitmapScope bitmapScope = new(dcScope, 20, 20);
-        PInvokeCore.SelectObject(dcScope, bitmapScope);
+        PInvoke.SelectObject(dcScope, bitmapScope);
 
         // Select a clipping region into the DC
         using RegionScope dcRegion = new(2, 1, 4, 7);
-        GDI_REGION_TYPE type = PInvokeCore.SelectClipRgn(dcScope, dcRegion);
+        GDI_REGION_TYPE type = PInvoke.SelectClipRgn(dcScope, dcRegion);
         Assert.Equal(GDI_REGION_TYPE.SIMPLEREGION, type);
 
         using RegionScope test = new(0, 0, 0, 0);
@@ -58,12 +58,12 @@ public class DeviceContextScopeTests
         // Create a bitmap using the screen's stats
         using CreateDcScope dcScope = new(default);
         using CreateBitmapScope bitmapScope = new(dcScope, 20, 20);
-        HDC_MAP_MODE originalMapMode = (HDC_MAP_MODE)PInvokeCore.SetMapMode(dcScope, HDC_MAP_MODE.MM_HIMETRIC);
-        PInvokeCore.SelectObject(dcScope, bitmapScope);
+        HDC_MAP_MODE originalMapMode = (HDC_MAP_MODE)PInvoke.SetMapMode(dcScope, HDC_MAP_MODE.MM_HIMETRIC);
+        PInvoke.SelectObject(dcScope, bitmapScope);
 
         using CreateBrushScope blueBrush = new(Color.Blue);
         using CreateBrushScope redBrush = new(Color.Red);
-        PInvokeCore.SelectObject(dcScope, blueBrush);
+        PInvoke.SelectObject(dcScope, blueBrush);
 
         using Graphics graphics = dcScope.CreateGraphics();
         HGDIOBJ current = PInvoke.GetCurrentObject(dcScope, OBJ_TYPE.OBJ_BRUSH);
@@ -72,7 +72,7 @@ public class DeviceContextScopeTests
         Assert.Equal(HDC_MAP_MODE.MM_HIMETRIC, currentMode);
 
         IntPtr hdc = graphics.GetHdc();
-        currentMode = (HDC_MAP_MODE)PInvokeCore.SetMapMode(dcScope, HDC_MAP_MODE.MM_TEXT);
+        currentMode = (HDC_MAP_MODE)PInvoke.SetMapMode(dcScope, HDC_MAP_MODE.MM_TEXT);
         Assert.Equal(HDC_MAP_MODE.MM_HIMETRIC, currentMode);
         try
         {
@@ -80,7 +80,7 @@ public class DeviceContextScopeTests
             Assert.Equal(dcScope.HDC, (HDC)hdc);
             current = PInvoke.GetCurrentObject(dcScope, OBJ_TYPE.OBJ_BRUSH);
             Assert.Equal(blueBrush.HBRUSH, (HBRUSH)current);
-            PInvokeCore.SelectObject(dcScope, redBrush);
+            PInvoke.SelectObject(dcScope, redBrush);
         }
         finally
         {

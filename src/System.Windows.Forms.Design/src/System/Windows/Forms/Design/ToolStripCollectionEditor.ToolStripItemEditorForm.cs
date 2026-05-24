@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -998,8 +998,8 @@ internal partial class ToolStripCollectionEditor
                 base.WndProc(ref m);
                 switch (m.MsgInternal)
                 {
-                    case PInvokeCore.WM_SETFOCUS:
-                    case PInvokeCore.WM_KILLFOCUS:
+                    case PInvoke.WM_SETFOCUS:
+                    case PInvoke.WM_KILLFOCUS:
                         Invalidate(ImageRect);
                         break;
                 }

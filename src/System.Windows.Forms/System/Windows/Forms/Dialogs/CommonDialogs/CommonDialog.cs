@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -14,7 +14,7 @@ namespace System.Windows.Forms;
 public abstract class CommonDialog : Component
 {
     private static readonly object s_helpRequestEvent = new();
-    private const int CDM_SETDEFAULTFOCUS = (int)PInvokeCore.WM_USER + 0x51;
+    private const int CDM_SETDEFAULTFOCUS = (int)PInvoke.WM_USER + 0x51;
     private static MessageId s_helpMessage;
 
     private nint _priorWindowProcedure;
@@ -63,7 +63,7 @@ public abstract class CommonDialog : Component
     /// </summary>
     protected virtual IntPtr HookProc(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam)
     {
-        if (msg == (int)PInvokeCore.WM_INITDIALOG)
+        if (msg == (int)PInvoke.WM_INITDIALOG)
         {
             MoveToScreenCenter((HWND)hWnd);
 
@@ -72,9 +72,9 @@ public abstract class CommonDialog : Component
             _defaultControlHwnd = (HWND)wparam;
             PInvoke.SetFocus((HWND)wparam);
         }
-        else if (msg == (int)PInvokeCore.WM_SETFOCUS)
+        else if (msg == (int)PInvoke.WM_SETFOCUS)
         {
-            PInvokeCore.PostMessage((HWND)hWnd, CDM_SETDEFAULTFOCUS);
+            PInvoke.PostMessage((HWND)hWnd, CDM_SETDEFAULTFOCUS);
         }
         else if (msg == CDM_SETDEFAULTFOCUS)
         {
@@ -94,7 +94,7 @@ public abstract class CommonDialog : Component
     /// </summary>
     private protected static void MoveToScreenCenter(HWND hwnd)
     {
-        PInvokeCore.GetWindowRect(hwnd, out var r);
+        PInvoke.GetWindowRect(hwnd, out var r);
         Rectangle screen = Screen.GetWorkingArea(Control.MousePosition);
         int x = screen.X + (screen.Width - r.right + r.left) / 2;
         int y = screen.Y + (screen.Height - r.bottom + r.top) / 3;
@@ -143,7 +143,7 @@ public abstract class CommonDialog : Component
             return IntPtr.Zero;
         }
 
-        return PInvokeCore.CallWindowProc((void*)_priorWindowProcedure, (HWND)hWnd, (uint)msg, (nuint)wparam, lparam);
+        return PInvoke.CallWindowProc((void*)_priorWindowProcedure, (HWND)hWnd, (uint)msg, (nuint)wparam, lparam);
     }
 
     /// <summary>
@@ -212,7 +212,7 @@ public abstract class CommonDialog : Component
                 ownerHwnd = new(nativeWindow, nativeWindow.HWND);
             }
 
-            if (s_helpMessage == PInvokeCore.WM_NULL)
+            if (s_helpMessage == PInvoke.WM_NULL)
             {
                 s_helpMessage = PInvoke.RegisterWindowMessage("commdlg_help");
             }
@@ -222,7 +222,7 @@ public abstract class CommonDialog : Component
 
             try
             {
-                _priorWindowProcedure = PInvokeCore.SetWindowLong(
+                _priorWindowProcedure = PInvoke.SetWindowLong(
                     ownerHwnd,
                     WINDOW_LONG_PTR_INDEX.GWL_WNDPROC,
                     hookedWndProc);
@@ -240,10 +240,10 @@ public abstract class CommonDialog : Component
             }
             finally
             {
-                nint currentSubClass = PInvokeCore.GetWindowLong(ownerHwnd.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
+                nint currentSubClass = PInvoke.GetWindowLong(ownerHwnd.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
                 if (_priorWindowProcedure != 0 || currentSubClass != hookedWndProc)
                 {
-                    PInvokeCore.SetWindowLong(ownerHwnd.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, _priorWindowProcedure);
+                    PInvoke.SetWindowLong(ownerHwnd.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, _priorWindowProcedure);
                 }
 
                 _priorWindowProcedure = 0;

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -115,7 +115,7 @@ internal sealed class WinFormsOleServices : IOleServices
             }
             finally
             {
-                PInvokeCore.ReleaseStgMedium(ref medium);
+                PInvoke.ReleaseStgMedium(ref medium);
             }
 
             return false;
@@ -148,11 +148,11 @@ internal sealed class WinFormsOleServices : IOleServices
         new DataObject();
 
     static unsafe HRESULT IOleServices.OleGetClipboard(Com.IDataObject** dataObject) =>
-        PInvokeCore.OleGetClipboard(dataObject);
+        PInvoke.OleGetClipboard(dataObject);
 
     static unsafe HRESULT IOleServices.OleSetClipboard(Com.IDataObject* dataObject) =>
-        PInvokeCore.OleSetClipboard(dataObject);
+        PInvoke.OleSetClipboard(dataObject);
 
     static HRESULT IOleServices.OleFlushClipboard() =>
-        PInvokeCore.OleFlushClipboard();
+        PInvoke.OleFlushClipboard();
 }

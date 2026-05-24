@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32;
@@ -47,9 +47,9 @@ This is a custom link\v #data#\v0  with hidden text after the link.\par
             dwEffects = CFE_EFFECTS.CFE_LINK,
         };
 
-        PInvokeCore.SendMessage(
+        PInvoke.SendMessage(
             control,
-            PInvokeCore.EM_SETCHARFORMAT,
+            PInvoke.EM_SETCHARFORMAT,
             (WPARAM)PInvoke.SCF_SELECTION,
             ref format);
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing.Drawing2D;
@@ -84,7 +84,7 @@ public sealed unsafe class Region : MarshalByRefObject, IDisposable, IPointer<Gp
             throw new ArgumentNullException(nameof(regionHandle));
         }
 
-        PInvokeCore.DeleteObject((HRGN)regionHandle);
+        PInvoke.DeleteObject((HRGN)regionHandle);
         GC.KeepAlive(this);
     }
 

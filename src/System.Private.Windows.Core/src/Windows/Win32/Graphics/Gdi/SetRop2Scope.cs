@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.Gdi;
@@ -23,11 +23,11 @@ internal readonly ref struct SetRop2Scope
     private readonly HDC _hdc;
 
     /// <summary>
-    ///  Selects <paramref name="rop2"/> into the given <paramref name="hdc"/> using <see cref="PInvokeCore.SetROP2(HDC, R2_MODE)"/>.
+    ///  Selects <paramref name="rop2"/> into the given <paramref name="hdc"/> using <see cref="PInvoke.SetROP2(HDC, R2_MODE)"/>.
     /// </summary>
     public SetRop2Scope(HDC hdc, R2_MODE rop2)
     {
-        _previousRop = (R2_MODE)PInvokeCore.SetROP2(hdc, rop2);
+        _previousRop = (R2_MODE)PInvoke.SetROP2(hdc, rop2);
 
         // If we didn't actually change the ROP, don't keep the HDC so we skip putting back the same state.
         _hdc = _previousRop == rop2 ? default : hdc;
@@ -37,7 +37,7 @@ internal readonly ref struct SetRop2Scope
     {
         if (!_hdc.IsNull)
         {
-            PInvokeCore.SetROP2(_hdc, _previousRop);
+            PInvoke.SetROP2(_hdc, _previousRop);
         }
 
 #if DEBUG

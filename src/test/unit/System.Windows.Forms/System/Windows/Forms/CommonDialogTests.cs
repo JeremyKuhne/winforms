@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -71,10 +71,10 @@ public class CommonDialogTests
 
     public static IEnumerable<object[]> HookProc_TestData()
     {
-        yield return new object[] { PInvokeCore.WM_INITDIALOG };
-        yield return new object[] { PInvokeCore.WM_SETFOCUS };
+        yield return new object[] { PInvoke.WM_INITDIALOG };
+        yield return new object[] { PInvoke.WM_SETFOCUS };
 
-        const int CDM_SETDEFAULTFOCUS = (int)PInvokeCore.WM_USER + 0x51;
+        const int CDM_SETDEFAULTFOCUS = (int)PInvoke.WM_USER + 0x51;
         yield return new object[] { CDM_SETDEFAULTFOCUS };
 
         yield return new object[] { 0 };

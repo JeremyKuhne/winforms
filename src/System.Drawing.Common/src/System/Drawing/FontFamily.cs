@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing.Text;
@@ -186,7 +186,7 @@ public sealed unsafe class FontFamily : MarshalByRefObject, IDisposable, IPointe
     /// </summary>
     public override int GetHashCode()
     {
-        Span<char> name = stackalloc char[(int)PInvokeCore.LF_FACESIZE];
+        Span<char> name = stackalloc char[(int)PInvoke.LF_FACESIZE];
         GetName(name, NeutralLanguage);
         return string.GetHashCode(name.SliceAtFirstNull());
     }
@@ -228,14 +228,14 @@ public sealed unsafe class FontFamily : MarshalByRefObject, IDisposable, IPointe
     /// </summary>
     public unsafe string GetName(int language)
     {
-        Span<char> name = stackalloc char[(int)PInvokeCore.LF_FACESIZE];
+        Span<char> name = stackalloc char[(int)PInvoke.LF_FACESIZE];
         GetName(name, (ushort)language);
         return new(name.SliceAtFirstNull());
     }
 
     private unsafe void GetName(Span<char> span, ushort language)
     {
-        Debug.Assert(span.Length == (int)PInvokeCore.LF_FACESIZE);
+        Debug.Assert(span.Length == (int)PInvoke.LF_FACESIZE);
 
         fixed (char* name = span)
         {

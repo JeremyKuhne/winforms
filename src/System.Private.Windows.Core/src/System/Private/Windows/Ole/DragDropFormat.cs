@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -65,7 +65,7 @@ internal class DragDropFormat : IDisposable
                 case TYMED.TYMED_GDI:
                 case TYMED.TYMED_MFPICT:
 
-                    mediumDestination.hGlobal = (HGLOBAL)(nint)PInvokeCore.OleDuplicateData(
+                    mediumDestination.hGlobal = (HGLOBAL)(nint)PInvoke.OleDuplicateData(
                         (HANDLE)(nint)mediumSource.hGlobal,
                         (CLIPBOARD_FORMAT)format,
                         // Note that GMEM_DDESHARE is ignored
@@ -104,7 +104,7 @@ internal class DragDropFormat : IDisposable
         }
         catch
         {
-            PInvokeCore.ReleaseStgMedium(ref mediumDestination);
+            PInvoke.ReleaseStgMedium(ref mediumDestination);
             return default;
         }
     }
@@ -114,7 +114,7 @@ internal class DragDropFormat : IDisposable
     /// </summary>
     private unsafe void ReleaseData()
     {
-        PInvokeCore.ReleaseStgMedium(ref _medium);
+        PInvoke.ReleaseStgMedium(ref _medium);
         _medium.pUnkForRelease = null;
         _medium.tymed = TYMED.TYMED_NULL;
         _medium.hGlobal = HGLOBAL.Null;

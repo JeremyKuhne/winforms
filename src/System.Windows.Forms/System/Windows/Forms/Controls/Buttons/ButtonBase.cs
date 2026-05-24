@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -1185,7 +1185,7 @@ public abstract partial class ButtonBase : Control, ICommandBindingTargetProvide
                 // not paint the button as "un-depressed".
                 if (!OwnerDraw)
                 {
-                    PInvokeCore.SendMessage(this, PInvoke.BM_SETSTATE, (WPARAM)(BOOL)true);
+                    PInvoke.SendMessage(this, PInvoke.BM_SETSTATE, (WPARAM)(BOOL)true);
                 }
 
                 Invalidate(DownChangeRectangle);
@@ -1213,7 +1213,7 @@ public abstract partial class ButtonBase : Control, ICommandBindingTargetProvide
             {
                 SetFlag(FlagMousePressed, false);
                 SetFlag(FlagMouseDown, false);
-                PInvokeCore.SendMessage(this, PInvoke.BM_SETSTATE, (WPARAM)(BOOL)false);
+                PInvoke.SendMessage(this, PInvoke.BM_SETSTATE, (WPARAM)(BOOL)false);
             }
 
             // Breaking change: specifically filter out Keys.Enter and Keys.Space as the only
@@ -1376,9 +1376,9 @@ public abstract partial class ButtonBase : Control, ICommandBindingTargetProvide
                     // even though we are owner draw.
                     break;
 
-                case PInvokeCore.WM_KILLFOCUS:
-                case PInvokeCore.WM_CANCELMODE:
-                case PInvokeCore.WM_CAPTURECHANGED:
+                case PInvoke.WM_KILLFOCUS:
+                case PInvoke.WM_CANCELMODE:
+                case PInvoke.WM_CAPTURECHANGED:
                     if (!GetFlag(FlagInButtonUp) && GetFlag(FlagMousePressed))
                     {
                         SetFlag(FlagMousePressed, false);
@@ -1393,9 +1393,9 @@ public abstract partial class ButtonBase : Control, ICommandBindingTargetProvide
                     base.WndProc(ref m);
                     break;
 
-                case PInvokeCore.WM_LBUTTONUP:
-                case PInvokeCore.WM_MBUTTONUP:
-                case PInvokeCore.WM_RBUTTONUP:
+                case PInvoke.WM_LBUTTONUP:
+                case PInvoke.WM_MBUTTONUP:
+                case PInvoke.WM_RBUTTONUP:
                     try
                     {
                         SetFlag(FlagInButtonUp, true);

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Variant;
@@ -7,7 +7,7 @@ namespace Windows.Win32.System.Com;
 
 /// <summary>
 ///  Helper to scope lifetime of a <see cref="SAFEARRAY"/> created via
-///  <see cref="PInvokeCore.SafeArrayCreate(VARENUM, uint, SAFEARRAYBOUND*)"/>
+///  <see cref="PInvoke.SafeArrayCreate(VARENUM, uint, SAFEARRAYBOUND*)"/>
 ///  Destroys the <see cref="SAFEARRAY"/> (if any) when disposed. Note that this scope currently only works for a
 ///  one dimensional <see cref="SAFEARRAY"/>.
 /// </summary>
@@ -123,7 +123,7 @@ internal readonly unsafe ref struct SafeArrayScope<T>
             lLbound = 0
         };
 
-        _value = (nint)PInvokeCore.SafeArrayCreate(vt, 1, &saBound);
+        _value = (nint)PInvoke.SafeArrayCreate(vt, 1, &saBound);
         if (_value == 0)
         {
             throw new InvalidOperationException("Unable to create SAFEARRAY");
@@ -210,7 +210,7 @@ internal readonly unsafe ref struct SafeArrayScope<T>
         TReturn result;
         fixed (int* pIndices = indices)
         {
-            PInvokeCore.SafeArrayGetElement(Value, pIndices, &result).ThrowOnFailure();
+            PInvoke.SafeArrayGetElement(Value, pIndices, &result).ThrowOnFailure();
         }
 
         return result;
@@ -221,7 +221,7 @@ internal readonly unsafe ref struct SafeArrayScope<T>
         Span<int> indices = [index];
         fixed (int* pIndices = indices)
         {
-            PInvokeCore.SafeArrayPutElement((SAFEARRAY*)_value, pIndices, value).ThrowOnFailure();
+            PInvoke.SafeArrayPutElement((SAFEARRAY*)_value, pIndices, value).ThrowOnFailure();
         }
     }
 
@@ -242,7 +242,7 @@ internal readonly unsafe ref struct SafeArrayScope<T>
 
         if (safeArray is not null)
         {
-            PInvokeCore.SafeArrayDestroy(safeArray).ThrowOnFailure();
+            PInvoke.SafeArrayDestroy(safeArray).ThrowOnFailure();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms.Primitives.Tests.Interop.User32;
@@ -34,7 +34,7 @@ public class GetWindowTextTests
             windowClass.BeforeGetTextLengthCallback = () => shortText;
         }
 
-        string result = PInvokeCore.GetWindowText(windowHandle);
+        string result = PInvoke.GetWindowText(windowHandle);
         PInvoke.DestroyWindow(windowHandle);
 
         Assert.Equal(longText, result);
@@ -58,7 +58,7 @@ public class GetWindowTextTests
         {
             switch (msg)
             {
-                case PInvokeCore.WM_GETTEXTLENGTH:
+                case PInvoke.WM_GETTEXTLENGTH:
                     string? text = BeforeGetTextLengthCallback?.Invoke();
                     if (text is not null)
                     {
@@ -66,7 +66,7 @@ public class GetWindowTextTests
                     }
 
                     break;
-                case PInvokeCore.WM_GETTEXT:
+                case PInvoke.WM_GETTEXT:
                     text = BeforeGetTextCallback?.Invoke();
                     if (text is not null)
                     {

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -476,7 +476,7 @@ this is the third line.";
 
     public static IEnumerable<object[]> UiaTextRange_ITextRangeProvider_GetAttributeValue_Returns_Correct_TestData()
     {
-        yield return new object[] { UIA_TEXTATTRIBUTE_ID.UIA_BackgroundColorAttributeId, (int)(uint)(COLORREF)PInvokeCore.GetSysColor(SYS_COLOR_INDEX.COLOR_WINDOW) };
+        yield return new object[] { UIA_TEXTATTRIBUTE_ID.UIA_BackgroundColorAttributeId, (int)(uint)(COLORREF)PInvoke.GetSysColor(SYS_COLOR_INDEX.COLOR_WINDOW) };
         yield return new object[] { UIA_TEXTATTRIBUTE_ID.UIA_CapStyleAttributeId, (int)CapStyle.None };
         yield return new object[] { UIA_TEXTATTRIBUTE_ID.UIA_FontNameAttributeId, "Segoe UI" };
         yield return new object[] { UIA_TEXTATTRIBUTE_ID.UIA_FontSizeAttributeId, 9.0 };

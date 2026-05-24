@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -24,13 +24,13 @@ internal readonly ref struct CreateBrushScope
     public HBRUSH HBRUSH { get; }
 
     /// <summary>
-    ///  Creates a solid brush based on the <paramref name="color"/> using <see cref="PInvokeCore.CreateSolidBrush(COLORREF)"/>.
+    ///  Creates a solid brush based on the <paramref name="color"/> using <see cref="PInvoke.CreateSolidBrush(COLORREF)"/>.
     /// </summary>
     public CreateBrushScope(Color color)
     {
         HBRUSH = color.IsSystemColor
-            ? PInvokeCore.GetSysColorBrush(color)
-            : PInvokeCore.CreateSolidBrush(color);
+            ? PInvoke.GetSysColorBrush(color)
+            : PInvoke.CreateSolidBrush(color);
 
         ValidateBrushHandle();
     }
@@ -45,7 +45,7 @@ internal readonly ref struct CreateBrushScope
         if (!HBRUSH.IsNull)
         {
             // Note that this is a no-op if the original brush was a system brush
-            PInvokeCore.DeleteObject(HBRUSH);
+            PInvoke.DeleteObject(HBRUSH);
         }
 
 #if DEBUG

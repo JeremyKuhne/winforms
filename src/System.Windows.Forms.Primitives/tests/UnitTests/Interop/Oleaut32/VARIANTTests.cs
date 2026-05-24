@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -5396,7 +5396,7 @@ public unsafe class VARIANTTests
             };
         }
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(VT_I4, (uint)rank, saBounds);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(VT_I4, (uint)rank, saBounds);
         using VARIANT variant = new()
         {
             vt = VT_ARRAY | VT_I4,
@@ -5417,11 +5417,11 @@ public unsafe class VARIANTTests
             lLbound = lbound
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(vt, 1, &saBound);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(vt, 1, &saBound);
         NativeAssert.NotNull(psa);
 
         VARENUM arrayVt = VT_EMPTY;
-        HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+        HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
         Assert.Equal(HRESULT.S_OK, hr);
         Assert.Equal(vt, arrayVt);
 
@@ -5432,8 +5432,8 @@ public unsafe class VARIANTTests
 
             // Insert pointers directly.
             hr = value is nint valuePtr
-                ? PInvokeCore.SafeArrayPutElement(psa, &index, (void*)valuePtr)
-                : PInvokeCore.SafeArrayPutElement(psa, &index, &value);
+                ? PInvoke.SafeArrayPutElement(psa, &index, (void*)valuePtr)
+                : PInvoke.SafeArrayPutElement(psa, &index, &value);
 
             Assert.Equal(HRESULT.S_OK, hr);
         }
@@ -5456,11 +5456,11 @@ public unsafe class VARIANTTests
             lLbound = lbound2
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreate(vt, 2, saBounds);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreate(vt, 2, saBounds);
         NativeAssert.NotNull(psa);
 
         VARENUM arrayVt = VT_EMPTY;
-        HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+        HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
         Assert.Equal(HRESULT.S_OK, hr);
         Assert.Equal(vt, arrayVt);
 
@@ -5475,8 +5475,8 @@ public unsafe class VARIANTTests
 
                 // Insert pointers directly.
                 hr = value is nint valuePtr
-                    ? PInvokeCore.SafeArrayPutElement(psa, indices, (void*)valuePtr)
-                    : PInvokeCore.SafeArrayPutElement(psa, indices, &value);
+                    ? PInvoke.SafeArrayPutElement(psa, indices, (void*)valuePtr)
+                    : PInvoke.SafeArrayPutElement(psa, indices, &value);
 
                 Assert.Equal(HRESULT.S_OK, hr);
             }
@@ -5741,11 +5741,11 @@ public unsafe class VARIANTTests
             lLbound = lbound
         };
 
-        SAFEARRAY* psa = PInvokeCore.SafeArrayCreateEx(VT_RECORD, 1, &saBound, recordInfo);
+        SAFEARRAY* psa = PInvoke.SafeArrayCreateEx(VT_RECORD, 1, &saBound, recordInfo);
         NativeAssert.NotNull(psa);
 
         VARENUM arrayVt = VT_EMPTY;
-        HRESULT hr = PInvokeCore.SafeArrayGetVartype(psa, &arrayVt);
+        HRESULT hr = PInvoke.SafeArrayGetVartype(psa, &arrayVt);
         Assert.Equal(HRESULT.S_OK, hr);
         Assert.Equal(VT_RECORD, arrayVt);
 

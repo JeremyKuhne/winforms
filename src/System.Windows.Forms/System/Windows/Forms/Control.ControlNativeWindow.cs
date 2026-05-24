@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
@@ -85,17 +85,17 @@ public partial class Control
             // to occur within control.
             switch (m.MsgInternal)
             {
-                case PInvokeCore.WM_MOUSELEAVE:
+                case PInvoke.WM_MOUSELEAVE:
                     _control.UnhookMouseEvent();
                     break;
 
-                case PInvokeCore.WM_MOUSEMOVE:
+                case PInvoke.WM_MOUSEMOVE:
                     if (!_control.GetState(States.TrackingMouseEvent))
                     {
                         _control.HookMouseEvent();
                         if (!_control.GetState(States.MouseEnterPending))
                         {
-                            PInvokeCore.SendMessage(_control, RegisteredMessage.WM_MOUSEENTER);
+                            PInvoke.SendMessage(_control, RegisteredMessage.WM_MOUSEENTER);
                         }
                         else
                         {
@@ -105,7 +105,7 @@ public partial class Control
 
                     break;
 
-                case PInvokeCore.WM_MOUSEWHEEL:
+                case PInvoke.WM_MOUSEWHEEL:
                     // TrackMouseEvent's mousehover implementation doesn't watch the wheel
                     // correctly...
                     _control.ResetMouseEventArgs();

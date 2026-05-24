@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -145,16 +145,16 @@ public sealed partial class MdiClient : Control
         switch (value)
         {
             case MdiLayout.Cascade:
-                PInvokeCore.SendMessage(this, PInvokeCore.WM_MDICASCADE);
+                PInvoke.SendMessage(this, PInvoke.WM_MDICASCADE);
                 break;
             case MdiLayout.TileVertical:
-                PInvokeCore.SendMessage(this, PInvokeCore.WM_MDITILE, (WPARAM)(uint)TILE_WINDOWS_HOW.MDITILE_VERTICAL);
+                PInvoke.SendMessage(this, PInvoke.WM_MDITILE, (WPARAM)(uint)TILE_WINDOWS_HOW.MDITILE_VERTICAL);
                 break;
             case MdiLayout.TileHorizontal:
-                PInvokeCore.SendMessage(this, PInvokeCore.WM_MDITILE, (WPARAM)(uint)TILE_WINDOWS_HOW.MDITILE_HORIZONTAL);
+                PInvoke.SendMessage(this, PInvoke.WM_MDITILE, (WPARAM)(uint)TILE_WINDOWS_HOW.MDITILE_HORIZONTAL);
                 break;
             case MdiLayout.ArrangeIcons:
-                PInvokeCore.SendMessage(this, PInvokeCore.WM_MDIICONARRANGE);
+                PInvoke.SendMessage(this, PInvoke.WM_MDIICONARRANGE);
                 break;
         }
     }
@@ -295,7 +295,7 @@ public sealed partial class MdiClient : Control
             throw new InvalidOperationException(SR.ErrorSettingWindowRegion);
         }
 
-        if (PInvokeCore.CombineRgn(rgn1, rgn1, rgn2, RGN_COMBINE_MODE.RGN_DIFF) == GDI_REGION_TYPE.RGN_ERROR)
+        if (PInvoke.CombineRgn(rgn1, rgn1, rgn2, RGN_COMBINE_MODE.RGN_DIFF) == GDI_REGION_TYPE.RGN_ERROR)
         {
             throw new InvalidOperationException(SR.ErrorSettingWindowRegion);
         }
@@ -325,7 +325,7 @@ public sealed partial class MdiClient : Control
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_CREATE:
+            case PInvoke.WM_CREATE:
                 if (ParentInternal is not null && ParentInternal.Site is not null && ParentInternal.Site.DesignMode && Handle != IntPtr.Zero)
                 {
                     SetWindowRgn();
@@ -333,7 +333,7 @@ public sealed partial class MdiClient : Control
 
                 break;
 
-            case PInvokeCore.WM_SETFOCUS:
+            case PInvoke.WM_SETFOCUS:
                 InvokeGotFocus(ParentInternal, EventArgs.Empty);
                 Form? childForm = null;
                 if (ParentInternal is Form parentInternalAsForm)
@@ -357,7 +357,7 @@ public sealed partial class MdiClient : Control
                 DefWndProc(ref m);
                 InvokeGotFocus(this, EventArgs.Empty);
                 return;
-            case PInvokeCore.WM_KILLFOCUS:
+            case PInvoke.WM_KILLFOCUS:
                 InvokeLostFocus(ParentInternal, EventArgs.Empty);
                 break;
         }

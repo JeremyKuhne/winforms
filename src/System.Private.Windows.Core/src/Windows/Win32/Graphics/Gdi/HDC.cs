@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -12,14 +12,14 @@ internal readonly partial struct HDC : IHandle<HDC>
     object? IHandle<HDC>.Wrapper => null;
 
     internal Point GetViewPointOrigin() =>
-        PInvokeCore.GetViewportOrgEx(this, out Point point) ? point : Point.Empty;
+        PInvoke.GetViewportOrgEx(this, out Point point) ? point : Point.Empty;
 
     internal Point GetWindowOrigin() =>
-        PInvokeCore.GetWindowOrgEx(this, out Point point) ? point : Point.Empty;
+        PInvoke.GetWindowOrgEx(this, out Point point) ? point : Point.Empty;
 
     internal Matrix3x2 GetWorldTransform()
     {
-        if (PInvokeCore.GetWorldTransform(this, out XFORM matrix))
+        if (PInvoke.GetWorldTransform(this, out XFORM matrix))
         {
             return Unsafe.As<XFORM, Matrix3x2>(ref matrix);
         }

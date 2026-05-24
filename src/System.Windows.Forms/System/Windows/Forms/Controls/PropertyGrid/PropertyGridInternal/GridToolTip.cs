@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace System.Windows.Forms.PropertyGridInternal;
@@ -135,7 +135,7 @@ internal class GridToolTip : Control
             }
 
             // Setting the max width has the added benefit of enabling multiline tool tips
-            PInvokeCore.SendMessage(
+            PInvoke.SendMessage(
                 this,
                 PInvoke.TTM_SETMAXTIPWIDTH,
                 (WPARAM)0,
@@ -159,21 +159,21 @@ internal class GridToolTip : Control
         }
 
         _toolTipText = oldText;
-        PInvokeCore.SendMessage(this, PInvoke.TTM_UPDATE);
+        PInvoke.SendMessage(this, PInvoke.TTM_UPDATE);
     }
 
     protected override void WndProc(ref Message msg)
     {
         switch (msg.MsgInternal)
         {
-            case PInvokeCore.WM_SHOWWINDOW:
+            case PInvoke.WM_SHOWWINDOW:
                 if ((int)msg.WParamInternal != 0 && _dontShow)
                 {
                     msg.WParamInternal = 0u;
                 }
 
                 break;
-            case PInvokeCore.WM_NCHITTEST:
+            case PInvoke.WM_NCHITTEST:
                 // When using v6 common controls, the native tooltip does not end up returning HTTRANSPARENT
                 // all the time, so its TTF_TRANSPARENT behavior does not work, ie. mouse events do not fall
                 // thru to controls underneath. This is due to a combination of old app-specific code in comctl32,

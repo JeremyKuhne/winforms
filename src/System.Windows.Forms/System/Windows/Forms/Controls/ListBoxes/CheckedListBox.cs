@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -389,7 +389,7 @@ public partial class CheckedListBox : ListBox
         if (IsHandleCreated)
         {
             RECT rect = default;
-            PInvokeCore.SendMessage(this, PInvoke.LB_GETITEMRECT, (WPARAM)index, ref rect);
+            PInvoke.SendMessage(this, PInvoke.LB_GETITEMRECT, (WPARAM)index, ref rect);
             PInvoke.InvalidateRect(this, &rect, bErase: false);
         }
     }
@@ -461,7 +461,7 @@ public partial class CheckedListBox : ListBox
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        PInvokeCore.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
+        PInvoke.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
     }
 
     /// <summary>
@@ -760,7 +760,7 @@ public partial class CheckedListBox : ListBox
         // Update the item height
         if (IsHandleCreated)
         {
-            PInvokeCore.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
+            PInvoke.SendMessage(this, PInvoke.LB_SETITEMHEIGHT, (WPARAM)0, (LPARAM)ItemHeight);
         }
 
         // The base OnFontChanged will adjust the height of the CheckedListBox accordingly

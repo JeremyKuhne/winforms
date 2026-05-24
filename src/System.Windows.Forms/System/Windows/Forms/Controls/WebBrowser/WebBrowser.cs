@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -1371,7 +1371,7 @@ public unsafe partial class WebBrowser : WebBrowserBase
     {
         switch (m.MsgInternal)
         {
-            case PInvokeCore.WM_CONTEXTMENU:
+            case PInvoke.WM_CONTEXTMENU:
                 if (!ShowContextMenu(PARAM.ToPoint(m.LParamInternal)))
                 {
                     DefWndProc(ref m);

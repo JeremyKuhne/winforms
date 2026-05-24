@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.UI.HiDpi;
@@ -32,7 +32,7 @@ public class FormDpiTests : ControlTestBase
 
             Drawing.Rectangle initialBounds = form.Bounds;
             float initialFontSize = form.Font.Size;
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
 
             // Lab machines giving strange values that I could not explain. for ex: on local machine,
             // I get 1050*1050 for factor 3.5. This is not same on lab machines ( ex, we get 1044). For now,
@@ -70,7 +70,7 @@ public class FormDpiTests : ControlTestBase
             form.MaximumSize = maxSize;
             form.AutoScaleMode = AutoScaleMode.Dpi;
             form.Show();
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
             var factor = (float)newDpi / ScaleHelper.OneHundredPercentLogicalDpi;
             Assert.Equal(minSize * factor, form.MinimumSize);
             Assert.Equal(maxSize * factor, form.MaximumSize);
@@ -107,7 +107,7 @@ public class FormDpiTests : ControlTestBase
 
             // Explicitly opt-in to resize min and max sizes with Dpi changed event.
             using ScaleTopLevelFormMinMaxSizeForDpiScope scope = new(enable: true);
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
             Assert.NotEqual(form.MinimumSize, minSize);
             Assert.NotEqual(form.MaximumSize, maxSize);
             form.Close();
@@ -137,14 +137,14 @@ public class FormDpiTests : ControlTestBase
             form.AutoScaleMode = AutoScaleMode.Font;
             form.Show();
 
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
             Drawing.Size nonLinearSize = form.Size;
 
             // Rollback to 96 Dpi, and change AutoScaleMode to check with linear size
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, ScaleHelper.OneHundredPercentLogicalDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, ScaleHelper.OneHundredPercentLogicalDpi);
             form.AutoScaleMode = AutoScaleMode.Dpi;
 
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
             Assert.NotEqual(form.Size, nonLinearSize);
             form.Close();
         }
@@ -173,7 +173,7 @@ public class FormDpiTests : ControlTestBase
             form.AutoScaleMode = AutoScaleMode.Font;
             form.Show();
 
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
 
             dynamic fomrTestAccessor = form.TestAccessor.Dynamic;
             Assert.NotNull(fomrTestAccessor._dpiFormSizes);
@@ -205,7 +205,7 @@ public class FormDpiTests : ControlTestBase
             form.AutoScaleMode = AutoScaleMode.Dpi;
             form.Show();
 
-            DpiMessageHelper.TriggerDpiMessage(PInvokeCore.WM_DPICHANGED, form, newDpi);
+            DpiMessageHelper.TriggerDpiMessage(PInvoke.WM_DPICHANGED, form, newDpi);
             Assert.Null(form.TestAccessor.Dynamic._dpiFormSizes);
             form.Close();
         }

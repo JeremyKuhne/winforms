@@ -80,7 +80,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             }
 
             pmedium->tymed = TYMED.TYMED_HGLOBAL;
-            pmedium->hGlobal = PInvokeCore.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT, 1);
+            pmedium->hGlobal = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE | GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT, 1);
 
             if (pmedium->hGlobal.IsNull)
             {
@@ -90,7 +90,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
             HRESULT result = GetDataHere(pformatetcIn, pmedium);
             if (result.Failed)
             {
-                PInvokeCore.GlobalFree(pmedium->hGlobal);
+                PInvoke.GlobalFree(pmedium->hGlobal);
                 pmedium->hGlobal = HGLOBAL.Null;
             }
 
@@ -145,7 +145,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
                 }
                 catch (Exception) when (!pmedium->hGlobal.IsNull)
                 {
-                    PInvokeCore.GlobalFree(pmedium->hGlobal);
+                    PInvoke.GlobalFree(pmedium->hGlobal);
                     pmedium->hGlobal = HGLOBAL.Null;
 
                     throw;
@@ -375,7 +375,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
 
             static HRESULT SaveDbcsToHGLOBAL(HGLOBAL hglobal, string value)
             {
-                int byteCount = PInvokeCore.WideCharToMultiByte(PInvokeCore.CP_ACP, 0, value, value.Length, null, 0, null, null);
+                int byteCount = PInvoke.WideCharToMultiByte(PInvoke.CP_ACP, 0, value, value.Length, null, 0, null, out _);
 
                 using GlobalBuffer buffer = new(hglobal, (uint)byteCount + 1);
                 if (buffer.Status.Failed)
@@ -383,7 +383,7 @@ internal unsafe partial class Composition<TOleServices, TNrbfSerializer, TDataFo
                     return buffer.Status;
                 }
 
-                PInvokeCore.WideCharToMultiByte(PInvokeCore.CP_ACP, 0, value, value.Length, (PSTR)buffer.Pointer, byteCount, null, null);
+                PInvoke.WideCharToMultiByte(PInvoke.CP_ACP, 0, value, value.Length, (PSTR)buffer.Pointer, byteCount, null, out _);
 
                 // Null terminate.
                 buffer.AsSpan()[byteCount] = 0;

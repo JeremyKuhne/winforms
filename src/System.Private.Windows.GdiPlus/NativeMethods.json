@@ -1,6 +1,7 @@
 {
   "$schema": "https://aka.ms/CsWin32.schema.json",
   "className": "PInvokeGdiPlus",
+  "extensionReceiver": "PInvoke",
   "allowMarshaling": false,
   "useSafeHandles": false,
   "comInterop": {

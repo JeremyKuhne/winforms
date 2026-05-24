@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
@@ -6,40 +6,44 @@ using Microsoft.Win32;
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="RegLoadMUIString(System.Registry.HKEY, string, PWSTR, uint, uint*, uint, string)"/>
-    [SkipLocalsInit]
-    public static unsafe bool RegLoadMUIString(RegistryKey key, string keyName, out string localizedValue)
+    extension(PInvoke)
     {
-        using BufferScope<char> buffer = new(stackalloc char[128]);
-
-        while (true)
+        /// <inheritdoc cref="PInvoke.RegLoadMUIString(System.Registry.HKEY, string, PWSTR, uint, uint*, uint, string)"/>
+        [SkipLocalsInit]
+        public static unsafe bool RegLoadMUIString(RegistryKey key, string keyName, out string localizedValue)
         {
-            fixed (char* pszOutBuf = buffer)
+            using BufferScope<char> buffer = new(stackalloc char[128]);
+
+            while (true)
             {
-                uint bytes = 0;
-                var errorCode = RegLoadMUIString(
-                    (System.Registry.HKEY)key.Handle.DangerousGetHandle(),
-                    keyName,
-                    pszOutBuf,
-                    (uint)(buffer.Length * sizeof(char)),
-                    &bytes,
-                    0,
-                    null);
-
-                // The buffer is too small. Try again with a larger buffer.
-                if (errorCode == WIN32_ERROR.ERROR_MORE_DATA)
+                fixed (char* pszOutBuf = buffer)
+                fixed (char* pszKeyName = keyName)
                 {
-                    buffer.EnsureCapacity((int)(bytes / sizeof(char)));
-                    continue;
+                    uint bytes = 0;
+                    var errorCode = PInvoke.RegLoadMUIString(
+                        (System.Registry.HKEY)key.Handle.DangerousGetHandle(),
+                        pszKeyName,
+                        pszOutBuf,
+                        (uint)(buffer.Length * sizeof(char)),
+                        &bytes,
+                        0,
+                        null);
+
+                    // The buffer is too small. Try again with a larger buffer.
+                    if (errorCode == WIN32_ERROR.ERROR_MORE_DATA)
+                    {
+                        buffer.EnsureCapacity((int)(bytes / sizeof(char)));
+                        continue;
+                    }
+
+                    localizedValue = errorCode == WIN32_ERROR.ERROR_SUCCESS
+                        ? buffer[..Math.Max((int)(bytes / sizeof(char)) - 1, 0)].ToString()
+                        : string.Empty;
+
+                    return errorCode == WIN32_ERROR.ERROR_SUCCESS;
                 }
-
-                localizedValue = errorCode == WIN32_ERROR.ERROR_SUCCESS
-                    ? buffer[..Math.Max((int)(bytes / sizeof(char)) - 1, 0)].ToString()
-                    : string.Empty;
-
-                return errorCode == WIN32_ERROR.ERROR_SUCCESS;
             }
         }
     }

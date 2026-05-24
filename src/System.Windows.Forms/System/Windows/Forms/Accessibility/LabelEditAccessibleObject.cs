@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -66,7 +66,7 @@ internal unsafe class LabelEditAccessibleObject : AccessibleObject
     };
 
     public override string? Name => _labelEdit.TryGetTarget(out var target)
-        ? PInvokeCore.GetWindowText(target)
+        ? PInvoke.GetWindowText(target)
         : null;
 
     private protected override bool IsInternal => true;

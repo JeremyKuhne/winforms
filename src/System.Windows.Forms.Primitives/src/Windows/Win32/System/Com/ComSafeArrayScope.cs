@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Variant;
@@ -7,7 +7,7 @@ namespace Windows.Win32.System.Com;
 
 /// <summary>
 ///  Helper to scope lifetime of a <see cref="SAFEARRAY"/> created via
-///  <see cref="PInvokeCore.SafeArrayCreate(VARENUM, uint, SAFEARRAYBOUND*)"/>
+///  <see cref="PInvoke.SafeArrayCreate(VARENUM, uint, SAFEARRAYBOUND*)"/>
 ///  that holds COM pointers. Destroys the <see cref="SAFEARRAY"/> (if any) when disposed. Note that this scope
 ///  currently only works for a one dimensional <see cref="SAFEARRAY"/> of type <see cref="VARENUM.VT_UNKNOWN"/>
 /// </summary>
@@ -38,7 +38,7 @@ internal readonly unsafe ref struct ComSafeArrayScope<T> where T : unmanaged, IC
             lLbound = 0
         };
 
-        _value = new(PInvokeCore.SafeArrayCreate(VARENUM.VT_UNKNOWN, 1, &saBound));
+        _value = new(PInvoke.SafeArrayCreate(VARENUM.VT_UNKNOWN, 1, &saBound));
     }
 
     /// <remarks>

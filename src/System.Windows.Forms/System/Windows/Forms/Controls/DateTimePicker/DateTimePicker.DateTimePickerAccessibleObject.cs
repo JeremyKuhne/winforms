@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Variant;
@@ -133,7 +133,7 @@ public partial class DateTimePicker
             if (this.IsOwnerHandleCreated(out DateTimePicker? owner)
                 && ExpandCollapseState == ExpandCollapseState.ExpandCollapseState_Collapsed)
             {
-                PInvokeCore.SendMessage(owner, PInvokeCore.WM_SYSKEYDOWN, (WPARAM)(int)Keys.Down);
+                PInvoke.SendMessage(owner, PInvoke.WM_SYSKEYDOWN, (WPARAM)(int)Keys.Down);
             }
         }
 
@@ -142,7 +142,7 @@ public partial class DateTimePicker
             if (this.IsOwnerHandleCreated(out DateTimePicker? owner)
                 && ExpandCollapseState == ExpandCollapseState.ExpandCollapseState_Expanded)
             {
-                PInvokeCore.SendMessage(owner, PInvoke.DTM_CLOSEMONTHCAL);
+                PInvoke.SendMessage(owner, PInvoke.DTM_CLOSEMONTHCAL);
             }
         }
 

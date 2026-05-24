@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -270,7 +270,7 @@ public sealed partial class BehaviorService : IDisposable
         }
 
         Point pt = new(c.Left, c.Top);
-        PInvokeCore.MapWindowPoints(c.Parent, _adornerWindow, ref pt);
+        PInvoke.MapWindowPoints(c.Parent, _adornerWindow, ref pt);
         if (c.Parent.IsMirrored)
         {
             pt.X -= c.Width;
@@ -284,7 +284,7 @@ public sealed partial class BehaviorService : IDisposable
     /// </summary>
     public Point MapAdornerWindowPoint(IntPtr handle, Point pt)
     {
-        PInvokeCore.MapWindowPoints((HWND)handle, _adornerWindow, ref pt);
+        PInvoke.MapWindowPoints((HWND)handle, _adornerWindow, ref pt);
         return pt;
     }
 

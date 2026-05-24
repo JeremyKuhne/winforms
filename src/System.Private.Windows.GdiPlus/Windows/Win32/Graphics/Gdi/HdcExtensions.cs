@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.Graphics.GdiPlus;
@@ -19,7 +19,7 @@ internal static class HdcExtensions
     public static SelectPaletteScope HalftonePalette<T>(this T hdc, bool forceBackground, bool realizePalette)
         where T : IHandle<HDC>
     {
-        if (PInvokeCore.GetDeviceCaps(hdc.Handle, GET_DEVICE_CAPS_INDEX.BITSPIXEL) > 8)
+        if (PInvoke.GetDeviceCaps(hdc.Handle, GET_DEVICE_CAPS_INDEX.BITSPIXEL) > 8)
         {
             // https://docs.microsoft.com/windows/win32/api/Gdiplusgraphics/nf-gdiplusgraphics-graphics-gethalftonepalette
             // The purpose of the Graphics::GetHalftonePalette method is to enable GDI+ to produce a better

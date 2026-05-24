@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -94,7 +94,7 @@ internal class WindowSubclassHandler : IDisposable
         // Replace the existing window procedure with our one ("instance subclassing").
         // Note: It shouldn't be possible to set a null pointer as window procedure, so we
         // can use the return value to determine if the call succeeded.
-        _originalWindowProc = (void*)PInvokeCore.SetWindowLong(
+        _originalWindowProc = (void*)PInvoke.SetWindowLong(
             _handle,
             WINDOW_LONG_PTR_INDEX.GWL_WNDPROC,
             (nint)_windowProcDelegatePtr);
@@ -183,7 +183,7 @@ internal class WindowSubclassHandler : IDisposable
         if (disposing && _opened)
         {
             // Check if the current window procedure is the correct one.
-            void* currentWindowProcedure = (void*)PInvokeCore.GetWindowLong(
+            void* currentWindowProcedure = (void*)PInvoke.GetWindowLong(
                 _handle,
                 WINDOW_LONG_PTR_INDEX.GWL_WNDPROC);
 
@@ -203,7 +203,7 @@ internal class WindowSubclassHandler : IDisposable
 
             // Undo the subclassing by restoring the original window
             // procedure.
-            if (PInvokeCore.SetWindowLong(
+            if (PInvoke.SetWindowLong(
                 _handle,
                 WINDOW_LONG_PTR_INDEX.GWL_WNDPROC,
                 (nint)_originalWindowProc) == 0)
@@ -228,7 +228,7 @@ internal class WindowSubclassHandler : IDisposable
         // Call the original window procedure to process the message.
         if (_originalWindowProc is not null)
         {
-            m.ResultInternal = PInvokeCore.CallWindowProc(
+            m.ResultInternal = PInvoke.CallWindowProc(
                 _originalWindowProc,
                 m.HWND,
                 (uint)m.Msg,

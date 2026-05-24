@@ -1,16 +1,20 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <inheritdoc cref="GetScrollInfo(HWND, SCROLLBAR_CONSTANTS, ref SCROLLINFO)"/>
-    public static BOOL GetScrollInfo<T>(T hwnd, SCROLLBAR_CONSTANTS nBar, ref SCROLLINFO lpsi)
-        where T : IHandle<HWND>
+    extension(PInvoke)
     {
-        BOOL result = GetScrollInfo(hwnd.Handle, nBar, ref lpsi);
-        GC.KeepAlive(hwnd.Wrapper);
-        return result;
+        /// <inheritdoc cref="PInvoke.GetScrollInfo(HWND, SCROLLBAR_CONSTANTS, ref SCROLLINFO)"/>
+        public static BOOL GetScrollInfo<T>(T hwnd, SCROLLBAR_CONSTANTS nBar, ref SCROLLINFO lpsi)
+            where T : IHandle<HWND>
+        {
+            BOOL result = PInvoke.GetScrollInfo(hwnd.Handle, nBar, ref lpsi);
+            GC.KeepAlive(hwnd.Wrapper);
+            return result;
+        }
     }
 }

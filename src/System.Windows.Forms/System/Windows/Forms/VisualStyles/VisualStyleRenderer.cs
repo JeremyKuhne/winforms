@@ -103,7 +103,7 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
         // If the combo isn't defined, check the validity of our theme handle cache.
         if (!result)
         {
-            using PInvoke.OpenThemeDataScope handle = new(HWND.Null, className);
+            using PInvokeForms.OpenThemeDataScope handle = new(HWND.Null, className);
 
             if (!handle.IsNull)
             {
@@ -278,7 +278,6 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
         SourceGenerated.EnumValidator.Validate(style, nameof(style));
         SourceGenerated.EnumValidator.Validate(effects, nameof(effects));
 
-        RECT contentRect;
         _lastHResult = PInvoke.DrawThemeEdge(
             HTHEME,
             dc,
@@ -287,7 +286,7 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
             bounds,
             (DRAWEDGE_FLAGS)style,
             (DRAW_EDGE_FLAGS)edges | (DRAW_EDGE_FLAGS)effects | DRAW_EDGE_FLAGS.BF_ADJUST,
-            &contentRect);
+            out RECT contentRect);
 
         return contentRect;
     }
@@ -453,8 +452,7 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
         }
 
         using DeviceContextHdcScope hdc = dc.ToHdcScope();
-        HRGN hrgn;
-        _lastHResult = PInvoke.GetThemeBackgroundRegion(HTHEME, hdc, Part, State, bounds, &hrgn);
+        _lastHResult = PInvoke.GetThemeBackgroundRegion(HTHEME, hdc, Part, State, bounds, out HRGN hrgn);
 
         // GetThemeBackgroundRegion returns a null hRegion if it fails to create one, it could be because the bounding
         // box is too big. For more info see code in %xpsrc%\shell\themes\uxtheme\imagefile.cpp if you have an enlistment to it.
@@ -467,7 +465,7 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
         // From the GDI+ sources it doesn't appear as if they take ownership of the hRegion, so this is safe to do.
         // We need to DeleteObject in order to not leak.
         Region region = Region.FromHrgn(hrgn);
-        PInvokeCore.DeleteObject(hrgn);
+        PInvoke.DeleteObject(hrgn);
         return region;
     }
 
@@ -862,9 +860,9 @@ public sealed class VisualStyleRenderer : IHandle<HTHEME>
         return themeHandle.Handle;
     }
 
-    private static PInvoke.OpenThemeDataScope OpenThemeData(HWND hwnd, string classList)
+    private static PInvokeForms.OpenThemeDataScope OpenThemeData(HWND hwnd, string classList)
     {
-        PInvoke.OpenThemeDataScope htheme = new(hwnd, classList);
+        PInvokeForms.OpenThemeDataScope htheme = new(hwnd, classList);
         return htheme.IsNull ? throw new InvalidOperationException(SR.VisualStyleHandleCreationFailed) : htheme;
     }
 

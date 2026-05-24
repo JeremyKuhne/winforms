@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -290,7 +290,7 @@ public partial class TrackBar : Control, ISupportInitialize
             _largeChange = value;
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TBM_SETPAGESIZE, 0, value);
+                PInvoke.SendMessage(this, PInvoke.TBM_SETPAGESIZE, 0, value);
             }
         }
     }
@@ -420,7 +420,7 @@ public partial class TrackBar : Control, ISupportInitialize
     {
         get
         {
-            int cyhscroll = PInvokeCore.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYHSCROLL);
+            int cyhscroll = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYHSCROLL);
             return ((cyhscroll * 8) / 3);
         }
     }
@@ -435,7 +435,7 @@ public partial class TrackBar : Control, ISupportInitialize
             return;
         }
 
-        PInvokeCore.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)true, (LPARAM)_maximum);
+        PInvoke.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)true, (LPARAM)_maximum);
         Invalidate();
     }
 
@@ -493,7 +493,7 @@ public partial class TrackBar : Control, ISupportInitialize
             _smallChange = value;
             if (IsHandleCreated)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TBM_SETLINESIZE, 0, value);
+                PInvoke.SendMessage(this, PInvoke.TBM_SETLINESIZE, 0, value);
             }
         }
     }
@@ -577,7 +577,7 @@ public partial class TrackBar : Control, ISupportInitialize
 
             if (_autoDrawTicks)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TBM_SETTICFREQ, (WPARAM)value);
+                PInvoke.SendMessage(this, PInvoke.TBM_SETTICFREQ, (WPARAM)value);
             }
 
             if (recreateHandle)
@@ -792,10 +792,10 @@ public partial class TrackBar : Control, ISupportInitialize
             }
         }
 
-        PInvokeCore.SendMessage(this, PInvoke.TBM_CLEARTICS, (WPARAM)1, (LPARAM)0);
+        PInvoke.SendMessage(this, PInvoke.TBM_CLEARTICS, (WPARAM)1, (LPARAM)0);
         for (int i = _minimum + drawnTickFrequency; i < _maximum - drawnTickFrequency; i += drawnTickFrequency)
         {
-            LRESULT lresult = PInvokeCore.SendMessage(this, PInvoke.TBM_SETTIC, lParam: (IntPtr)i);
+            LRESULT lresult = PInvoke.SendMessage(this, PInvoke.TBM_SETTIC, lParam: (IntPtr)i);
             Debug.Assert((bool)(BOOL)lresult);
         }
     }
@@ -815,7 +815,7 @@ public partial class TrackBar : Control, ISupportInitialize
     {
         if (IsHandleCreated)
         {
-            _value = (int)PInvokeCore.SendMessage(this, PInvokeCore.WM_USER);
+            _value = (int)PInvoke.SendMessage(this, PInvoke.WM_USER);
 
             // See SetTrackBarValue() for a description of why we sometimes reflect the trackbar value
             if (_orientation == Orientation.Vertical)
@@ -859,19 +859,19 @@ public partial class TrackBar : Control, ISupportInitialize
         }
 
         Debug.Assert(_autoDrawTicks == ShouldAutoDrawTicks());
-        PInvokeCore.SendMessage(this, PInvoke.TBM_SETRANGEMIN, (WPARAM)(BOOL)false, (LPARAM)_minimum);
-        PInvokeCore.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)false, (LPARAM)_maximum);
+        PInvoke.SendMessage(this, PInvoke.TBM_SETRANGEMIN, (WPARAM)(BOOL)false, (LPARAM)_minimum);
+        PInvoke.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)false, (LPARAM)_maximum);
         if (_autoDrawTicks)
         {
-            PInvokeCore.SendMessage(this, PInvoke.TBM_SETTICFREQ, (WPARAM)_tickFrequency);
+            PInvoke.SendMessage(this, PInvoke.TBM_SETTICFREQ, (WPARAM)_tickFrequency);
         }
         else
         {
             DrawTicksManually();
         }
 
-        PInvokeCore.SendMessage(this, PInvoke.TBM_SETPAGESIZE, (WPARAM)0, (LPARAM)_largeChange);
-        PInvokeCore.SendMessage(this, PInvoke.TBM_SETLINESIZE, (WPARAM)0, (LPARAM)_smallChange);
+        PInvoke.SendMessage(this, PInvoke.TBM_SETPAGESIZE, (WPARAM)0, (LPARAM)_largeChange);
+        PInvoke.SendMessage(this, PInvoke.TBM_SETLINESIZE, (WPARAM)0, (LPARAM)_smallChange);
         SetTrackBarPosition();
         AdjustSize();
     }
@@ -1058,8 +1058,8 @@ public partial class TrackBar : Control, ISupportInitialize
             // will always be false.
             if (IsHandleCreated && !recreateHandle)
             {
-                PInvokeCore.SendMessage(this, PInvoke.TBM_SETRANGEMIN, (WPARAM)(BOOL)false, (LPARAM)_minimum);
-                PInvokeCore.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)true, (LPARAM)_maximum);
+                PInvoke.SendMessage(this, PInvoke.TBM_SETRANGEMIN, (WPARAM)(BOOL)false, (LPARAM)_minimum);
+                PInvoke.SendMessage(this, PInvoke.TBM_SETRANGEMAX, (WPARAM)(BOOL)true, (LPARAM)_maximum);
                 if (!_autoDrawTicks)
                 {
                     DrawTicksManually();
@@ -1117,7 +1117,7 @@ public partial class TrackBar : Control, ISupportInitialize
                 reflectedValue = Minimum + Maximum - _value;
             }
 
-            PInvokeCore.SendMessage(this, PInvoke.TBM_SETPOS, (WPARAM)(BOOL)true, (LPARAM)reflectedValue);
+            PInvoke.SendMessage(this, PInvoke.TBM_SETPOS, (WPARAM)(BOOL)true, (LPARAM)reflectedValue);
         }
     }
 

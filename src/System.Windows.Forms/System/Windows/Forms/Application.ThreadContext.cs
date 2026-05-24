@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
@@ -83,7 +83,7 @@ public sealed partial class Application
 
             _handle = target;
 
-            _id = PInvokeCore.GetCurrentThreadId();
+            _id = PInvoke.GetCurrentThreadId();
             _messageLoopCount = 0;
             t_currentThreadContext = this;
             s_contextHash[_id] = this;
@@ -272,7 +272,7 @@ public sealed partial class Application
             try
             {
                 // We can only clean up if we're being called on our own thread.
-                if (PInvokeCore.GetCurrentThreadId() != _id)
+                if (PInvoke.GetCurrentThreadId() != _id)
                 {
                     Debug.Assert(!disposing, "Shouldn't be getting dispose from another thread.");
                     return;
@@ -289,7 +289,7 @@ public sealed partial class Application
                     if (_oleInitialized && !_externalOleInit)
                     {
                         _oleInitialized = false;
-                        PInvokeCore.OleUninitialize();
+                        PInvoke.OleUninitialize();
                     }
                 }
             }
@@ -352,8 +352,8 @@ public sealed partial class Application
                 // It is important that we just call DestroyHandle here
                 // and do not call Dispose. Otherwise we would destroy
                 // controls that are living on the parking window.
-                uint hwndThread = PInvokeCore.GetWindowThreadProcessId(_parkingWindows[0], out _);
-                uint currentThread = PInvokeCore.GetCurrentThreadId();
+                uint hwndThread = PInvoke.GetWindowThreadProcessId(_parkingWindows[0], out _);
+                uint currentThread = PInvoke.GetCurrentThreadId();
 
                 for (int i = 0; i < _parkingWindows.Count; i++)
                 {
@@ -497,7 +497,7 @@ public sealed partial class Application
                 return context;
             }
 
-            if (id == PInvokeCore.GetCurrentThreadId())
+            if (id == PInvoke.GetCurrentThreadId())
             {
                 context = Create();
                 Debug.Assert(context._id == id);
@@ -558,7 +558,7 @@ public sealed partial class Application
         {
             if (!_oleInitialized)
             {
-                HRESULT hr = PInvokeCore.OleInitialize(pvReserved: (void*)null);
+                HRESULT hr = PInvoke.OleInitialize(pvReserved: (void*)null);
 
                 _oleInitialized = true;
                 if (hr == HRESULT.RPC_E_CHANGED_MODE)
@@ -651,7 +651,7 @@ public sealed partial class Application
             // idle, at which point we can tear down.
             //
             // We can't follow the KB article exactly, because we don't have an HWND to PostMessage to.
-            PInvoke.PostThreadMessage(_id, PInvokeCore.WM_QUIT, default, default);
+            PInvoke.PostThreadMessage(_id, PInvoke.WM_QUIT, default, default);
             PostedQuit = true;
         }
 
@@ -747,7 +747,7 @@ public sealed partial class Application
                 // process.
                 if (CurrentForm is not null)
                 {
-                    hwndOwner = (HWND)PInvokeCore.GetWindowLong(CurrentForm, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
+                    hwndOwner = (HWND)PInvoke.GetWindowLong(CurrentForm, WINDOW_LONG_PTR_INDEX.GWL_HWNDPARENT);
                     if (!hwndOwner.IsNull)
                     {
                         if (PInvoke.IsWindowEnabled(hwndOwner))
@@ -916,7 +916,7 @@ public sealed partial class Application
                 return false;
             }
 
-            if (msg.message == PInvokeCore.WM_CHAR)
+            if (msg.message == PInvoke.WM_CHAR)
             {
                 // 1 = extended keyboard, 46 = scan code
                 int breakLParamMask = 0x1460000;

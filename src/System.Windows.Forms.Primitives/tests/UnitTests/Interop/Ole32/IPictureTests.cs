@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -56,13 +56,13 @@ public unsafe class IPictureTests
         using VARIANT variant = default;
 
         IDispatch* dispatch = (IDispatch*)picture.Value;
-        dispatch->TryGetProperty(PInvokeCore.DISPID_PICT_TYPE, &variant).ThrowOnFailure();
+        dispatch->TryGetProperty(PInvoke.DISPID_PICT_TYPE, &variant).ThrowOnFailure();
         Assert.Equal(PICTYPE.PICTYPE_BITMAP, (PICTYPE)variant.data.iVal);
 
-        dispatch->TryGetProperty(PInvokeCore.DISPID_PICT_HEIGHT, &variant).ThrowOnFailure();
+        dispatch->TryGetProperty(PInvoke.DISPID_PICT_HEIGHT, &variant).ThrowOnFailure();
         Assert.Equal(bitmap.Size.Height, GdiHelper.HimetricToPixelY((int)variant.data.uintVal));
 
-        dispatch->TryGetProperty(PInvokeCore.DISPID_PICT_WIDTH, &variant).ThrowOnFailure();
+        dispatch->TryGetProperty(PInvoke.DISPID_PICT_WIDTH, &variant).ThrowOnFailure();
         Assert.Equal(bitmap.Size.Width, GdiHelper.HimetricToPixelX((int)variant.data.uintVal));
     }
 

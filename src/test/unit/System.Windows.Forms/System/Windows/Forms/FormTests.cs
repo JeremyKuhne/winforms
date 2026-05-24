@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -196,14 +196,14 @@ public partial class FormTests
         using Form form = new();
         Assert.True(form.Handle != IntPtr.Zero);
 
-        HICON hSmallIcon = (HICON)PInvokeCore.SendMessage(form, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        HICON hSmallIcon = (HICON)PInvoke.SendMessage(form, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
         Assert.False(hSmallIcon.IsNull);
 
-        HICON hLargeIcon = (HICON)PInvokeCore.SendMessage(form, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
+        HICON hLargeIcon = (HICON)PInvoke.SendMessage(form, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
         Assert.False(hLargeIcon.IsNull);
 
         // normal form doesn't have WS_EX.DLGMODALFRAME set, and show icon
-        WINDOW_EX_STYLE extendedStyle = (WINDOW_EX_STYLE)PInvokeCore.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        WINDOW_EX_STYLE extendedStyle = (WINDOW_EX_STYLE)PInvoke.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
         Assert.False(extendedStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME));
     }
 
@@ -988,7 +988,7 @@ public partial class FormTests
         form.Location = new Point(10, 11);
         form.Size = new Size(200, 210);
 
-        PInvokeCore.SendMessage(form, PInvokeCore.WM_SYSCOMMAND, (WPARAM)PInvoke.SC_MAXIMIZE);
+        PInvoke.SendMessage(form, PInvoke.WM_SYSCOMMAND, (WPARAM)PInvoke.SC_MAXIMIZE);
 
         form.Location = new Point(20, 21);
         form.Size = new Size(300, 310);
@@ -997,7 +997,7 @@ public partial class FormTests
         Assert.NotEqual(new Point(20, 21), form.Location);
         Assert.NotEqual(new Size(300, 310), form.Size);
 
-        PInvokeCore.SendMessage(form, PInvokeCore.WM_SYSCOMMAND, (WPARAM)PInvoke.SC_RESTORE);
+        PInvoke.SendMessage(form, PInvoke.WM_SYSCOMMAND, (WPARAM)PInvoke.SC_RESTORE);
 
         Assert.Equal(new Point(20, 21), form.Location);
         Assert.Equal(new Size(300, 310), form.Size);
@@ -1079,8 +1079,8 @@ public partial class FormTests
 
         form.ShowIcon = showIcon;
 
-        HICON hSmallIcon = (HICON)PInvokeCore.SendMessage(form, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
-        HICON hLargeIcon = (HICON)PInvokeCore.SendMessage(form, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
+        HICON hSmallIcon = (HICON)PInvoke.SendMessage(form, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        HICON hLargeIcon = (HICON)PInvoke.SendMessage(form, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
         Assert.Equal(expectedIconNull, hSmallIcon.IsNull);
         Assert.Equal(expectedIconNull, hLargeIcon.IsNull);
     }
@@ -1091,13 +1091,13 @@ public partial class FormTests
         using Form form = new();
         Assert.True(form.Handle != IntPtr.Zero);
 
-        WINDOW_EX_STYLE extendedStyle = unchecked((WINDOW_EX_STYLE)(long)PInvokeCore.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE));
+        WINDOW_EX_STYLE extendedStyle = unchecked((WINDOW_EX_STYLE)(long)PInvoke.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE));
         Assert.False(extendedStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME));
 
         form.ShowIcon = false;
 
         // hiding icon sets WS_EX.DLGMODALFRAME
-        extendedStyle = unchecked((WINDOW_EX_STYLE)(long)PInvokeCore.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE));
+        extendedStyle = unchecked((WINDOW_EX_STYLE)(long)PInvoke.GetWindowLong(form, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE));
         Assert.True(extendedStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_DLGMODALFRAME));
     }
 
@@ -1280,23 +1280,23 @@ public partial class FormTests
         control.Show();
 
         control.ShowIcon = false;
-        HICON hSmallIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        HICON hSmallIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
         Assert.True(hSmallIcon.IsNull);
-        HICON hLargeIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
+        HICON hLargeIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
         Assert.True(hLargeIcon.IsNull);
 
         control.WindowState = FormWindowState.Maximized;
         control.ShowIcon = false;
-        hSmallIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        hSmallIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
         Assert.True(hSmallIcon.IsNull);
-        hLargeIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
+        hLargeIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
         Assert.True(hLargeIcon.IsNull);
         Assert.False(menuStrip.Items[0].Visible);
 
         control.ShowIcon = true;
-        hSmallIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
+        hSmallIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_SMALL);
         Assert.False(hSmallIcon.IsNull);
-        hLargeIcon = (HICON)PInvokeCore.SendMessage(control, PInvokeCore.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
+        hLargeIcon = (HICON)PInvoke.SendMessage(control, PInvoke.WM_GETICON, (WPARAM)PInvoke.ICON_BIG);
         Assert.False(hLargeIcon.IsNull);
         Assert.True(menuStrip.Items[0].Visible);
     }
@@ -2743,7 +2743,7 @@ public partial class FormTests
     public void Form_DoesNot_PreventShutDown()
     {
         using SubForm form = new();
-        var message = Message.Create(HWND.Null, PInvokeCore.WM_QUERYENDSESSION, wparam: default, lparam: default);
+        var message = Message.Create(HWND.Null, PInvoke.WM_QUERYENDSESSION, wparam: default, lparam: default);
         form.WndProc(ref message);
         Assert.True((BOOL)message.ResultInternal);
     }

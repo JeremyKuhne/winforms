@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -23,25 +23,25 @@ internal unsafe ref struct RegionScope
     public HRGN Region { get; private set; }
 
     /// <summary>
-    ///  Creates a region with the given rectangle via <see cref="PInvokeCore.CreateRectRgn(int, int, int, int)"/>.
+    ///  Creates a region with the given rectangle via <see cref="PInvoke.CreateRectRgn(int, int, int, int)"/>.
     /// </summary>
     public RegionScope(Rectangle rectangle) =>
-        Region = PInvokeCore.CreateRectRgn(rectangle.X, rectangle.Y, rectangle.Right, rectangle.Bottom);
+        Region = PInvoke.CreateRectRgn(rectangle.X, rectangle.Y, rectangle.Right, rectangle.Bottom);
 
     /// <summary>
-    ///  Creates a region with the given rectangle via <see cref="PInvokeCore.CreateRectRgn(int, int, int, int)"/>.
+    ///  Creates a region with the given rectangle via <see cref="PInvoke.CreateRectRgn(int, int, int, int)"/>.
     /// </summary>
     public RegionScope(int x1, int y1, int x2, int y2) =>
-        Region = PInvokeCore.CreateRectRgn(x1, y1, x2, y2);
+        Region = PInvoke.CreateRectRgn(x1, y1, x2, y2);
 
     /// <summary>
-    ///  Creates a clipping region copy via <see cref="PInvokeCore.GetClipRgn(HDC, HRGN)"/> for the given device context.
+    ///  Creates a clipping region copy via <see cref="PInvoke.GetClipRgn(HDC, HRGN)"/> for the given device context.
     /// </summary>
     /// <param name="hdc">Handle to a device context to copy the clipping region from.</param>
     public RegionScope(HDC hdc)
     {
-        HRGN region = PInvokeCore.CreateRectRgn(0, 0, 0, 0);
-        int result = PInvokeCore.GetClipRgn(hdc, region);
+        HRGN region = PInvoke.CreateRectRgn(0, 0, 0, 0);
+        int result = PInvoke.GetClipRgn(hdc, region);
         Debug.Assert(result != -1, "GetClipRgn failed");
 
         if (result == 1)
@@ -51,7 +51,7 @@ internal unsafe ref struct RegionScope
         else
         {
             // No region, delete our temporary region
-            PInvokeCore.DeleteObject(region);
+            PInvoke.DeleteObject(region);
             Region = default;
         }
     }
@@ -85,7 +85,7 @@ internal unsafe ref struct RegionScope
     {
         if (!IsNull)
         {
-            PInvokeCore.DeleteObject(Region);
+            PInvoke.DeleteObject(Region);
         }
 
 #if DEBUG

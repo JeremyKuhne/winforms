@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Windows.Win32.System.Com;
@@ -30,7 +30,7 @@ internal static partial class StreamExtensions
 
         if (!hglobal.IsNull)
         {
-            HGLOBAL freed = PInvokeCore.GlobalFree(hglobal);
+            HGLOBAL freed = PInvoke.GlobalFree(hglobal);
             if (!freed.IsNull)
             {
                 return HRESULT.E_OUTOFMEMORY;
@@ -45,13 +45,13 @@ internal static partial class StreamExtensions
             return HRESULT.S_OK;
         }
 
-        hglobal = PInvokeCore.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE, (uint)size);
+        hglobal = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE, (uint)size);
         if (hglobal.IsNull)
         {
             return HRESULT.E_OUTOFMEMORY;
         }
 
-        void* buffer = PInvokeCore.GlobalLock(hglobal);
+        void* buffer = PInvoke.GlobalLock(hglobal);
         if (buffer is null)
         {
             return HRESULT.E_OUTOFMEMORY;
@@ -65,7 +65,7 @@ internal static partial class StreamExtensions
         }
         finally
         {
-            PInvokeCore.GlobalUnlock(hglobal);
+            PInvoke.GlobalUnlock(hglobal);
         }
 
         return HRESULT.S_OK;

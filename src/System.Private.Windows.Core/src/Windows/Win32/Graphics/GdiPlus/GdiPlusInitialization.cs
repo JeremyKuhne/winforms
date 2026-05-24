@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32.Graphics.GdiPlus;
@@ -19,7 +19,7 @@ internal static partial class GdiPlusInitialization
 
         nuint token;
         GdiplusStartupInputEx startup = GdiplusStartupInputEx.GetDefault();
-        PInvokeCore.GdiplusStartup(&token, (GdiplusStartupInput*)&startup, null).ThrowIfFailed();
+        PInvoke.GdiplusStartup(&token, (GdiplusStartupInput*)&startup, null).ThrowIfFailed();
         return token;
     }
 
@@ -28,7 +28,7 @@ internal static partial class GdiPlusInitialization
     /// </summary>
     /// <remarks>
     ///  <para>
-    ///   This should be called anywhere you make <see cref="PInvokeCore"/> calls to GDI+ where you don't
+    ///   This should be called anywhere you make <see cref="PInvoke"/> calls to GDI+ where you don't
     ///   already have a GDI+ handle. In System.Drawing.Common, this is done in the PInvoke static constructor
     ///   so it is not necessary for methods defined there.
     ///  </para>

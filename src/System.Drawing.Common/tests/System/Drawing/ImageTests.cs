@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing.Imaging;
@@ -670,16 +670,16 @@ public class ImageTests
     public unsafe void FromStream_NativeMetafile()
     {
         // Create a memory metafile from the screen DC
-        HDC hdc = PInvokeCore.CreateEnhMetaFile(HDC.Null, default, null, default(PCWSTR));
+        HDC hdc = PInvoke.CreateEnhMetaFile(HDC.Null, default, null, default(PCWSTR));
         using CreatePenScope pen = new(Color.Red);
         using SelectObjectScope penScope = new(hdc, pen);
-        PInvokeCore.Rectangle(hdc, 10, 10, 100, 100);
-        HENHMETAFILE hemf = PInvokeCore.CloseEnhMetaFile(hdc);
+        PInvoke.Rectangle(hdc, 10, 10, 100, 100);
+        HENHMETAFILE hemf = PInvoke.CloseEnhMetaFile(hdc);
 
-        uint length = PInvokeCore.GetEnhMetaFileBits(hemf, 0, null);
+        uint length = PInvoke.GetEnhMetaFileBits(hemf, 0, null);
         byte[] buffer = new byte[length];
-        length = PInvokeCore.GetEnhMetaFileBits(hemf, buffer);
-        PInvokeCore.DeleteEnhMetaFile(hemf);
+        length = PInvoke.GetEnhMetaFileBits(hemf, buffer);
+        PInvoke.DeleteEnhMetaFile(hemf);
 
         MemoryStream stream = new(buffer);
         using Image image = Image.FromStream(stream);

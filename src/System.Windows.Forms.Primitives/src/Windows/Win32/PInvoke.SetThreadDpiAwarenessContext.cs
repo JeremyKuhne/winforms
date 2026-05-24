@@ -1,30 +1,33 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Windows.Win32;
 
-internal static partial class PInvoke
+internal static partial class PrimitivesPInvokeExtensions
 {
-    /// <summary>
-    ///  Sets the thread DPI awareness context.
-    /// </summary>
-    /// <returns>
-    ///  The old thread DPI awareness context if the API is available in this version of OS.
-    ///  Otherwise, <see cref="DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT"/>.
-    /// </returns>
-    public static DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContextInternal(DPI_AWARENESS_CONTEXT dpiContext)
+    extension(PInvoke)
     {
-        if (OsVersion.IsWindows10_1607OrGreater())
+        /// <summary>
+        ///  Sets the thread DPI awareness context.
+        /// </summary>
+        /// <returns>
+        ///  The old thread DPI awareness context if the API is available in this version of OS.
+        ///  Otherwise, <see cref="DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT"/>.
+        /// </returns>
+        public static DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContextInternal(DPI_AWARENESS_CONTEXT dpiContext)
         {
-            if (dpiContext == DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT)
+            if (OsVersion.IsWindows10_1607OrGreater())
             {
-                throw new ArgumentException(dpiContext.ToString(), nameof(dpiContext));
+                if (dpiContext == DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT)
+                {
+                    throw new ArgumentException(dpiContext.ToString(), nameof(dpiContext));
+                }
+
+                return PInvoke.SetThreadDpiAwarenessContext(dpiContext);
             }
 
-            return SetThreadDpiAwarenessContext(dpiContext);
+            // legacy OS that does not have this API available.
+            return DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT;
         }
-
-        // legacy OS that does not have this API available.
-        return DPI_AWARENESS_CONTEXT.UNSPECIFIED_DPI_AWARENESS_CONTEXT;
     }
 }

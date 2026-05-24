@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Drawing;
@@ -72,7 +72,7 @@ public class MonthCalendarTests : ControlTestBase
                 stSelEnd = date,
             };
 
-            PInvokeCore.SendMessage(calendar, MessageId.WM_REFLECT_NOTIFY, 0, ref lParam);
+            PInvoke.SendMessage(calendar, MessageId.WM_REFLECT_NOTIFY, 0, ref lParam);
         });
     }
 
@@ -165,7 +165,7 @@ public class MonthCalendarTests : ControlTestBase
                 dwFlags = MCGRIDINFO_FLAGS.MCGIF_RECT,
             };
 
-            Assert.NotEqual(default, PInvokeCore.SendMessage(control, PInvoke.MCM_GETCALENDARGRIDINFO, default, ref result));
+            Assert.NotEqual(default, PInvoke.SendMessage(control, PInvoke.MCM_GETCALENDARGRIDINFO, default, ref result));
             return result.rc;
         }
     }
