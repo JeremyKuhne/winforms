@@ -3659,6 +3659,10 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         catch
         {
         }
+        finally
+        {
+            ifont->Release();
+        }
 
         return null;
     }
@@ -3734,8 +3738,9 @@ public abstract unsafe partial class AxHost : Control, ISupportInitialize, ICust
         {
             FONTDESC fontdesc = GetFONTDESCFromFont(font);
             fontdesc.lpstrName = n;
-            PInvoke.OleCreateFontIndirect(in fontdesc, in IID.GetRef<IFontDisp>(), out void* lplpvObj).ThrowOnFailure();
-            return ComHelpers.GetObjectForIUnknown((IFontDisp*)lplpvObj);
+            using ComScope<IFontDisp> lplpvObj = new(null);
+            PInvoke.OleCreateFontIndirect(&fontdesc, IID.Get<IFontDisp>(), lplpvObj).ThrowOnFailure();
+            return ComHelpers.GetObjectForIUnknown(lplpvObj);
         }
     }
 
